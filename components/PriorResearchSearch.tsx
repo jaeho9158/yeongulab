@@ -24,12 +24,8 @@ export function PriorResearchSearch() {
     if (!q) return;
     setStatus("loading");
     try {
-      const url = new URL(
-        "https://api.semanticscholar.org/graph/v1/paper/search",
-      );
+      const url = new URL("/api/search-papers", window.location.origin);
       url.searchParams.set("query", q);
-      url.searchParams.set("limit", "8");
-      url.searchParams.set("fields", "title,abstract,year,authors,url");
       const res = await fetch(url.toString());
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
