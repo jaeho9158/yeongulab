@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllStages, getStageBySlug } from "@/lib/guide";
-import { StageStamp } from "@/components/StageStamp";
 import { AdSlot } from "@/components/AdSlot";
 
 export function generateStaticParams() {
@@ -43,41 +42,41 @@ export default async function GuideStagePage({
     <article className="mx-auto max-w-3xl px-4 py-16">
       <Link
         href="/guide"
-        className="font-label text-xs uppercase tracking-widest text-ink-soft hover:text-stamp"
+        className="text-sm text-ink-soft hover:text-ink"
       >
         ← 전체 가이드
       </Link>
 
-      <div className="mt-6 flex items-start gap-5">
-        <StageStamp order={stage.order} weeks={stage.estimatedWeeks} />
+      <div className="mt-6 flex items-center gap-4">
+        <span className="step-badge">
+          {String(stage.order).padStart(2, "0")}
+        </span>
         <div>
-          <p className="font-label text-xs uppercase tracking-widest text-ink-soft">
-            {stage.order} / {stages.length}단계
+          <p className="text-sm text-ink-soft">
+            {stage.order} / {stages.length}단계 · {stage.estimatedWeeks}
           </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink">
+          <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-ink">
             {stage.title}
           </h1>
         </div>
       </div>
 
-      <div className="notebook-rule mt-10 rounded-sm border border-rule-strong px-6 py-6 sm:px-10 sm:py-8">
-        <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:font-bold prose-headings:text-ink prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:text-ink prose-a:text-stamp prose-a:no-underline hover:prose-a:underline">
-          <MDXRemote
-            source={stage.content}
-            options={{
-              mdxOptions: { remarkPlugins: [remarkGfm] },
-            }}
-          />
-        </div>
+      <div className="prose prose-neutral mt-10 max-w-none prose-headings:font-bold prose-headings:text-ink prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:text-ink prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-table:text-sm prose-th:text-ink prose-td:text-ink-soft">
+        <MDXRemote
+          source={stage.content}
+          options={{
+            mdxOptions: { remarkPlugins: [remarkGfm] },
+          }}
+        />
       </div>
 
       <AdSlot label="본문 하단 광고" />
 
-      <div className="mt-10 flex items-center justify-between gap-4 border-t border-rule-strong/60 pt-8">
+      <div className="mt-10 flex items-center justify-between gap-4 border-t border-line pt-8">
         {prev ? (
           <Link
             href={`/guide/${prev.slug}`}
-            className="font-label text-xs uppercase tracking-widest text-ink-soft hover:text-stamp"
+            className="text-sm text-ink-soft hover:text-ink"
           >
             ← {prev.order}. {prev.title}
           </Link>
@@ -87,7 +86,7 @@ export default async function GuideStagePage({
         {next && (
           <Link
             href={`/guide/${next.slug}`}
-            className="rounded-full bg-ink px-6 py-3 font-label text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-stamp"
+            className="rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition hover:opacity-85"
           >
             다음: {next.title} →
           </Link>
