@@ -5,6 +5,10 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllStages, getStageBySlug } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
+import { ChecklistCard } from "@/components/ChecklistCard";
+import { ReflectionBox } from "@/components/ReflectionBox";
+import { PriorResearchSearch } from "@/components/PriorResearchSearch";
+import { ObjectiveTemplateGenerator } from "@/components/ObjectiveTemplateGenerator";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -70,7 +74,15 @@ export default async function GuideStagePage({
         />
       </div>
 
-      <AdSlot label="본문 하단 광고" />
+      {stage.slug === "prior-research" && <PriorResearchSearch />}
+      {stage.slug === "methodology" && <ObjectiveTemplateGenerator />}
+
+      <ChecklistCard slug={stage.slug} items={stage.checklist} />
+      <ReflectionBox slug={stage.slug} questions={stage.selfCheck} />
+
+      <div className="xl:hidden">
+        <AdSlot label="본문 하단 광고" />
+      </div>
 
       <div className="mt-10 flex items-center justify-between gap-4 border-t border-line pt-8">
         {prev ? (

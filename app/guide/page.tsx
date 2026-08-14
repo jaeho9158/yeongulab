@@ -55,7 +55,9 @@ export default function GuideIndexPage() {
         ))}
       </div>
 
-      <AdSlot label="가이드 목록 하단 광고" />
+      <div className="xl:hidden">
+        <AdSlot label="가이드 목록 하단 광고" />
+      </div>
     </div>
   );
 }

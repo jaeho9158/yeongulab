@@ -11,6 +11,8 @@ export type GuideStage = {
   description: string;
   estimatedWeeks: string;
   keywords: string[];
+  checklist: string[];
+  selfCheck: string[];
   content: string;
 };
 
@@ -24,6 +26,8 @@ function readStageFile(filename: string): GuideStage {
     description: data.description,
     estimatedWeeks: data.estimatedWeeks,
     keywords: data.keywords ?? [],
+    checklist: data.checklist ?? [],
+    selfCheck: data.selfCheck ?? [],
     content,
   };
 }
