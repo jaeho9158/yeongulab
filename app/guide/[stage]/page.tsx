@@ -42,7 +42,7 @@ export default async function GuideStagePage({
     <article className="mx-auto max-w-3xl px-4 py-16">
       <Link
         href="/guide"
-        className="text-sm text-ink-soft hover:text-ink"
+        className="-my-3 -ml-1 flex w-fit items-center py-3 pr-2 pl-1 text-sm text-ink-soft hover:text-ink"
       >
         ← 전체 가이드
       </Link>
@@ -76,7 +76,7 @@ export default async function GuideStagePage({
         {prev ? (
           <Link
             href={`/guide/${prev.slug}`}
-            className="text-sm text-ink-soft hover:text-ink"
+            className="-my-3 -ml-1 flex items-center py-3 pr-2 pl-1 text-sm text-ink-soft hover:text-ink"
           >
             ← {prev.order}. {prev.title}
           </Link>
