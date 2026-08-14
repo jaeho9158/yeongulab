@@ -1,44 +1,144 @@
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
+import { StageStamp } from "@/components/StageStamp";
+
+const STUCK_POINTS = [
+  {
+    title: "뭘 연구해야 할지 모르겠다",
+    body: "관심 가는 건 있는데, 그게 '연구'가 되는 건지 확신이 안 서는 상태.",
+  },
+  {
+    title: "순서를 모른다",
+    body: "선행연구부터 봐야 하는지, 일단 데이터부터 모아야 하는지 감이 안 옴.",
+  },
+  {
+    title: "자료가 흩어진다",
+    body: "메모, 논문 캡처, 데이터 파일이 여기저기 흩어져서 나중에 못 찾음.",
+  },
+  {
+    title: "봐줄 사람이 없다",
+    body: "막힌 부분을 물어볼 곳이 없어서 혼자 판단하고, 혼자 불안해함.",
+  },
+];
 
 export default function Home() {
   const stages = getAllStages();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="text-3xl font-bold tracking-tight">
-        연구, 어디서부터 시작해야 할지 모르겠다면
-      </h1>
-      <p className="mt-4 text-black/70 dark:text-white/70">
-        청소년 연구자를 위한 무료 로드맵입니다. 주제 선정부터 논문 투고까지
-        6단계로 나눠, 각 단계에서 무엇을 하면 되는지 안내합니다.
-      </p>
+    <div>
+      {/* Hero */}
+      <section className="mx-auto max-w-3xl px-4 pt-16 pb-14">
+        <div className="flex items-start gap-6">
+          <StageStamp order={1} weeks="START" animate />
+          <div>
+            <p className="font-label text-xs uppercase tracking-widest text-stamp">
+              무료 · 로그인 불필요 · No.001
+            </p>
+            <h1 className="mt-2 font-display text-4xl leading-[1.15] font-bold tracking-tight text-ink sm:text-5xl">
+              연구는 시작이 반이 아니라,
+              <br />
+              <span className="bg-accent/50 px-1">순서</span>가 반이다.
+            </h1>
+          </div>
+        </div>
 
-      <Link
-        href="/guide"
-        className="mt-8 inline-block rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-      >
-        6단계 가이드 보기
-      </Link>
+        <p className="mt-6 max-w-xl font-display text-lg leading-relaxed text-ink-soft">
+          주제를 정하는 법도, 선행연구를 찾는 법도 학교에서 가르쳐주지
+          않습니다. 연구랩 가이드는 청소년 연구자가 자주 멈추는 지점마다
+          체크리스트와 자가검증 질문을 놔뒀습니다. 순서대로 따라가도 되고,
+          지금 막힌 단계만 펼쳐봐도 됩니다.
+        </p>
 
-      <ol className="mt-12 space-y-3">
-        {stages.map((stage) => (
-          <li key={stage.slug}>
-            <Link
-              href={`/guide/${stage.slug}`}
-              className="flex items-baseline gap-3 rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
-            >
-              <span className="text-xs text-black/40 dark:text-white/40">
-                {String(stage.order).padStart(2, "0")}
-              </span>
-              <span className="font-medium">{stage.title}</span>
-              <span className="ml-auto text-xs text-black/40 dark:text-white/40">
-                {stage.estimatedWeeks}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ol>
+        <Link
+          href="/guide"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-label text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-stamp"
+        >
+          6단계 가이드 펼치기 →
+        </Link>
+      </section>
+
+      {/* 막히는 지점 */}
+      <section className="border-t border-rule-strong/60 bg-paper-card/60">
+        <div className="mx-auto max-w-3xl px-4 py-14">
+          <p className="font-label text-xs uppercase tracking-widest text-ink-soft">
+            자주 멈추는 지점
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-bold text-ink">
+            이 중 하나라도 해당된다면
+          </h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {STUCK_POINTS.map((point) => (
+              <div
+                key={point.title}
+                className="index-card px-5 pt-6 pb-5"
+              >
+                <h3 className="font-display text-base font-bold text-ink">
+                  {point.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                  {point.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6단계 인덱스카드 레일 */}
+      <section className="mx-auto max-w-3xl px-4 py-16">
+        <p className="font-label text-xs uppercase tracking-widest text-ink-soft">
+          연구 로그북 · 6단계
+        </p>
+        <h2 className="mt-2 font-display text-2xl font-bold text-ink">
+          주제 선정부터 저널 투고까지
+        </h2>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+          각 단계는 체크리스트와 자가검증 질문으로 끝납니다. 단계를
+          건너뛰거나 보류해도 괜찮습니다 — 이건 진도표가 아니라 참고용
+          로그북입니다.
+        </p>
+
+        <ol className="mt-8 space-y-3">
+          {stages.map((stage) => (
+            <li key={stage.slug}>
+              <Link
+                href={`/guide/${stage.slug}`}
+                className="index-card flex items-center gap-4 px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-[2px_3px_0_0_var(--rule-strong)]"
+              >
+                <span className="font-label w-6 text-sm text-ink-soft">
+                  {String(stage.order).padStart(2, "0")}
+                </span>
+                <span className="flex-1">
+                  <span className="block font-display font-bold text-ink">
+                    {stage.title}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-ink-soft">
+                    {stage.description}
+                  </span>
+                </span>
+                <span className="font-label shrink-0 rounded-full border border-rule-strong px-2.5 py-1 text-[10px] whitespace-nowrap text-ink-soft">
+                  {stage.estimatedWeeks}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 클로징 노트 */}
+      <section className="border-t border-rule-strong/60">
+        <div className="mx-auto max-w-3xl px-4 py-14">
+          <div className="sticky-note max-w-md px-6 py-5">
+            <p className="font-label text-[10px] uppercase tracking-widest text-accent-ink">
+              연구자 노트
+            </p>
+            <p className="mt-2 font-display text-base leading-relaxed text-ink">
+              완료율이나 총 소요기간은 일부러 보여주지 않습니다. 압박감보다
+              지금 할 수 있는 한 걸음이 더 중요하니까요.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

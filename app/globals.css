@@ -2,25 +2,156 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 연구노트 팔레트 */
+  --paper: #f0f2ed;
+  --paper-card: #fbfbf8;
+  --ink: #1b2b23;
+  --ink-soft: #44544a;
+  --rule: #c9d2c4;
+  --rule-strong: #9aab97;
+  --accent: #e8a33d; /* 형광펜 앰버 */
+  --accent-ink: #7a4d10;
+  --stamp: #b23a2e; /* 도장 레드 */
+  --stamp-ink: #ffffff;
+
+  --font-display: Georgia, "Iowan Old Style", "Noto Serif KR", "Nanum Myeongjo",
+    serif;
+  --font-body: system-ui, -apple-system, "Malgun Gothic", "Apple SD Gothic Neo",
+    sans-serif;
+  --font-label: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono",
+    "Noto Sans Mono", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-paper: var(--paper);
+  --color-paper-card: var(--paper-card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-stamp: var(--stamp);
+  --color-stamp-ink: var(--stamp-ink);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-label: var(--font-label);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #131b16;
+    --paper-card: #1a241c;
+    --ink: #e9efe6;
+    --ink-soft: #aebcaa;
+    --rule: #33402f;
+    --rule-strong: #4a5945;
+    --accent: #f0b256;
+    --accent-ink: #2a1c05;
+    --stamp: #e2665a;
+    --stamp-ink: #1a0e0c;
   }
 }
 
+* {
+  border-color: var(--rule);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Malgun Gothic", Arial, Helvetica,
-    sans-serif;
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--rule) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--stamp);
+  outline-offset: 2px;
+}
+
+/* 도장(스탬프) 배지 — 시그니처 요소 */
+.stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  font-family: var(--font-label);
+  transform: rotate(-6deg);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.stamp::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 9999px;
+  border: 1px solid var(--stamp);
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stamp-animate {
+    animation: stamp-down 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  }
+}
+
+@keyframes stamp-down {
+  0% {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.6);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+}
+
+/* 인덱스카드 — 펀칭 홀 */
+.index-card {
+  position: relative;
+  background: var(--paper-card);
+  border: 1px solid var(--rule-strong);
+  border-radius: 0.25rem;
+}
+
+.index-card::before {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  left: 0.9rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+}
+
+/* 스티키노트 (자가검증 질문 박스) */
+.sticky-note {
+  background: color-mix(in srgb, var(--accent) 22%, var(--paper-card));
+  border: 1px solid var(--rule-strong);
+  transform: rotate(-0.6deg);
+  box-shadow: 2px 3px 0 0 var(--rule-strong);
+}
+
+/* 노트 줄 (본문 좌측 마진 룰) */
+.notebook-rule {
+  background-image: repeating-linear-gradient(
+    var(--paper-card),
+    var(--paper-card) 1.85rem,
+    var(--rule) 1.85rem,
+    var(--rule) calc(1.85rem + 1px)
+  );
 }
