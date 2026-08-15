@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
+import { PlanExport } from "@/components/PlanExport";
 
 export const metadata: Metadata = {
   title: "연구 6단계 가이드",
@@ -23,7 +24,11 @@ export default function GuideIndexPage() {
         건너뛰거나 보류해도 괜찮습니다.
       </p>
 
-      <div className="mt-10 space-y-4">
+      <div className="mt-10">
+        <PlanExport stages={stages} />
+      </div>
+
+      <div className="space-y-4">
         {stages.map((stage) => (
           <Link
             key={stage.slug}

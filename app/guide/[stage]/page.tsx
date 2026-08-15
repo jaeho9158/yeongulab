@@ -9,6 +9,11 @@ import { ChecklistCard } from "@/components/ChecklistCard";
 import { ReflectionBox } from "@/components/ReflectionBox";
 import { PriorResearchSearch } from "@/components/PriorResearchSearch";
 import { ObjectiveTemplateGenerator } from "@/components/ObjectiveTemplateGenerator";
+import { ResearchQuestionQuiz } from "@/components/ResearchQuestionQuiz";
+import { SampleSizeCalculator } from "@/components/SampleSizeCalculator";
+import { StatsCalculator } from "@/components/StatsCalculator";
+import { CitationFormatter } from "@/components/CitationFormatter";
+import { DeadlineTracker } from "@/components/DeadlineTracker";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -74,8 +79,17 @@ export default async function GuideStagePage({
         />
       </div>
 
+      {stage.slug === "topic" && <ResearchQuestionQuiz />}
       {stage.slug === "prior-research" && <PriorResearchSearch />}
       {stage.slug === "methodology" && <ObjectiveTemplateGenerator />}
+      {stage.slug === "data-collection" && <SampleSizeCalculator />}
+      {stage.slug === "writing" && (
+        <>
+          <StatsCalculator />
+          <CitationFormatter />
+        </>
+      )}
+      {stage.slug === "submission" && <DeadlineTracker />}
 
       <ChecklistCard slug={stage.slug} items={stage.checklist} />
       <ReflectionBox slug={stage.slug} questions={stage.selfCheck} />
