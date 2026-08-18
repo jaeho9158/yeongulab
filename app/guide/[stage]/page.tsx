@@ -20,6 +20,12 @@ import { SimpleChart } from "@/components/SimpleChart";
 import { ImradChecker } from "@/components/ImradChecker";
 import { ReferenceList } from "@/components/ReferenceList";
 import { TopicIdeaGenerator } from "@/components/TopicIdeaGenerator";
+import { PresentationQuestionBank } from "@/components/PresentationQuestionBank";
+import { SpeechTimer } from "@/components/SpeechTimer";
+import { SurveyBiasChecker } from "@/components/SurveyBiasChecker";
+import { RandomSampler } from "@/components/RandomSampler";
+import { LengthChecker } from "@/components/LengthChecker";
+import { FigureCaptionHelper } from "@/components/FigureCaptionHelper";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -103,18 +109,28 @@ export default async function GuideStagePage({
           <VariableTableBuilder />
         </>
       )}
-      {stage.slug === "data-collection" && <SampleSizeCalculator />}
+      {stage.slug === "data-collection" && (
+        <>
+          <SampleSizeCalculator />
+          <SurveyBiasChecker />
+          <RandomSampler />
+        </>
+      )}
       {stage.slug === "writing" && (
         <>
           <StatsCalculator />
           <SimpleChart />
+          <FigureCaptionHelper />
           <ImradChecker />
+          <LengthChecker />
           <CitationFormatter />
         </>
       )}
       {stage.slug === "submission" && (
         <>
           <DisclosureGenerator />
+          <PresentationQuestionBank />
+          <SpeechTimer />
           <DeadlineTracker />
         </>
       )}
