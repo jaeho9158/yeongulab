@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { addReference, formatAPA, formatIEEE } from "@/lib/citations";
 
 export function CitationFormatter() {
   const [authors, setAuthors] = useState("");
@@ -12,45 +13,29 @@ export function CitationFormatter() {
   const [pages, setPages] = useState("");
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState<"apa" | "ieee" | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  const hasInput = authors || title || source;
-
-  const apa = hasInput
-    ? [
-        authors && `${authors} `,
-        year && `(${year}). `,
-        title && `${title}. `,
-        source &&
-          `*${source}*${volume ? `, ${volume}` : ""}${issue ? `(${issue})` : ""}${pages ? `, ${pages}` : ""}. `,
-        url,
-      ]
-        .filter(Boolean)
-        .join("")
-    : "";
-
-  const ieee = hasInput
-    ? [
-        authors && `${authors}, `,
-        title && `"${title}," `,
-        source && `*${source}*, `,
-        volume && `vol. ${volume}, `,
-        issue && `no. ${issue}, `,
-        pages && `pp. ${pages}, `,
-        year && `${year}.`,
-      ]
-        .filter(Boolean)
-        .join("")
-    : "";
+  const hasInput = Boolean(authors || title || source);
+  const ref = { authors, year, title, source, volume, issue, pages, url };
+  const apa = hasInput ? formatAPA(ref) : "";
+  const ieee = hasInput ? formatIEEE(ref) : "";
 
   async function copy(text: string, which: "apa" | "ieee") {
     if (!text) return;
     try {
-      await navigator.clipboard.writeText(text.replace(/\*/g, ""));
+      await navigator.clipboard.writeText(text);
       setCopied(which);
       setTimeout(() => setCopied(null), 2000);
     } catch {
       // 클립보드 접근 실패 시 무시
     }
+  }
+
+  function saveToReferences() {
+    if (!hasInput) return;
+    addReference(ref);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   }
 
   return (
@@ -160,6 +145,13 @@ export function CitationFormatter() {
             </div>
             <p className="mt-1 text-sm text-ink">{ieee}</p>
           </div>
+          <button
+            type="button"
+            onClick={saveToReferences}
+            className="rounded-lg border border-line px-4 py-2 text-xs font-medium text-ink-soft transition hover:border-accent hover:text-ink"
+          >
+            {saved ? "내 레퍼런스에 저장됨" : "내 레퍼런스에 저장"}
+          </button>
         </div>
       )}
     </section>

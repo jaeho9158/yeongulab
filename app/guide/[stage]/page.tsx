@@ -14,6 +14,12 @@ import { SampleSizeCalculator } from "@/components/SampleSizeCalculator";
 import { StatsCalculator } from "@/components/StatsCalculator";
 import { CitationFormatter } from "@/components/CitationFormatter";
 import { DeadlineTracker } from "@/components/DeadlineTracker";
+import { VariableTableBuilder } from "@/components/VariableTableBuilder";
+import { DisclosureGenerator } from "@/components/DisclosureGenerator";
+import { SimpleChart } from "@/components/SimpleChart";
+import { ImradChecker } from "@/components/ImradChecker";
+import { ReferenceList } from "@/components/ReferenceList";
+import { TopicIdeaGenerator } from "@/components/TopicIdeaGenerator";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -79,17 +85,39 @@ export default async function GuideStagePage({
         />
       </div>
 
-      {stage.slug === "topic" && <ResearchQuestionQuiz />}
-      {stage.slug === "prior-research" && <PriorResearchSearch />}
-      {stage.slug === "methodology" && <ObjectiveTemplateGenerator />}
+      {stage.slug === "topic" && (
+        <>
+          <TopicIdeaGenerator />
+          <ResearchQuestionQuiz />
+        </>
+      )}
+      {stage.slug === "prior-research" && (
+        <>
+          <PriorResearchSearch />
+          <ReferenceList />
+        </>
+      )}
+      {stage.slug === "methodology" && (
+        <>
+          <ObjectiveTemplateGenerator />
+          <VariableTableBuilder />
+        </>
+      )}
       {stage.slug === "data-collection" && <SampleSizeCalculator />}
       {stage.slug === "writing" && (
         <>
           <StatsCalculator />
+          <SimpleChart />
+          <ImradChecker />
           <CitationFormatter />
         </>
       )}
-      {stage.slug === "submission" && <DeadlineTracker />}
+      {stage.slug === "submission" && (
+        <>
+          <DisclosureGenerator />
+          <DeadlineTracker />
+        </>
+      )}
 
       <ChecklistCard slug={stage.slug} items={stage.checklist} />
       <ReflectionBox slug={stage.slug} questions={stage.selfCheck} />

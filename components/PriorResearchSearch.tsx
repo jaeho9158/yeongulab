@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { addReference } from "@/lib/citations";
 
 type Paper = {
   paperId: string;
@@ -17,6 +18,18 @@ export function PriorResearchSearch() {
     "idle",
   );
   const [results, setResults] = useState<Paper[]>([]);
+  const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
+
+  function save(paper: Paper) {
+    addReference({
+      authors: paper.authors.map((a) => a.name).join(", "),
+      year: paper.year ? String(paper.year) : "",
+      title: paper.title,
+      source: "",
+      url: paper.url ?? "",
+    });
+    setSavedIds((prev) => ({ ...prev, [paper.paperId]: true }));
+  }
 
   async function search(e: React.FormEvent) {
     e.preventDefault();
@@ -106,6 +119,13 @@ export function PriorResearchSearch() {
                   {paper.abstract}
                 </p>
               )}
+              <button
+                type="button"
+                onClick={() => save(paper)}
+                className="mt-2 text-xs text-ink-soft hover:text-ink"
+              >
+                {savedIds[paper.paperId] ? "저장됨" : "내 레퍼런스에 저장"}
+              </button>
             </li>
           ))}
         </ul>
