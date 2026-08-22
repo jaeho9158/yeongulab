@@ -27,6 +27,7 @@ import { RandomSampler } from "@/components/RandomSampler";
 import { LengthChecker } from "@/components/LengthChecker";
 import { FigureCaptionHelper } from "@/components/FigureCaptionHelper";
 import { SubmissionVenues } from "@/components/SubmissionVenues";
+import { EthicsChecklist } from "@/components/EthicsChecklist";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -125,6 +126,7 @@ export default async function GuideStagePage({
           <ImradChecker />
           <LengthChecker />
           <CitationFormatter />
+          <EthicsChecklist slug={stage.slug} />
         </>
       )}
       {stage.slug === "submission" && (
