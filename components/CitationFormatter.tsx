@@ -34,6 +34,7 @@ export function CitationFormatter() {
   function saveToReferences() {
     if (!hasInput) return;
     addReference(ref);
+    window.dispatchEvent(new Event("research-guide:references-updated"));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }

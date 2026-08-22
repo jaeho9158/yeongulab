@@ -28,6 +28,7 @@ export function PriorResearchSearch() {
       source: "",
       url: paper.url ?? "",
     });
+    window.dispatchEvent(new Event("research-guide:references-updated"));
     setSavedIds((prev) => ({ ...prev, [paper.paperId]: true }));
   }
 
@@ -59,6 +60,7 @@ export function PriorResearchSearch() {
       <form onSubmit={search} className="mt-4 flex flex-wrap gap-2">
         <input
           type="text"
+          required
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="예: microplastic water treatment"

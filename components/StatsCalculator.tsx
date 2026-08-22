@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  parseNumberList,
+  parseNumberListDetailed,
   pearsonCorrelation,
   simpleLinearRegression,
   welchTTest,
@@ -11,6 +11,10 @@ import {
 type Mode = "ttest" | "correlation" | "regression";
 
 function verdict(mode: Mode, p: number) {
+  // p가 NaN/Infinity면 어떤 판정도 내릴 수 없다
+  if (!Number.isFinite(p)) {
+    return "p값을 계산할 수 없어 유의성을 판정할 수 없습니다. 입력 데이터를 확인해주세요.";
+  }
   const strength =
     p < 0.01
       ? "매우 유의미한"
@@ -148,6 +152,7 @@ export function StatsCalculator() {
   const [textA, setTextA] = useState("");
   const [textB, setTextB] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [dropWarning, setDropWarning] = useState<string | null>(null);
   const [ttestResult, setTtestResult] = useState<{
     value: number;
     df: number;
@@ -165,14 +170,22 @@ export function StatsCalculator() {
     setTtestResult(null);
     setRegressionResult(null);
     setError(null);
+    setDropWarning(null);
   }
 
   function compute() {
     setError(null);
+    setDropWarning(null);
     setTtestResult(null);
     setRegressionResult(null);
-    const a = parseNumberList(textA);
-    const b = parseNumberList(textB);
+    const parsedA = parseNumberListDetailed(textA);
+    const parsedB = parseNumberListDetailed(textB);
+    const a = parsedA.values;
+    const b = parsedB.values;
+    const dropped = parsedA.droppedCount + parsedB.droppedCount;
+    if (dropped > 0) {
+      setDropWarning(`숫자로 읽지 못한 값 ${dropped}개는 제외했습니다.`);
+    }
 
     if (mode === "ttest") {
       if (a.length < 2 || b.length < 2) {
@@ -180,6 +193,10 @@ export function StatsCalculator() {
         return;
       }
       const r = welchTTest(a, b);
+      if ("error" in r) {
+        setError(r.error);
+        return;
+      }
       setTtestResult({ value: r.t, df: r.df, p: r.p });
     } else if (mode === "correlation") {
       if (a.length !== b.length || a.length < 3) {
@@ -189,6 +206,10 @@ export function StatsCalculator() {
         return;
       }
       const r = pearsonCorrelation(a, b);
+      if ("error" in r) {
+        setError(r.error);
+        return;
+      }
       setTtestResult({ value: r.r, df: r.df, p: r.p });
     } else {
       if (a.length !== b.length || a.length < 3) {
@@ -198,6 +219,10 @@ export function StatsCalculator() {
         return;
       }
       const r = simpleLinearRegression(a, b);
+      if ("error" in r) {
+        setError(r.error);
+        return;
+      }
       setRegressionResult({
         slope: r.slope,
         intercept: r.intercept,
@@ -294,6 +319,10 @@ export function StatsCalculator() {
       </button>
 
       {error && <p className="mt-3 text-sm text-ink-soft">{error}</p>}
+
+      {dropWarning && (
+        <p className="mt-2 text-xs text-ink-soft">{dropWarning}</p>
+      )}
 
       {ttestResult && (
         <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">

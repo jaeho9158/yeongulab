@@ -122,7 +122,7 @@ export function EthicsChecklist({
       // 저장 실패해도 화면 상태는 유지
     }
     if (!wasChecked) {
-      logActivity({ type: "STAGE_ITEM_DONE", refId: `ethics:${slug}:${index}` });
+      logActivity({ type: "STAGE_ITEM_DONE", refId: `${slug}:ethics:${index}` });
     }
   }
 

@@ -19,6 +19,19 @@ export function ReferenceList() {
     setHydrated(true);
   }, []);
 
+  useEffect(() => {
+    // 같은 페이지의 저장 이벤트 + 다른 탭의 storage 변경을 반영
+    function reload() {
+      setRefs(readReferences());
+    }
+    window.addEventListener("research-guide:references-updated", reload);
+    window.addEventListener("storage", reload);
+    return () => {
+      window.removeEventListener("research-guide:references-updated", reload);
+      window.removeEventListener("storage", reload);
+    };
+  }, []);
+
   function remove(id: string) {
     setRefs(removeReference(id));
   }

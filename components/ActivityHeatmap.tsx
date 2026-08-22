@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getActivityByDay } from "@/lib/activity";
+import { getActivityByDay, toLocalDateKey } from "@/lib/activity";
 
 const WEEKS = 12;
 const DAYS_PER_WEEK = 7;
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
-
-function toDateKey(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
 
 function levelFor(count: number): string {
   if (count <= 0) return "bg-surface";
@@ -32,15 +28,22 @@ export function ActivityHeatmap() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // 12주 전으로 간 뒤 그 주의 일요일까지 당겨서 첫 행이 항상 일요일이 되게 한다
   const totalDays = WEEKS * DAYS_PER_WEEK;
   const start = new Date(today);
-  start.setDate(start.getDate() - (totalDays - 1) - today.getDay());
+  start.setDate(start.getDate() - (totalDays - 1));
+  start.setDate(start.getDate() - start.getDay());
 
+  // 오늘까지만 렌더링 — 미래 날짜 칸은 만들지 않는다
   const weeks: Date[][] = [];
   const cursor = new Date(start);
-  for (let w = 0; w < WEEKS + 1; w++) {
+  while (cursor.getTime() <= today.getTime()) {
     const week: Date[] = [];
-    for (let d = 0; d < DAYS_PER_WEEK; d++) {
+    for (
+      let d = 0;
+      d < DAYS_PER_WEEK && cursor.getTime() <= today.getTime();
+      d++
+    ) {
       week.push(new Date(cursor));
       cursor.setDate(cursor.getDate() + 1);
     }
@@ -58,16 +61,13 @@ export function ActivityHeatmap() {
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col gap-1">
               {week.map((date, di) => {
-                const key = toDateKey(date);
-                const isFuture = date.getTime() > today.getTime();
+                const key = toLocalDateKey(date);
                 const count = byDay[key] ?? 0;
                 return (
                   <div
                     key={di}
-                    title={isFuture ? undefined : `${key}: ${count}건`}
-                    className={`h-3 w-3 rounded-sm ${
-                      isFuture ? "bg-transparent" : levelFor(count)
-                    }`}
+                    title={`${key}: ${count}건`}
+                    className={`h-3 w-3 rounded-sm ${levelFor(count)}`}
                   />
                 );
               })}

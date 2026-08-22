@@ -20,17 +20,21 @@ export function ChecklistCard({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // 클라이언트 라우팅으로 slug만 바뀌면 컴포넌트가 재사용되므로,
+    // 저장값이 없어도 항상 초기화해 이전 단계의 체크가 남지 않게 한다
+    let next: boolean[] = Array(items.length).fill(false);
     try {
       const raw = window.localStorage.getItem(storageKey(slug));
       if (raw) {
         const saved = JSON.parse(raw) as boolean[];
         if (Array.isArray(saved) && saved.length === items.length) {
-          setChecked(saved);
+          next = saved;
         }
       }
     } catch {
       // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
     }
+    setChecked(next);
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);

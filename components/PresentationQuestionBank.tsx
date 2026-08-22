@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { QUESTION_BANK, type QuestionCategory } from "@/lib/questionBank";
+import { shuffle } from "@/lib/shuffle";
 
 const CATEGORIES = Object.keys(QUESTION_BANK) as QuestionCategory[];
 
@@ -11,8 +12,7 @@ export function PresentationQuestionBank() {
 
   function draw() {
     const pool = QUESTION_BANK[category];
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    setDrawn(shuffled.slice(0, 3));
+    setDrawn(shuffle(pool).slice(0, 3));
   }
 
   return (

@@ -85,7 +85,13 @@ function variance(xs: number[]): number {
   return xs.reduce((s, v) => s + (v - m) ** 2, 0) / (xs.length - 1);
 }
 
-export function welchTTest(a: number[], b: number[]) {
+/** 분산 0 등으로 계산이 불가능할 때 UI가 정직하게 보여줄 수 있도록 하는 오류 결과. */
+export type StatError = { error: string };
+
+export function welchTTest(
+  a: number[],
+  b: number[],
+): { meanA: number; meanB: number; t: number; df: number; p: number } | StatError {
   const meanA = mean(a);
   const meanB = mean(b);
   const varA = variance(a);
@@ -93,6 +99,13 @@ export function welchTTest(a: number[], b: number[]) {
   const nA = a.length;
   const nB = b.length;
   const se = Math.sqrt(varA / nA + varB / nB);
+  // 두 집단 모두 값이 동일하면 se=0 → t=±Infinity, p=NaN이 되므로 계산 불가 처리
+  if (se === 0) {
+    return {
+      error:
+        "두 집단의 값이 각각 모두 동일해 t-검정을 계산할 수 없습니다 (분산이 0).",
+    };
+  }
   const t = (meanA - meanB) / se;
   const df =
     (varA / nA + varB / nB) ** 2 /
@@ -101,7 +114,10 @@ export function welchTTest(a: number[], b: number[]) {
   return { meanA, meanB, t, df, p };
 }
 
-export function pearsonCorrelation(x: number[], y: number[]) {
+export function pearsonCorrelation(
+  x: number[],
+  y: number[],
+): { r: number; df: number; t: number; p: number } | StatError {
   const n = x.length;
   const mx = mean(x);
   const my = mean(y);
@@ -114,6 +130,13 @@ export function pearsonCorrelation(x: number[], y: number[]) {
     num += dx * dy;
     dx2 += dx * dx;
     dy2 += dy * dy;
+  }
+  // 한쪽 변수의 값이 모두 동일하면 분모가 0 → r=NaN이 되므로 계산 불가 처리
+  if (dx2 === 0 || dy2 === 0) {
+    return {
+      error:
+        "한 변수의 값이 모두 동일해 상관계수를 계산할 수 없습니다 (분산이 0).",
+    };
   }
   const r = num / Math.sqrt(dx2 * dy2);
   const df = n - 2;
@@ -128,7 +151,12 @@ export function pearsonCorrelation(x: number[], y: number[]) {
  * 검정(t, df, p)도 상관계수의 t-검정과 동일한 통계량을 공유한다(단순회귀에서는
  * 기울기 검정과 상관계수 검정의 t값이 수학적으로 같다).
  */
-export function simpleLinearRegression(x: number[], y: number[]) {
+export function simpleLinearRegression(
+  x: number[],
+  y: number[],
+):
+  | { slope: number; intercept: number; r2: number; t: number; df: number; p: number }
+  | StatError {
   const n = x.length;
   const mx = mean(x);
   const my = mean(y);
@@ -138,18 +166,35 @@ export function simpleLinearRegression(x: number[], y: number[]) {
     sxy += (x[i] - mx) * (y[i] - my);
     sxx += (x[i] - mx) ** 2;
   }
+  // X 값이 모두 동일하면 sxx=0 → 기울기가 무한대가 되므로 계산 불가 처리
+  if (sxx === 0) {
+    return {
+      error: "X 값이 모두 동일해 회귀선을 계산할 수 없습니다 (분산이 0).",
+    };
+  }
   const slope = sxy / sxx;
   const intercept = my - slope * mx;
-  const { r, df, t, p } = pearsonCorrelation(x, y);
+  const corr = pearsonCorrelation(x, y);
+  if ("error" in corr) return corr;
+  const { r, df, t, p } = corr;
   const r2 = r * r;
   return { slope, intercept, r2, t, df, p };
 }
 
-export function parseNumberList(text: string): number[] {
-  return text
+/** 숫자 목록 파싱 — 숫자로 읽지 못해 제외한 토큰 수도 함께 돌려준다. */
+export function parseNumberListDetailed(text: string): {
+  values: number[];
+  droppedCount: number;
+} {
+  const tokens = text
     .split(/[\n,\s]+/)
     .map((s) => s.trim())
-    .filter(Boolean)
-    .map(Number)
-    .filter((n) => !Number.isNaN(n));
+    .filter(Boolean);
+  // Infinity 같은 값도 통계 계산에는 쓸 수 없으므로 isFinite로 거른다
+  const values = tokens.map(Number).filter((n) => Number.isFinite(n));
+  return { values, droppedCount: tokens.length - values.length };
+}
+
+export function parseNumberList(text: string): number[] {
+  return parseNumberListDetailed(text).values;
 }

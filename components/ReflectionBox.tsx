@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { logActivity } from "@/lib/activity";
 
 function storageKey(slug: string) {
@@ -16,15 +16,25 @@ export function ReflectionBox({
 }) {
   const [text, setText] = useState("");
   const [saved, setSaved] = useState(false);
+  const logTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // slug가 바뀌면 항상 초기화 — 저장값이 없을 때 이전 단계의 메모가 남지 않게 한다
+    let raw: string | null = null;
     try {
-      const raw = window.localStorage.getItem(storageKey(slug));
-      if (raw) setText(raw);
+      raw = window.localStorage.getItem(storageKey(slug));
     } catch {
       // 무시하고 빈 값으로 진행
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setText(raw ?? "");
+    setSaved(false);
+    return () => {
+      // 단계 이동/언마운트 시 대기 중인 활동기록 타이머 정리
+      if (logTimerRef.current !== null) {
+        window.clearTimeout(logTimerRef.current);
+        logTimerRef.current = null;
+      }
+    };
   }, [slug]);
 
   function handleChange(value: string) {
@@ -32,7 +42,14 @@ export function ReflectionBox({
     try {
       window.localStorage.setItem(storageKey(slug), value);
       setSaved(true);
-      logActivity({ type: "REFLECTION", refId: slug });
+      // 키 입력마다 기록하면 활동 로그가 넘치므로, 입력이 멈춘 뒤 한 번만 기록
+      if (logTimerRef.current !== null) {
+        window.clearTimeout(logTimerRef.current);
+      }
+      logTimerRef.current = window.setTimeout(() => {
+        logTimerRef.current = null;
+        logActivity({ type: "REFLECTION", refId: slug });
+      }, 3000);
     } catch {
       // 저장 실패해도 입력은 유지
     }

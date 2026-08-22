@@ -18,6 +18,7 @@ export function DeadlineTracker() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -40,7 +41,10 @@ export function DeadlineTracker() {
 
   function add(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !date) return;
+    if (!name.trim() || !date) {
+      setError("이름과 날짜를 모두 입력해주세요.");
+      return;
+    }
     const next = [
       ...items,
       { id: crypto.randomUUID(), name: name.trim(), date },
@@ -48,6 +52,7 @@ export function DeadlineTracker() {
     persist(next);
     setName("");
     setDate("");
+    setError(null);
   }
 
   function remove(id: string) {
@@ -65,14 +70,21 @@ export function DeadlineTracker() {
       <form onSubmit={add} className="mt-4 flex flex-wrap gap-2">
         <input
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setError(null);
+          }}
           placeholder="대회·저널 이름"
           className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
         />
         <input
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          aria-label="마감일"
+          onChange={(e) => {
+            setDate(e.target.value);
+            setError(null);
+          }}
           className="rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink focus:border-accent"
         />
         <button
@@ -82,6 +94,8 @@ export function DeadlineTracker() {
           추가
         </button>
       </form>
+
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
 
       {hydrated && items.length > 0 && (
         <ul className="mt-4 space-y-2">

@@ -31,17 +31,33 @@ const COLORS = [
   "#6b7076",
 ];
 
+/**
+ * 항목명과 값을 인덱스를 맞춰 쌍으로 파싱한다. 값만 따로 걸러내면 잘못된 값
+ * 하나 때문에 뒤의 항목명이 전부 엉뚱한 막대에 붙는 문제가 생기므로, 쌍 단위로
+ * 유효성을 검사하고 못 읽은 쌍의 개수를 함께 돌려준다.
+ */
 function parsePairs(labelsText: string, valuesText: string) {
-  const labels = labelsText
-    .split(/[\n,]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const values = valuesText
-    .split(/[\n,]+/)
-    .map((s) => Number(s.trim()))
-    .filter((n) => !Number.isNaN(n));
-  const n = Math.min(labels.length, values.length);
-  return { labels: labels.slice(0, n), values: values.slice(0, n) };
+  const labelTokens = labelsText.split(/[\n,]+/).map((s) => s.trim());
+  const valueTokens = valuesText.split(/[\n,]+/).map((s) => s.trim());
+  const n = Math.max(labelTokens.length, valueTokens.length);
+  const labels: string[] = [];
+  const values: number[] = [];
+  let droppedCount = 0;
+  for (let i = 0; i < n; i++) {
+    const label = labelTokens[i] ?? "";
+    const valueToken = valueTokens[i] ?? "";
+    // 둘 다 비어 있으면 꼬리 구분자 등이므로 조용히 건너뛴다
+    if (!label && !valueToken) continue;
+    // Number("")===0 이라서 빈 토큰이 유령 0이 되는 것을 막기 위해 빈 값은 NaN 처리
+    const v = valueToken === "" ? NaN : Number(valueToken);
+    if (label && Number.isFinite(v)) {
+      labels.push(label);
+      values.push(v);
+    } else {
+      droppedCount++;
+    }
+  }
+  return { labels, values, droppedCount };
 }
 
 function polarToXY(cx: number, cy: number, r: number, angle: number) {
@@ -74,7 +90,18 @@ export function SimpleChart() {
   const [xTitle, setXTitle] = useState("");
   const [yTitle, setYTitle] = useState("");
 
-  const { labels, values } = parsePairs(labelsText, valuesText);
+  const parsed = parsePairs(labelsText, valuesText);
+  // hbar/pie/donut에서는 음수가 의미가 없으므로(길이·비중을 나타냄) 제외한다
+  const excludeNegatives = type === "hbar" || SHARE_TYPES.includes(type);
+  let labels = parsed.labels;
+  let values = parsed.values;
+  let negativeCount = 0;
+  if (excludeNegatives) {
+    const keep = values.map((v) => v >= 0);
+    negativeCount = keep.filter((k) => !k).length;
+    labels = labels.filter((_, i) => keep[i]);
+    values = values.filter((_, i) => keep[i]);
+  }
   const hasData = labels.length >= 2;
 
   const maxV = hasData ? Math.max(...values, 0) : 0;
@@ -187,6 +214,17 @@ export function SimpleChart() {
         )}
       </div>
 
+      {parsed.droppedCount > 0 && (
+        <p className="mt-2 text-xs text-ink-soft">
+          값을 읽지 못한 항목 {parsed.droppedCount}개는 제외했습니다.
+        </p>
+      )}
+      {negativeCount > 0 && (
+        <p className="mt-2 text-xs text-ink-soft">
+          음수 값 {negativeCount}개는 이 차트 유형에서 제외됩니다.
+        </p>
+      )}
+
       {hasData ? (
         <div className="mt-4">
           <div className="overflow-x-auto rounded-lg border border-line bg-bg p-2">
@@ -217,10 +255,11 @@ export function SimpleChart() {
                   })}
                   {values.map((v, i) => {
                     const x = PAD.left + barSlot * i + (barSlot - barWidth) / 2;
-                    const y = yFor(Math.max(v, 0));
+                    // 음수 막대는 0선에서 아래쪽으로 그린다 (위쪽 끝 = 0선)
+                    const yTop = yFor(Math.max(v, 0));
                     const yZero = yFor(0);
                     return (
-                      <rect key={i} x={x} y={Math.min(y, yZero)} width={barWidth} height={Math.abs(yZero - y) || 1} fill={COLORS[0]} />
+                      <rect key={i} x={x} y={yTop} width={barWidth} height={Math.max(Math.abs(yFor(v) - yZero), 1)} fill={COLORS[0]} />
                     );
                   })}
                   {labels.map((label, i) => (
@@ -326,6 +365,15 @@ export function SimpleChart() {
                       const start = angle;
                       const end = angle + frac * Math.PI * 2;
                       angle = end;
+                      // 조각이 사실상 100%면 호의 시작·끝점이 겹쳐 path가 안 보이므로 원으로 그린다
+                      if (frac >= 0.9999) {
+                        return (
+                          <g key={i}>
+                            <circle cx={cx} cy={cy} r={rOuter} fill={COLORS[i % COLORS.length]} />
+                            {rInner > 0 && <circle cx={cx} cy={cy} r={rInner} fill="white" />}
+                          </g>
+                        );
+                      }
                       return (
                         <path
                           key={i}

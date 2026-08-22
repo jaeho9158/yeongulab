@@ -54,6 +54,14 @@ export function PlanBackup() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    // 기존 기록을 덮어쓰는 작업이므로 사용자 확인을 먼저 받는다
+    if (
+      !window.confirm(
+        "백업 파일의 기록으로 이 기기의 현재 기록을 덮어씁니다. 계속할까요?",
+      )
+    ) {
+      return;
+    }
     try {
       const text = await file.text();
       const parsed = JSON.parse(text) as { data?: Record<string, string> };

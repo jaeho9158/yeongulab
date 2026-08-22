@@ -90,6 +90,13 @@ export default async function GuideStagePage({
           options={{
             mdxOptions: { remarkPlugins: [remarkGfm] },
           }}
+          components={{
+            table: (props) => (
+              <div className="overflow-x-auto">
+                <table {...props} />
+              </div>
+            ),
+          }}
         />
       </div>
 
@@ -126,6 +133,7 @@ export default async function GuideStagePage({
           <ImradChecker />
           <LengthChecker />
           <CitationFormatter />
+          <ReferenceList />
           <EthicsChecklist slug={stage.slug} />
         </>
       )}

@@ -13,7 +13,8 @@ export type Reference = {
 export function formatAPA(ref: Omit<Reference, "id">): string {
   return [
     ref.authors && `${ref.authors} `,
-    ref.year && `(${ref.year}). `,
+    // APA 관례상 연도가 없으면 (n.d.)로 표기한다
+    `(${ref.year || "n.d."}). `,
     ref.title && `${ref.title}. `,
     ref.source &&
       `${ref.source}${ref.volume ? `, ${ref.volume}` : ""}${ref.issue ? `(${ref.issue})` : ""}${ref.pages ? `, ${ref.pages}` : ""}. `,
@@ -24,7 +25,7 @@ export function formatAPA(ref: Omit<Reference, "id">): string {
 }
 
 export function formatIEEE(ref: Omit<Reference, "id">): string {
-  return [
+  const joined = [
     ref.authors && `${ref.authors}, `,
     ref.title && `"${ref.title}," `,
     ref.source && `${ref.source}, `,
@@ -35,6 +36,18 @@ export function formatIEEE(ref: Omit<Reference, "id">): string {
   ]
     .filter(Boolean)
     .join("");
+  // 연도가 비어 있으면 ", "로 끝나므로 꼬리 구분자를 정리하고 마침표로 마무리
+  const trimmed = joined.replace(/[,\s]+$/, "");
+  if (!trimmed) return "";
+  return trimmed.endsWith(".") ? trimmed : `${trimmed}.`;
+}
+
+/** crypto.randomUUID는 비보안 컨텍스트(http LAN 미리보기 등)에서 없을 수 있다. */
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
 export const REFERENCES_STORAGE_KEY = "research-guide:references";
@@ -49,7 +62,7 @@ export function readReferences(): Reference[] {
 }
 
 export function addReference(ref: Omit<Reference, "id">): Reference[] {
-  const next = [...readReferences(), { ...ref, id: crypto.randomUUID() }];
+  const next = [...readReferences(), { ...ref, id: generateId() }];
   try {
     window.localStorage.setItem(REFERENCES_STORAGE_KEY, JSON.stringify(next));
   } catch {

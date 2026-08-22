@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { shuffle } from "@/lib/shuffle";
 
 export function RandomSampler() {
   const [text, setText] = useState("");
@@ -18,8 +19,7 @@ export function RandomSampler() {
       setPicked([]);
       return;
     }
-    const shuffled = [...items].sort(() => Math.random() - 0.5);
-    setPicked(shuffled.slice(0, n));
+    setPicked(shuffle(items).slice(0, n));
   }
 
   return (

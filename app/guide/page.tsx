@@ -4,6 +4,7 @@ import { getAllStages } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
 import { PlanExport } from "@/components/PlanExport";
 import { PlanBackup } from "@/components/PlanBackup";
+import { DataReset } from "@/components/DataReset";
 import { ProgressOverview } from "@/components/ProgressOverview";
 
 export const metadata: Metadata = {
@@ -70,6 +71,8 @@ export default function GuideIndexPage() {
           </Link>
         ))}
       </div>
+
+      <DataReset />
 
       <div className="xl:hidden">
         <AdSlot label="가이드 목록 하단 광고" />
