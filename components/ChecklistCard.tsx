@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { logActivity } from "@/lib/activity";
 
 function storageKey(slug: string) {
   return `research-guide:checklist:${slug}`;
@@ -35,12 +36,16 @@ export function ChecklistCard({
   }, [slug]);
 
   function toggle(index: number) {
+    const wasChecked = checked[index] ?? false;
     const next = checked.map((v, i) => (i === index ? !v : v));
     setChecked(next);
     try {
       window.localStorage.setItem(storageKey(slug), JSON.stringify(next));
     } catch {
       // 저장 실패해도 화면 상태는 유지
+    }
+    if (!wasChecked) {
+      logActivity({ type: "STAGE_ITEM_DONE", refId: `${slug}:${index}` });
     }
   }
 

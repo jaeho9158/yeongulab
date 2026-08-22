@@ -122,6 +122,29 @@ export function pearsonCorrelation(x: number[], y: number[]) {
   return { r, df, t, p };
 }
 
+/**
+ * 단순선형회귀: y = slope * x + intercept.
+ * 결정계수(r²)는 pearsonCorrelation의 r을 제곱해 구하고, 기울기의 유의성
+ * 검정(t, df, p)도 상관계수의 t-검정과 동일한 통계량을 공유한다(단순회귀에서는
+ * 기울기 검정과 상관계수 검정의 t값이 수학적으로 같다).
+ */
+export function simpleLinearRegression(x: number[], y: number[]) {
+  const n = x.length;
+  const mx = mean(x);
+  const my = mean(y);
+  let sxy = 0;
+  let sxx = 0;
+  for (let i = 0; i < n; i++) {
+    sxy += (x[i] - mx) * (y[i] - my);
+    sxx += (x[i] - mx) ** 2;
+  }
+  const slope = sxy / sxx;
+  const intercept = my - slope * mx;
+  const { r, df, t, p } = pearsonCorrelation(x, y);
+  const r2 = r * r;
+  return { slope, intercept, r2, t, df, p };
+}
+
 export function parseNumberList(text: string): number[] {
   return text
     .split(/[\n,\s]+/)

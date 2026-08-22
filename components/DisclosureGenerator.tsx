@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const STORAGE_KEY = "research-guide:disclosure";
 
 const OPTIONS = [
   { key: "draft", label: "초안 작성 보조 (문장 구조·표현 제안)" },
@@ -8,22 +10,84 @@ const OPTIONS = [
   { key: "grammar", label: "문법·맞춤법 교정" },
   { key: "analysis", label: "데이터 분석 코드 작성·디버깅" },
   { key: "brainstorm", label: "아이디어 브레인스토밍 보조" },
+  { key: "statInterpret", label: "통계 분석 결과 해석 보조" },
+  { key: "citations", label: "참고문헌 형식 정리" },
+  { key: "slides", label: "발표자료/슬라이드 구성 제안" },
 ] as const;
 
+type UsageLevel = "none" | "light" | "heavy";
+
+const USAGE_LEVELS: { key: UsageLevel; label: string }[] = [
+  { key: "none", label: "없음" },
+  { key: "light", label: "경미 (제안을 참고만)" },
+  { key: "heavy", label: "상당 (초안을 그대로 다수 활용)" },
+];
+
+function usagePhrase(level: UsageLevel): string {
+  switch (level) {
+    case "heavy":
+      return "상당 부분 활용한 뒤 저자가 전면 수정하였다";
+    case "light":
+      return "제한적으로 참고하였다";
+    default:
+      return "";
+  }
+}
+
+type SavedState = {
+  usage: Record<string, UsageLevel>;
+  toolName: string;
+};
+
 export function DisclosureGenerator() {
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [usage, setUsage] = useState<Record<string, UsageLevel>>({});
   const [toolName, setToolName] = useState("");
   const [copied, setCopied] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  const selected = OPTIONS.filter((o) => checked[o.key]).map((o) => o.label);
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as SavedState;
+        if (saved && typeof saved === "object") {
+          if (saved.usage && typeof saved.usage === "object") {
+            setUsage(saved.usage);
+          }
+          if (typeof saved.toolName === "string") {
+            setToolName(saved.toolName);
+          }
+        }
+      }
+    } catch {
+      // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      const state: SavedState = { usage, toolName };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // 저장 실패해도 화면 상태는 유지
+    }
+  }, [usage, toolName, hydrated]);
+
+  const selected = OPTIONS.filter(
+    (o) => usage[o.key] && usage[o.key] !== "none",
+  ).map((o) => `${o.label}(${usagePhrase(usage[o.key])})`);
+
+  const today = hydrated ? new Date().toLocaleDateString("ko-KR") : "";
 
   const text =
-    selected.length === 0
+    !hydrated || selected.length === 0
       ? ""
-      : `본 연구는 작성 과정에서 AI 도구${toolName ? `(${toolName})` : ""}를 다음 범위에서 활용하였다: ${selected.join(", ")}. 연구의 핵심 아이디어, 분석 결과 해석, 최종 결론은 저자가 직접 검토하고 작성하였다.`;
+      : `본 연구는 작성 과정에서 AI 도구${toolName ? `(${toolName})` : ""}를 다음 범위에서 활용하였다: ${selected.join(", ")}. 연구의 핵심 아이디어, 분석 결과 해석, 최종 결론은 저자가 직접 검토하고 작성하였다. (작성일: ${today})`;
 
-  function toggle(key: string) {
-    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  function setLevel(key: string, level: UsageLevel) {
+    setUsage((prev) => ({ ...prev, [key]: level }));
   }
 
   async function copy() {
@@ -41,7 +105,7 @@ export function DisclosureGenerator() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">AI 활용 disclosure 문구 만들기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        어느 범위에서 AI를 썼는지 체크하면 투고용 문구를 조립해줍니다.
+        어느 범위에서, 어느 정도로 AI를 썼는지 선택하면 투고용 문구를 조립해줍니다.
       </p>
 
       <div className="mt-4">
@@ -55,18 +119,28 @@ export function DisclosureGenerator() {
         />
       </div>
 
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-4 space-y-3">
         {OPTIONS.map((opt) => (
-          <li key={opt.key}>
-            <label className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 hover:bg-surface">
-              <input
-                type="checkbox"
-                checked={checked[opt.key] ?? false}
-                onChange={() => toggle(opt.key)}
-                className="mt-0.5 h-5 w-5 shrink-0 accent-accent"
-              />
+          <li
+            key={opt.key}
+            className="rounded-lg px-2 py-2 hover:bg-surface"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm text-ink">{opt.label}</span>
-            </label>
+              <select
+                value={usage[opt.key] ?? "none"}
+                onChange={(e) =>
+                  setLevel(opt.key, e.target.value as UsageLevel)
+                }
+                className="w-full max-w-[220px] rounded-lg border border-line bg-bg px-2 py-1.5 text-xs text-ink focus:border-accent sm:w-auto"
+              >
+                {USAGE_LEVELS.map((lv) => (
+                  <option key={lv.key} value={lv.key}>
+                    {lv.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </li>
         ))}
       </ul>

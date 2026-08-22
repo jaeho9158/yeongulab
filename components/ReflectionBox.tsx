@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { logActivity } from "@/lib/activity";
 
 function storageKey(slug: string) {
   return `research-guide:reflection:${slug}`;
@@ -31,6 +32,7 @@ export function ReflectionBox({
     try {
       window.localStorage.setItem(storageKey(slug), value);
       setSaved(true);
+      logActivity({ type: "REFLECTION", refId: slug });
     } catch {
       // 저장 실패해도 입력은 유지
     }

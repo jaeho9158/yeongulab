@@ -1,14 +1,146 @@
 "use client";
 
 import { useState } from "react";
-import { parseNumberList, pearsonCorrelation, welchTTest } from "@/lib/stats";
+import {
+  parseNumberList,
+  pearsonCorrelation,
+  simpleLinearRegression,
+  welchTTest,
+} from "@/lib/stats";
 
-type Mode = "ttest" | "correlation";
+type Mode = "ttest" | "correlation" | "regression";
 
-function verdict(p: number) {
-  if (p < 0.01) return "매우 유의미한 차이/관계로 보입니다 (p < .01)";
-  if (p < 0.05) return "통계적으로 유의미한 것으로 보입니다 (p < .05)";
-  return "통계적으로 유의미하다고 보기 어렵습니다 (p ≥ .05)";
+function verdict(mode: Mode, p: number) {
+  const strength =
+    p < 0.01
+      ? "매우 유의미한"
+      : p < 0.05
+        ? "통계적으로 유의미한"
+        : null;
+
+  if (!strength) {
+    if (mode === "regression") {
+      return "회귀계수가 통계적으로 유의미하다고 보기 어렵습니다 (p ≥ .05). X로 Y를 설명한다고 말하기엔 근거가 약합니다.";
+    }
+    return "통계적으로 유의미하다고 보기 어렵습니다 (p ≥ .05)";
+  }
+
+  if (mode === "regression") {
+    return `X가 Y를 ${strength} 수준으로 설명하는 것으로 보입니다 (p ${
+      p < 0.01 ? "< .01" : "< .05"
+    }). R²는 X가 Y의 변동을 얼마나 설명하는지를 보여줍니다.`;
+  }
+  return `${strength} 차이/관계로 보입니다 (p ${p < 0.01 ? "< .01" : "< .05"})`;
+}
+
+type GuideAnswer = "diff" | "relation" | null;
+type GuideRelationAnswer = "predict" | "association" | null;
+
+function GuideBlock({ onPick }: { onPick: (mode: Mode) => void }) {
+  const [open, setOpen] = useState(false);
+  const [step1, setStep1] = useState<GuideAnswer>(null);
+  const [step2, setStep2] = useState<GuideRelationAnswer>(null);
+
+  const recommended: Mode | null =
+    step1 === "diff" ? "ttest" : step1 === "relation" && step2 === "predict" ? "regression" : step1 === "relation" && step2 === "association" ? "correlation" : null;
+
+  const recommendedLabel =
+    recommended === "ttest"
+      ? "두 그룹 평균 비교 (t-검정)"
+      : recommended === "regression"
+        ? "두 변수 관계 (회귀분석)"
+        : recommended === "correlation"
+          ? "두 변수 관계 (상관분석)"
+          : null;
+
+  return (
+    <div className="mt-4 rounded-lg border border-line bg-surface px-4 py-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between text-left text-sm font-medium text-ink"
+      >
+        <span>어떤 분석이 맞을지 모르겠다면?</span>
+        <span className="text-ink-soft">{open ? "접기 ▲" : "펼치기 ▼"}</span>
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3 text-sm">
+          <div>
+            <p className="text-ink-soft">
+              비교하려는 게 무엇인가요?
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-3">
+              <label className="flex items-center gap-1.5 text-ink">
+                <input
+                  type="radio"
+                  name="guide-step1"
+                  checked={step1 === "diff"}
+                  onChange={() => {
+                    setStep1("diff");
+                    setStep2(null);
+                  }}
+                />
+                두 그룹의 평균 차이
+              </label>
+              <label className="flex items-center gap-1.5 text-ink">
+                <input
+                  type="radio"
+                  name="guide-step1"
+                  checked={step1 === "relation"}
+                  onChange={() => setStep1("relation")}
+                />
+                두 변수 사이의 관계
+              </label>
+            </div>
+          </div>
+
+          {step1 === "relation" && (
+            <div>
+              <p className="text-ink-soft">
+                한 변수로 다른 변수를 예측/설명하고 싶나요?
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-3">
+                <label className="flex items-center gap-1.5 text-ink">
+                  <input
+                    type="radio"
+                    name="guide-step2"
+                    checked={step2 === "predict"}
+                    onChange={() => setStep2("predict")}
+                  />
+                  예, 예측/설명하고 싶어요
+                </label>
+                <label className="flex items-center gap-1.5 text-ink">
+                  <input
+                    type="radio"
+                    name="guide-step2"
+                    checked={step2 === "association"}
+                    onChange={() => setStep2("association")}
+                  />
+                  아니요, 그냥 관련이 있는지만
+                </label>
+              </div>
+            </div>
+          )}
+
+          {recommended && (
+            <div className="rounded-lg bg-bg px-3 py-2.5">
+              <p className="text-ink-soft">
+                추천 분석: <span className="font-medium text-ink">{recommendedLabel}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => onPick(recommended)}
+                className="mt-2 rounded-lg bg-ink px-4 py-2 text-xs font-medium text-bg transition hover:opacity-85"
+              >
+                이 방식으로 계산하기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function StatsCalculator() {
@@ -16,16 +148,29 @@ export function StatsCalculator() {
   const [textA, setTextA] = useState("");
   const [textB, setTextB] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{
-    label: string;
+  const [ttestResult, setTtestResult] = useState<{
     value: number;
     df: number;
     p: number;
   } | null>(null);
+  const [regressionResult, setRegressionResult] = useState<{
+    slope: number;
+    intercept: number;
+    r2: number;
+    p: number;
+  } | null>(null);
+
+  function switchMode(next: Mode) {
+    setMode(next);
+    setTtestResult(null);
+    setRegressionResult(null);
+    setError(null);
+  }
 
   function compute() {
     setError(null);
-    setResult(null);
+    setTtestResult(null);
+    setRegressionResult(null);
     const a = parseNumberList(textA);
     const b = parseNumberList(textB);
 
@@ -35,8 +180,8 @@ export function StatsCalculator() {
         return;
       }
       const r = welchTTest(a, b);
-      setResult({ label: "t", value: r.t, df: r.df, p: r.p });
-    } else {
+      setTtestResult({ value: r.t, df: r.df, p: r.p });
+    } else if (mode === "correlation") {
       if (a.length !== b.length || a.length < 3) {
         setError(
           "두 변수의 값 개수가 같아야 하고, 최소 3쌍 이상 필요합니다.",
@@ -44,9 +189,25 @@ export function StatsCalculator() {
         return;
       }
       const r = pearsonCorrelation(a, b);
-      setResult({ label: "r", value: r.r, df: r.df, p: r.p });
+      setTtestResult({ value: r.r, df: r.df, p: r.p });
+    } else {
+      if (a.length !== b.length || a.length < 3) {
+        setError(
+          "두 변수의 값 개수가 같아야 하고, 최소 3쌍 이상 필요합니다.",
+        );
+        return;
+      }
+      const r = simpleLinearRegression(a, b);
+      setRegressionResult({
+        slope: r.slope,
+        intercept: r.intercept,
+        r2: r.r2,
+        p: r.p,
+      });
     }
   }
+
+  const ttestLabel = mode === "ttest" ? "t" : "r";
 
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
@@ -56,13 +217,12 @@ export function StatsCalculator() {
         않지만, 방향을 가늠하기엔 충분합니다.
       </p>
 
-      <div className="mt-4 flex gap-2">
+      <GuideBlock onPick={switchMode} />
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => {
-            setMode("ttest");
-            setResult(null);
-          }}
+          onClick={() => switchMode("ttest")}
           className={`rounded-full px-4 py-2 text-xs font-medium ${
             mode === "ttest"
               ? "bg-ink text-bg"
@@ -73,10 +233,7 @@ export function StatsCalculator() {
         </button>
         <button
           type="button"
-          onClick={() => {
-            setMode("correlation");
-            setResult(null);
-          }}
+          onClick={() => switchMode("correlation")}
           className={`rounded-full px-4 py-2 text-xs font-medium ${
             mode === "correlation"
               ? "bg-ink text-bg"
@@ -84,6 +241,17 @@ export function StatsCalculator() {
           }`}
         >
           두 변수 관계 (상관분석)
+        </button>
+        <button
+          type="button"
+          onClick={() => switchMode("regression")}
+          className={`rounded-full px-4 py-2 text-xs font-medium ${
+            mode === "regression"
+              ? "bg-ink text-bg"
+              : "border border-line text-ink-soft"
+          }`}
+        >
+          두 변수 관계 (회귀분석)
         </button>
       </div>
 
@@ -127,13 +295,27 @@ export function StatsCalculator() {
 
       {error && <p className="mt-3 text-sm text-ink-soft">{error}</p>}
 
-      {result && (
+      {ttestResult && (
         <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
           <p className="text-ink">
-            {result.label} = {result.value.toFixed(3)}, df ={" "}
-            {result.df.toFixed(1)}, p = {result.p.toFixed(4)}
+            {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
+            {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
           </p>
-          <p className="mt-1.5 text-ink-soft">{verdict(result.p)}</p>
+          <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
+        </div>
+      )}
+
+      {regressionResult && (
+        <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
+          <p className="text-ink">
+            Y = {regressionResult.slope.toFixed(3)}X{" "}
+            {regressionResult.intercept >= 0 ? "+" : "-"}{" "}
+            {Math.abs(regressionResult.intercept).toFixed(3)}, R² ={" "}
+            {regressionResult.r2.toFixed(3)}, p = {regressionResult.p.toFixed(4)}
+          </p>
+          <p className="mt-1.5 text-ink-soft">
+            {verdict(mode, regressionResult.p)}
+          </p>
         </div>
       )}
     </section>
