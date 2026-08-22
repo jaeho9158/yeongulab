@@ -16,6 +16,9 @@
     "Malgun Gothic", sans-serif;
   --font-label: ui-monospace, "SFMono-Regular", Consolas, "Noto Sans Mono",
     monospace;
+  /* 홈 하단 '차례' 단락 전용 — layout.tsx의 <link>로 Noto Serif KR을 싣는다 */
+  --font-serif: "Noto Serif KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    serif;
 }
 
 @theme inline {
@@ -29,6 +32,7 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-label: var(--font-label);
+  --font-serif: var(--font-serif);
 }
 
 /* 시스템이 다크모드면 기본 적용 — 단, 사용자가 라이트를 명시로 고르면(data-theme="light") 제외 */
@@ -98,4 +102,18 @@ body {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 0.75rem;
+}
+
+/* 단계 페이지의 접이식 도구 안에 기존 도구 카드를 그대로 넣을 때 —
+   바깥 <details> 행이 이미 제목을 보여주므로 안쪽 카드의 테두리·여백·제목은 감춘다 */
+.tool-embed > section {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.tool-embed > section > h2:first-child,
+.tool-embed > section > div:first-child > h2:first-child {
+  display: none;
 }

@@ -81,24 +81,31 @@ export function PlanBackup() {
   }
 
   return (
-    <section className="note-box mb-10 px-5 py-5 sm:px-6 sm:py-6">
-      <h2 className="text-base font-bold text-ink">다른 기기로 옮기기</h2>
-      <p className="mt-1 text-sm text-ink-soft">
-        체크리스트와 메모는 이 브라우저에만 저장됩니다. 파일로 백업해두면 다른
-        기기·브라우저에서 불러와 이어갈 수 있습니다.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-3">
+    <section className="grid items-center gap-4 border-t border-line py-[18px] sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6">
+      <div>
+        <h3 className="text-[15px] font-semibold text-ink">다른 기기로 옮기기</h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+          파일로 백업해두면 다른 기기·브라우저에서 불러와 이어갈 수 있습니다.
+        </p>
+        {status === "error" && (
+          <p className="mt-2 text-xs text-red-600">
+            파일을 읽지 못했습니다. 이 사이트에서 내려받은 백업 파일이 맞는지
+            확인해주세요.
+          </p>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={handleExport}
-          className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink transition hover:border-accent"
+          className="rounded-lg border border-line px-3.5 py-2 text-[13px] font-medium whitespace-nowrap text-ink transition hover:border-accent"
         >
           {status === "exported" ? "내려받음" : "백업 파일 내려받기"}
         </button>
         <button
           type="button"
           onClick={handleImportClick}
-          className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink transition hover:border-accent"
+          className="rounded-lg border border-line px-3.5 py-2 text-[13px] font-medium whitespace-nowrap text-ink transition hover:border-accent"
         >
           {status === "imported" ? "불러오는 중..." : "백업 파일 불러오기"}
         </button>
@@ -110,12 +117,6 @@ export function PlanBackup() {
           className="hidden"
         />
       </div>
-      {status === "error" && (
-        <p className="mt-2 text-xs text-red-600">
-          파일을 읽지 못했습니다. 이 사이트에서 내려받은 백업 파일이 맞는지
-          확인해주세요.
-        </p>
-      )}
     </section>
   );
 }

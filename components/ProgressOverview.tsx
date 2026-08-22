@@ -63,25 +63,25 @@ export function ProgressOverview({ stages }: { stages: StageInfo[] }) {
   }
 
   return (
-    <section className="card mb-6 px-5 py-5 sm:px-6 sm:py-6">
+    <section className="card px-5 py-4.5 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-ink">전체 진행 상황</h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            {doneItems} / {totalItems}개 항목 완료 · 이 기기 기준
+          <h2 className="text-[15px] font-bold text-ink">전체 진행 상황</h2>
+          <p className="mt-1 font-label text-xs text-ink-soft">
+            {doneItems} / {totalItems} 항목 완료 · 이 기기 기준
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/guide/print"
-            className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink-soft transition hover:border-accent"
+            className="rounded-lg border border-line px-3.5 py-2 text-[13px] font-medium text-ink-soft transition hover:border-accent"
           >
             인쇄용으로 보기
           </Link>
           {nextStage && (
             <Link
               href={`/guide/${nextStage.slug}`}
-              className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-bg transition hover:opacity-85"
+              className="rounded-lg bg-ink px-3.5 py-2 text-[13px] font-medium text-bg transition hover:opacity-85"
             >
               이어서 하기: {nextStage.title} →
             </Link>
@@ -89,35 +89,13 @@ export function ProgressOverview({ stages }: { stages: StageInfo[] }) {
         </div>
       </div>
 
-      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-surface">
+      <div className="mt-3.5 h-1.5 w-full overflow-hidden rounded-full bg-surface">
         <div
           className="h-full rounded-full bg-accent transition-[width]"
           style={{ width: `${percent}%` }}
         />
       </div>
 
-      <ul className="mt-4 flex flex-wrap gap-2">
-        {stages.map((stage) => {
-          const p = progress[stage.slug];
-          const done = p?.done ?? 0;
-          const total = p?.total ?? stage.checklistCount;
-          const complete = total > 0 && done === total;
-          return (
-            <li key={stage.slug}>
-              <Link
-                href={`/guide/${stage.slug}`}
-                className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
-                  complete
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-line text-ink-soft"
-                }`}
-              >
-                {stage.order}. {stage.title} {total > 0 ? `${done}/${total}` : ""}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
     </section>
   );
 }

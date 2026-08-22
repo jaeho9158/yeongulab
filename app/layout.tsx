@@ -24,8 +24,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className="h-full antialiased" suppressHydrationWarning>
+    <html
+      lang="ko"
+      className="h-full antialiased"
+      suppressHydrationWarning
+    >
       <head>
+        {/* 홈 하단 '차례' 단락의 세리프(Noto Serif KR). next/font는 빌드 시 서버가
+            폰트를 내려받아야 해서 오프라인/차단 환경에서 빌드가 깨지므로, 브라우저가
+            직접 받는 <link>로 싣고 CSS에서 시스템 세리프로 폴백한다. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&display=swap"
+        />
         {/* 테마 선택을 hydration 전에 <html>에 반영 — 그렇지 않으면 라이트로
             그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. 저장된 값이 없으면
             data-theme을 아예 안 붙여서 시스템 설정(prefers-color-scheme)을
@@ -74,11 +91,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </div>
 
         {/* PC 전용 좌우 광고 레일 — 본문 폭(max-w-3xl=48rem) 바깥 여백에 고정.
-            여백이 176px(광고폭160+여유16) 이상 나오는 1280px(xl)부터 노출. */}
-        <div className="fixed top-24 left-4 z-0 hidden xl:block print:hidden">
+            단계 페이지 본문 폭이 60rem(960px)으로 넓어져 여백이 176px(광고폭160+여유16)
+            이상 나오는 1536px(2xl)부터 노출. */}
+        <div className="fixed top-24 left-4 z-0 hidden 2xl:block print:hidden">
           <AdSlot label="좌측 광고" variant="rail" />
         </div>
-        <div className="fixed top-24 right-4 z-0 hidden xl:block print:hidden">
+        <div className="fixed top-24 right-4 z-0 hidden 2xl:block print:hidden">
           <AdSlot label="우측 광고" variant="rail" />
         </div>
       </body>

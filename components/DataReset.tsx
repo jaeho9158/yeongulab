@@ -22,16 +22,18 @@ export function DataReset() {
   }
 
   return (
-    <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
-      <h2 className="text-lg font-bold text-ink">내 기록 전부 삭제</h2>
-      <p className="mt-1 text-sm text-ink-soft">
-        이 사이트가 이 브라우저에 저장한 모든 기록(체크리스트, 메모,
-        레퍼런스, 활동 기록 등)을 삭제합니다.
-      </p>
+    <section className="grid items-center gap-4 border-t border-line py-[18px] sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6">
+      <div>
+        <h3 className="text-[15px] font-semibold text-ink">내 기록 전부 삭제</h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+          체크리스트, 메모, 레퍼런스, 활동 기록 등 이 브라우저에 저장된 모든
+          기록을 삭제합니다.
+        </p>
+      </div>
       <button
         type="button"
         onClick={resetAll}
-        className="mt-4 rounded-lg border border-line px-4 py-2 text-xs font-medium text-red-600 transition hover:border-red-600"
+        className="w-fit rounded-lg border border-line px-3.5 py-2 text-xs font-medium whitespace-nowrap text-red-600 transition hover:border-red-600"
       >
         전부 삭제하기
       </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getStageDurations } from "@/lib/activity";
+import { SectionHead } from "@/components/SectionHead";
 
 type StageInfo = {
   order: number;
@@ -12,8 +13,10 @@ type StageInfo = {
 
 type DurationInfo = { firstAt: string | null; lastAt: string | null; days: number | null };
 
+// 2026-06-02 → 6.02 (모노 한 줄에 맞는 짧은 표기)
 function formatDate(iso: string): string {
-  return iso.slice(0, 10);
+  const [, m, d] = iso.slice(0, 10).split("-");
+  return `${Number(m)}.${d}`;
 }
 
 export function StageDurations({ stages }: { stages: StageInfo[] }) {
@@ -31,29 +34,32 @@ export function StageDurations({ stages }: { stages: StageInfo[] }) {
   const hasAny = stages.some((s) => durations[s.slug]?.days !== null && durations[s.slug]?.days !== undefined);
 
   return (
-    <section className="card mt-6 px-5 py-5 sm:px-6 sm:py-6">
-      <h2 className="text-lg font-bold text-ink">단계별 실제 소요일수</h2>
-      <p className="mt-1 text-xs text-ink-soft">
-        각 단계에서 처음 활동한 날부터 마지막 활동한 날까지의 기록입니다.
-      </p>
+    <section className="mt-10">
+      <SectionHead title="단계별 실제 소요일수" meta="첫 활동 ~ 마지막 활동" />
       {!hasAny ? (
-        <p className="mt-4 text-sm text-ink-soft">아직 기록이 없어요.</p>
+        <p className="border-b border-line py-5 text-sm text-ink-soft">
+          아직 기록이 없어요.
+        </p>
       ) : (
-        <ul className="mt-4 space-y-2">
+        <ul className="border-b border-line">
           {stages.map((stage) => {
             const info = durations[stage.slug];
             if (!info || info.days === null) return null;
             return (
               <li
                 key={stage.slug}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm"
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1 border-t border-line py-3.5 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]"
               >
-                <span className="text-ink">
-                  {stage.order}. {stage.title}
+                <span className="font-label text-xs text-ink-soft">
+                  {String(stage.order).padStart(2, "0")}
                 </span>
-                <span className="text-ink-soft">
+                <span className="text-[15px] font-semibold text-ink">
+                  {stage.title}
+                </span>
+                <span className="col-start-2 font-label text-xs text-ink-soft sm:col-start-auto">
                   {info.firstAt && formatDate(info.firstAt)} ~{" "}
-                  {info.lastAt && formatDate(info.lastAt)} · {info.days}일
+                  {info.lastAt && formatDate(info.lastAt)} ·{" "}
+                  <span className="text-ink">{info.days}일</span>
                 </span>
               </li>
             );

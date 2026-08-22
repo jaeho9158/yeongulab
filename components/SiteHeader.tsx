@@ -1,35 +1,34 @@
 import Link from "next/link";
+import { SiteNav } from "@/components/SiteNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function SiteHeader() {
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex h-14 max-w-[60rem] items-center justify-between px-4">
         <Link
           href="/"
-          className="-my-2 flex items-center py-2 text-lg font-bold tracking-tight text-ink"
+          className="flex h-14 items-center gap-2 text-lg font-bold tracking-tight text-ink"
         >
+          <svg
+            viewBox="0 0 20 20"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+            className="text-accent"
+          >
+            <path d="M4 3h12v14H4z" />
+            <path d="M7 7h6M7 10h6M7 13h4" />
+          </svg>
           연구랩
         </Link>
-        <nav className="flex items-center text-sm">
-          <Link
-            href="/guide"
-            className="-my-3 -mr-1 flex items-center py-3 pr-1 pl-3 text-ink-soft hover:text-ink"
-          >
-            연구 가이드
-          </Link>
-          <Link
-            href="/example"
-            className="-my-3 -mr-1 flex items-center py-3 pr-1 pl-3 text-ink-soft hover:text-ink"
-          >
-            예시
-          </Link>
-          <Link
-            href="/activity"
-            className="-my-3 -mr-1 flex items-center py-3 pr-1 pl-3 text-ink-soft hover:text-ink"
-          >
-            활동 기록
-          </Link>
+        <nav className="flex items-center gap-1 text-sm">
+          <SiteNav />
           <ThemeToggle />
         </nav>
       </div>

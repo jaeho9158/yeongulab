@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getActivityByDay, toLocalDateKey } from "@/lib/activity";
+import { SectionHead } from "@/components/SectionHead";
 
 const WEEKS = 12;
 const DAYS_PER_WEEK = 7;
@@ -59,12 +60,13 @@ export function ActivityHeatmap() {
     .reduce((sum, date) => sum + (byDay[toLocalDateKey(date)] ?? 0), 0);
 
   return (
-    <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
-      <h2 className="text-lg font-bold text-ink">최근 12주간 활동</h2>
-      <p className="mt-1 text-xs text-ink-soft">
+    <section className="mt-10">
+      <SectionHead title="최근 12주간 활동" meta={`총 ${totalCount}건`} />
+      <div className="border-b border-line py-5">
+      <p className="sr-only">
         체크리스트 완료, 자가검증 기록 등을 날짜별로 담백하게 보여줍니다.
       </p>
-      <div className="mt-4 overflow-x-auto">
+      <div className="overflow-x-auto">
         <div
           // role="img"는 자식을 presentational로 취급해 칸별 라벨이 묻히므로 group을 쓴다
           role="group"
@@ -91,16 +93,19 @@ export function ActivityHeatmap() {
           ))}
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-1.5 text-xs text-ink-soft">
-        <span>적음</span>
-        {LEGEND_LEVELS.map((cls) => (
-          <span key={cls} className={`h-3 w-3 rounded-sm ${cls}`} />
-        ))}
-        <span>많음</span>
+      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 font-label text-[11px] text-ink-soft">
+        <p>
+          {WEEKDAY_LABELS[0]}부터 {WEEKDAY_LABELS[6]}까지 · 왼쪽이 과거, 오른쪽이 최근
+        </p>
+        <div className="flex items-center gap-1.5">
+          <span>적음</span>
+          {LEGEND_LEVELS.map((cls) => (
+            <span key={cls} className={`h-3 w-3 rounded-sm ${cls}`} />
+          ))}
+          <span>많음</span>
+        </div>
       </div>
-      <p className="mt-2 text-xs text-ink-soft">
-        {WEEKDAY_LABELS[0]}부터 {WEEKDAY_LABELS[6]}까지, 왼쪽이 과거·오른쪽이 최근입니다.
-      </p>
+      </div>
     </section>
   );
 }

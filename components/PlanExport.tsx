@@ -81,25 +81,23 @@ export function PlanExport({ stages }: { stages: ExportableStage[] }) {
   }
 
   return (
-    <section className="note-box mb-10 px-5 py-5 sm:px-6 sm:py-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-ink">
-            지금까지 기록 내보내기
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            각 단계에서 체크한 항목과 적어둔 생각을 파일 하나로 모아
-            내려받습니다.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          className="shrink-0 rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-bg transition hover:opacity-85"
-        >
-          {exported ? "내려받음" : "마크다운으로 내보내기"}
-        </button>
+    <section className="grid items-center gap-4 border-t border-line py-[18px] sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6">
+      <div>
+        <h3 className="text-[15px] font-semibold text-ink">
+          지금까지 기록 내보내기
+        </h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+          각 단계에서 체크한 항목과 적어둔 생각을 파일 하나로 모아
+          내려받습니다.
+        </p>
       </div>
+      <button
+        type="button"
+        onClick={handleExport}
+        className="w-fit rounded-lg bg-ink px-4 py-2 text-[13px] font-medium whitespace-nowrap text-bg transition hover:opacity-85"
+      >
+        {exported ? "내려받음" : "마크다운으로 내보내기"}
+      </button>
     </section>
   );
 }
