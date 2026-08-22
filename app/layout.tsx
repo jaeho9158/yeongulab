@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -7,6 +8,15 @@ import { AdSlot } from "@/components/AdSlot";
 
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
+
+// 제목용 명조 — 논문 조판 느낌의 시그니처 서체. 본문/라벨은 기존 시스템
+// 폰트를 유지하고 이 서체는 헤드라인에만 절제해서 쓴다.
+const notoSerifKr = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -24,8 +34,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className="h-full antialiased">
+    <html
+      lang="ko"
+      className={`h-full antialiased ${notoSerifKr.variable}`}
+      suppressHydrationWarning
+    >
       <head>
+        {/* 테마 선택을 hydration 전에 <html>에 반영 — 그렇지 않으면 라이트로
+            그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. 저장된 값이 없으면
+            data-theme을 아예 안 붙여서 시스템 설정(prefers-color-scheme)을
+            그대로 따른다. */}
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{
+            __html: `try {
+              var t = localStorage.getItem("research-guide:theme");
+              if (t === "light" || t === "dark") {
+                document.documentElement.setAttribute("data-theme", t);
+              }
+            } catch (e) {}`,
+          }}
+        />
         {/* AdSense 소유권 확인은 초기 HTML에 실제 <script> 태그가 있어야 크롤러가
             인식한다 — next/script의 beforeInteractive는 SSR 출력에 <link
             rel="preload">만 남기고 실제 태그는 클라이언트에서 주입하므로

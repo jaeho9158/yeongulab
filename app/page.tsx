@@ -36,13 +36,13 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 pt-20 pb-14">
-        <p className="text-sm font-medium text-accent">
+        <p className="font-label text-xs tracking-widest text-ink-soft uppercase">
           무료 · 로그인 불필요
         </p>
-        <h1 className="mt-3 text-4xl leading-[1.2] font-bold tracking-tight text-ink sm:text-5xl">
+        <h1 className="font-display mt-3 text-4xl leading-[1.3] font-bold tracking-tight text-ink sm:text-5xl">
           연구는 시작이 반이 아니라,
           <br />
-          순서가 반입니다.
+          <span className="highlight-mark">순서가 반</span>입니다.
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
           주제를 정하는 법도, 선행연구를 찾는 법도 학교에서 가르쳐주지
@@ -69,9 +69,9 @@ export default function Home() {
       </section>
 
       {/* 막히는 지점 */}
-      <section className="border-t border-line bg-surface">
+      <section className="rule-dashed bg-surface">
         <div className="mx-auto max-w-3xl px-4 py-14">
-          <h2 className="text-xl font-bold text-ink">
+          <h2 className="font-display text-xl font-bold text-ink">
             이 중 하나라도 해당된다면
           </h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -96,7 +96,7 @@ export default function Home() {
 
       {/* 6단계 리스트 */}
       <section className="mx-auto max-w-3xl px-4 py-16">
-        <h2 className="text-xl font-bold text-ink">
+        <h2 className="font-display text-xl font-bold text-ink">
           주제 선정부터 저널 투고까지
         </h2>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
@@ -133,7 +133,7 @@ export default function Home() {
       </section>
 
       {/* 클로징 노트 */}
-      <section className="border-t border-line">
+      <section className="rule-dashed">
         <div className="mx-auto max-w-3xl px-4 py-14">
           <div className="note-box max-w-md px-6 py-5">
             <p className="text-sm text-ink-soft">

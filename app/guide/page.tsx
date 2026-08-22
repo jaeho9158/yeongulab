@@ -17,7 +17,7 @@ export default function GuideIndexPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="text-3xl font-bold tracking-tight text-ink">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
         연구 6단계 가이드
       </h1>
       <p className="mt-4 max-w-xl leading-relaxed text-ink-soft">

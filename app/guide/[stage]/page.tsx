@@ -78,13 +78,13 @@ export default async function GuideStagePage({
           <p className="text-sm text-ink-soft">
             {stage.order} / {stages.length}단계 · {stage.estimatedWeeks}
           </p>
-          <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-ink">
+          <h1 className="font-display mt-0.5 text-3xl font-bold tracking-tight text-ink">
             {stage.title}
           </h1>
         </div>
       </div>
 
-      <div className="prose prose-neutral mt-10 max-w-none prose-headings:font-bold prose-headings:text-ink prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:text-ink prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-table:text-sm prose-th:text-ink prose-td:text-ink-soft">
+      <div className="prose prose-neutral mt-10 max-w-none prose-headings:font-display prose-headings:font-bold prose-headings:text-ink prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:text-ink prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-table:text-sm prose-th:text-ink prose-td:text-ink-soft">
         <MDXRemote
           source={stage.content}
           options={{
