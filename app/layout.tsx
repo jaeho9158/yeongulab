@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   },
   description:
     "청소년이 연구 주제 선정부터 논문 투고까지 6단계로 따라갈 수 있는 무료 가이드.",
+  verification: {
+    other: {
+      "naver-site-verification": "65d6516f9b1748e2c9238a53c6d469a728445806",
+    },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
