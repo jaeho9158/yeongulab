@@ -35,12 +35,25 @@ export const IDEA_CATEGORIES = {
   ],
 } as const;
 
+// 한글 종성(받침) 유무에 따라 조사를 올바르게 고른다.
+function hasBatchim(word: string): boolean {
+  const last = word.trim().at(-1);
+  if (!last) return false;
+  const code = last.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return false; // 한글 음절이 아니면 받침 없음으로 취급
+  return (code - 0xac00) % 28 !== 0;
+}
+
+function josa(word: string, [withBatchim, noBatchim]: [string, string]): string {
+  return hasBatchim(word) ? withBatchim : noBatchim;
+}
+
 const LENSES = [
-  (a: string, b: string) => `${a}가 ${b}에 미치는 영향`,
-  (a: string, b: string) => `${a}와 ${b}의 상관관계`,
-  (a: string, b: string) => `${a}를 활용해 ${b}를 개선하는 방법`,
+  (a: string, b: string) => `${a}${josa(a, ["이", "가"])} ${b}에 미치는 영향`,
+  (a: string, b: string) => `${a}${josa(a, ["과", "와"])} ${b}의 상관관계`,
+  (a: string, b: string) => `${a}${josa(a, ["을", "를"])} 활용해 ${b}${josa(b, ["을", "를"])} 개선하는 방법`,
   (a: string, b: string) => `${a}의 변화가 ${b}에 미치는 시간적 패턴`,
-  (a: string, b: string) => `${a}과 ${b} 사이의 조건별 차이 비교`,
+  (a: string, b: string) => `${a}${josa(a, ["과", "와"])} ${b} 사이의 조건별 차이 비교`,
 ];
 
 export type Category = keyof typeof IDEA_CATEGORIES;

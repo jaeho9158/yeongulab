@@ -50,16 +50,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           `}
         </Script>
 
-        <SiteHeader />
+        <div className="print:hidden">
+          <SiteHeader />
+        </div>
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <div className="print:hidden">
+          <SiteFooter />
+        </div>
 
         {/* PC 전용 좌우 광고 레일 — 본문 폭(max-w-3xl=48rem) 바깥 여백에 고정.
             여백이 176px(광고폭160+여유16) 이상 나오는 1280px(xl)부터 노출. */}
-        <div className="fixed top-24 left-4 z-0 hidden xl:block">
+        <div className="fixed top-24 left-4 z-0 hidden xl:block print:hidden">
           <AdSlot label="좌측 광고" variant="rail" />
         </div>
-        <div className="fixed top-24 right-4 z-0 hidden xl:block">
+        <div className="fixed top-24 right-4 z-0 hidden xl:block print:hidden">
           <AdSlot label="우측 광고" variant="rail" />
         </div>
       </body>

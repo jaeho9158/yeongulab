@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
 import { PlanExport } from "@/components/PlanExport";
+import { PlanBackup } from "@/components/PlanBackup";
+import { ProgressOverview } from "@/components/ProgressOverview";
 
 export const metadata: Metadata = {
   title: "연구 6단계 가이드",
@@ -25,7 +27,16 @@ export default function GuideIndexPage() {
       </p>
 
       <div className="mt-10">
+        <ProgressOverview
+          stages={stages.map((s) => ({
+            order: s.order,
+            slug: s.slug,
+            title: s.title,
+            checklistCount: s.checklist.length,
+          }))}
+        />
         <PlanExport stages={stages} />
+        <PlanBackup />
       </div>
 
       <div className="space-y-4">

@@ -1,22 +1,31 @@
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
+import { ContinueCard } from "@/components/ContinueCard";
 
 const STUCK_POINTS = [
   {
     title: "뭘 연구해야 할지 모르겠다",
     body: "관심 가는 건 있는데, 그게 '연구'가 되는 건지 확신이 안 서는 상태.",
+    href: "/guide/topic",
+    cta: "주제 선정 단계로",
   },
   {
     title: "순서를 모른다",
     body: "선행연구부터 봐야 하는지, 일단 데이터부터 모아야 하는지 감이 안 옴.",
+    href: "/guide",
+    cta: "6단계 전체 보기",
   },
   {
     title: "자료가 흩어진다",
     body: "메모, 논문 캡처, 데이터 파일이 여기저기 흩어져서 나중에 못 찾음.",
+    href: "/guide/prior-research",
+    cta: "선행연구 조사 단계로",
   },
   {
     title: "봐줄 사람이 없다",
     body: "막힌 부분을 물어볼 곳이 없어서 혼자 판단하고, 혼자 불안해함.",
+    href: "/guide/methodology",
+    cta: "자가검증 질문으로",
   },
 ];
 
@@ -48,6 +57,15 @@ export default function Home() {
         >
           6단계 가이드 보기 →
         </Link>
+
+        <ContinueCard
+          stages={stages.map((s) => ({
+            order: s.order,
+            slug: s.slug,
+            title: s.title,
+            checklistCount: s.checklist.length,
+          }))}
+        />
       </section>
 
       {/* 막히는 지점 */}
@@ -58,12 +76,19 @@ export default function Home() {
           </h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {STUCK_POINTS.map((point) => (
-              <div key={point.title} className="card bg-bg px-5 py-5">
+              <Link
+                key={point.title}
+                href={point.href}
+                className="card flex flex-col bg-bg px-5 py-5 transition hover:border-accent"
+              >
                 <h3 className="font-semibold text-ink">{point.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">
                   {point.body}
                 </p>
-              </div>
+                <span className="mt-3 text-sm font-medium text-accent">
+                  {point.cta} →
+                </span>
+              </Link>
             ))}
           </div>
         </div>

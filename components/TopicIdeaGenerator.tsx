@@ -8,9 +8,20 @@ const CATEGORIES = Object.keys(IDEA_CATEGORIES) as Category[];
 export function TopicIdeaGenerator() {
   const [category, setCategory] = useState<Category>(CATEGORIES[0]);
   const [ideas, setIdeas] = useState<string[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   function draw() {
     setIdeas((prev) => [generateIdea(category), ...prev].slice(0, 5));
+  }
+
+  async function copy(idea: string, index: number) {
+    try {
+      await navigator.clipboard.writeText(idea);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex((cur) => (cur === index ? null : cur)), 1500);
+    } catch {
+      // 클립보드 접근 불가 — 조용히 무시
+    }
   }
 
   return (
@@ -52,9 +63,16 @@ export function TopicIdeaGenerator() {
           {ideas.map((idea, i) => (
             <li
               key={i}
-              className="rounded-lg bg-surface px-4 py-2.5 text-sm text-ink"
+              className="flex items-center justify-between gap-3 rounded-lg bg-surface px-4 py-2.5 text-sm text-ink"
             >
-              {idea}
+              <span>{idea}</span>
+              <button
+                type="button"
+                onClick={() => copy(idea, i)}
+                className="shrink-0 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition hover:border-accent"
+              >
+                {copiedIndex === i ? "복사됨" : "복사"}
+              </button>
             </li>
           ))}
         </ul>

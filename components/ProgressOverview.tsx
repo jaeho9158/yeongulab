@@ -1,0 +1,123 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type StageInfo = {
+  order: number;
+  slug: string;
+  title: string;
+  checklistCount: number;
+};
+
+type Progress = {
+  done: number;
+  total: number;
+};
+
+function readChecklist(slug: string, expectedLength: number): boolean[] {
+  try {
+    const raw = window.localStorage.getItem(`research-guide:checklist:${slug}`);
+    if (!raw) return [];
+    const saved = JSON.parse(raw) as boolean[];
+    if (!Array.isArray(saved) || saved.length !== expectedLength) return [];
+    return saved;
+  } catch {
+    return [];
+  }
+}
+
+export function ProgressOverview({ stages }: { stages: StageInfo[] }) {
+  const [hydrated, setHydrated] = useState(false);
+  const [progress, setProgress] = useState<Record<string, Progress>>({});
+
+  useEffect(() => {
+    const next: Record<string, Progress> = {};
+    for (const stage of stages) {
+      const checked = readChecklist(stage.slug, stage.checklistCount);
+      next[stage.slug] = {
+        done: checked.filter(Boolean).length,
+        total: stage.checklistCount,
+      };
+    }
+    setProgress(next);
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const totalItems = stages.reduce((sum, s) => sum + s.checklistCount, 0);
+  const doneItems = stages.reduce(
+    (sum, s) => sum + (progress[s.slug]?.done ?? 0),
+    0,
+  );
+  const percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+
+  const nextStage = stages.find((s) => {
+    const p = progress[s.slug];
+    return !p || p.done < p.total;
+  });
+
+  if (!hydrated) {
+    // 서버 렌더/첫 페인트에는 저장된 값을 알 수 없으므로 빈 셸만 그려 hydration mismatch를 피한다.
+    return null;
+  }
+
+  return (
+    <section className="card mb-6 px-5 py-5 sm:px-6 sm:py-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-ink">전체 진행 상황</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            {doneItems} / {totalItems}개 항목 완료 · 이 기기 기준
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/guide/print"
+            className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink-soft transition hover:border-accent"
+          >
+            인쇄용으로 보기
+          </Link>
+          {nextStage && (
+            <Link
+              href={`/guide/${nextStage.slug}`}
+              className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-bg transition hover:opacity-85"
+            >
+              이어서 하기: {nextStage.title} →
+            </Link>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-surface">
+        <div
+          className="h-full rounded-full bg-accent transition-[width]"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      <ul className="mt-4 flex flex-wrap gap-2">
+        {stages.map((stage) => {
+          const p = progress[stage.slug];
+          const done = p?.done ?? 0;
+          const total = p?.total ?? stage.checklistCount;
+          const complete = total > 0 && done === total;
+          return (
+            <li key={stage.slug}>
+              <Link
+                href={`/guide/${stage.slug}`}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+                  complete
+                    ? "border-accent bg-accent/10 text-accent"
+                    : "border-line text-ink-soft"
+                }`}
+              >
+                {stage.order}. {stage.title} {total > 0 ? `${done}/${total}` : ""}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}

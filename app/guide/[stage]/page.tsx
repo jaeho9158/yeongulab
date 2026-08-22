@@ -26,6 +26,7 @@ import { SurveyBiasChecker } from "@/components/SurveyBiasChecker";
 import { RandomSampler } from "@/components/RandomSampler";
 import { LengthChecker } from "@/components/LengthChecker";
 import { FigureCaptionHelper } from "@/components/FigureCaptionHelper";
+import { SubmissionVenues } from "@/components/SubmissionVenues";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -128,6 +129,7 @@ export default async function GuideStagePage({
       )}
       {stage.slug === "submission" && (
         <>
+          <SubmissionVenues />
           <DisclosureGenerator />
           <PresentationQuestionBank />
           <SpeechTimer />
