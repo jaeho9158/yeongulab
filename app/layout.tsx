@@ -25,13 +25,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
-        <Script
+      <head>
+        {/* AdSense 소유권 확인은 초기 HTML에 실제 <script> 태그가 있어야 크롤러가
+            인식한다 — next/script의 beforeInteractive는 SSR 출력에 <link
+            rel="preload">만 남기고 실제 태그는 클라이언트에서 주입하므로
+            여기서는 순수 HTML 태그로 직접 렌더링한다. */}
+        <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
           crossOrigin="anonymous"
-          strategy="beforeInteractive"
         />
+      </head>
+      <body className="min-h-full flex flex-col">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"
