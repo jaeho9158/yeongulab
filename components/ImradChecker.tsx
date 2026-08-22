@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 type SectionKey = "intro" | "method" | "result" | "discussion";
 
@@ -36,7 +37,7 @@ function splitBySections(text: string) {
 }
 
 export function ImradChecker() {
-  const [text, setText] = useState("");
+  const [text, setText] = usePersistentState("imrad-draft", "");
   const [checked, setChecked] = useState(false);
 
   const sections = checked ? splitBySections(text) : {};
@@ -77,31 +78,33 @@ export function ImradChecker() {
         구조 점검하기
       </button>
 
-      {checked && (
-        <div className="mt-4 space-y-2 rounded-lg bg-surface px-4 py-3 text-sm">
-          {(Object.keys(SECTION_PATTERNS) as SectionKey[]).map((key) => (
-            <p key={key} className="text-ink">
-              {foundKeys.includes(key) ? "✓" : "✗"}{" "}
-              {SECTION_PATTERNS[key].label} 섹션{" "}
-              {foundKeys.includes(key) ? "발견" : "못 찾음"}
-            </p>
-          ))}
-          {foundKeys.includes("intro") && (
-            <p className="text-ink-soft">
-              {hasPurposeStatement
-                ? "✓ 서론에서 목적을 나타내는 표현(목적/규명/검증)이 보입니다."
-                : "✗ 서론에서 \"목적/규명/검증\" 같은 표현이 안 보입니다 — 왜 이 연구를 했는지 명시적으로 썼는지 확인해보세요."}
-            </p>
-          )}
-          {foundKeys.includes("result") && (
-            <p className="text-ink-soft">
-              {resultHasInterpretation
-                ? "⚠ 결과 섹션에 해석성 표현(때문이다/의미한다 등)이 보입니다 — 논의 섹션으로 옮길 내용은 아닌지 확인해보세요."
-                : "✓ 결과 섹션에 해석성 표현이 눈에 띄지 않습니다."}
-            </p>
-          )}
-        </div>
-      )}
+      <div aria-live="polite">
+        {checked && (
+          <div className="mt-4 space-y-2 rounded-lg bg-surface px-4 py-3 text-sm">
+            {(Object.keys(SECTION_PATTERNS) as SectionKey[]).map((key) => (
+              <p key={key} className="text-ink">
+                {foundKeys.includes(key) ? "✓" : "✗"}{" "}
+                {SECTION_PATTERNS[key].label} 섹션{" "}
+                {foundKeys.includes(key) ? "발견" : "못 찾음"}
+              </p>
+            ))}
+            {foundKeys.includes("intro") && (
+              <p className="text-ink-soft">
+                {hasPurposeStatement
+                  ? "✓ 서론에서 목적을 나타내는 표현(목적/규명/검증)이 보입니다."
+                  : "✗ 서론에서 \"목적/규명/검증\" 같은 표현이 안 보입니다 — 왜 이 연구를 했는지 명시적으로 썼는지 확인해보세요."}
+              </p>
+            )}
+            {foundKeys.includes("result") && (
+              <p className="text-ink-soft">
+                {resultHasInterpretation
+                  ? "⚠ 결과 섹션에 해석성 표현(때문이다/의미한다 등)이 보입니다 — 논의 섹션으로 옮길 내용은 아닌지 확인해보세요."
+                  : "✓ 결과 섹션에 해석성 표현이 눈에 띄지 않습니다."}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

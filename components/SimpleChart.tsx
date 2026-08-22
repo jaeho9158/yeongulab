@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 type ChartType = "bar" | "hbar" | "line" | "area" | "scatter" | "pie" | "donut";
 
@@ -84,11 +84,20 @@ function arcPath(
 }
 
 export function SimpleChart() {
-  const [type, setType] = useState<ChartType>("bar");
-  const [labelsText, setLabelsText] = useState("A, B, C, D");
-  const [valuesText, setValuesText] = useState("12, 19, 7, 15");
-  const [xTitle, setXTitle] = useState("");
-  const [yTitle, setYTitle] = useState("");
+  const [chartState, setChartState] = usePersistentState<{
+    type: ChartType;
+    labelsText: string;
+    valuesText: string;
+    xTitle: string;
+    yTitle: string;
+  }>("simple-chart", {
+    type: "bar",
+    labelsText: "A, B, C, D",
+    valuesText: "12, 19, 7, 15",
+    xTitle: "",
+    yTitle: "",
+  });
+  const { type, labelsText, valuesText, xTitle, yTitle } = chartState;
 
   const parsed = parsePairs(labelsText, valuesText);
   // hbar/pie/donut에서는 음수가 의미가 없으므로(길이·비중을 나타냄) 제외한다
@@ -153,7 +162,10 @@ export function SimpleChart() {
           <button
             key={opt.type}
             type="button"
-            onClick={() => setType(opt.type)}
+            onClick={() =>
+              setChartState((prev) => ({ ...prev, type: opt.type }))
+            }
+            aria-pressed={type === opt.type}
             className={`rounded-full px-4 py-2 text-xs font-medium ${
               type === opt.type
                 ? "bg-ink text-bg"
@@ -167,23 +179,29 @@ export function SimpleChart() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="chart-labels" className="text-xs font-medium text-ink-soft">
             {SHARE_TYPES.includes(type) ? "항목 이름" : "항목 이름 (쉼표로 구분)"}
           </label>
           <textarea
+            id="chart-labels"
             value={labelsText}
-            onChange={(e) => setLabelsText(e.target.value)}
+            onChange={(e) =>
+              setChartState((prev) => ({ ...prev, labelsText: e.target.value }))
+            }
             rows={2}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="chart-values" className="text-xs font-medium text-ink-soft">
             값 (같은 개수로)
           </label>
           <textarea
+            id="chart-values"
             value={valuesText}
-            onChange={(e) => setValuesText(e.target.value)}
+            onChange={(e) =>
+              setChartState((prev) => ({ ...prev, valuesText: e.target.value }))
+            }
             rows={2}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
@@ -191,22 +209,28 @@ export function SimpleChart() {
         {XY_TYPES.includes(type) && (
           <>
             <div>
-              <label className="text-xs font-medium text-ink-soft">
+              <label htmlFor="chart-x-title" className="text-xs font-medium text-ink-soft">
                 {type === "hbar" ? "값 축 제목 (선택)" : "X축 제목 (선택)"}
               </label>
               <input
+                id="chart-x-title"
                 value={xTitle}
-                onChange={(e) => setXTitle(e.target.value)}
+                onChange={(e) =>
+                  setChartState((prev) => ({ ...prev, xTitle: e.target.value }))
+                }
                 className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-ink-soft">
+              <label htmlFor="chart-y-title" className="text-xs font-medium text-ink-soft">
                 {type === "hbar" ? "항목 축 제목 (선택)" : "Y축 제목 (선택)"}
               </label>
               <input
+                id="chart-y-title"
                 value={yTitle}
-                onChange={(e) => setYTitle(e.target.value)}
+                onChange={(e) =>
+                  setChartState((prev) => ({ ...prev, yTitle: e.target.value }))
+                }
                 className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
               />
             </div>
@@ -214,16 +238,18 @@ export function SimpleChart() {
         )}
       </div>
 
-      {parsed.droppedCount > 0 && (
-        <p className="mt-2 text-xs text-ink-soft">
-          값을 읽지 못한 항목 {parsed.droppedCount}개는 제외했습니다.
-        </p>
-      )}
-      {negativeCount > 0 && (
-        <p className="mt-2 text-xs text-ink-soft">
-          음수 값 {negativeCount}개는 이 차트 유형에서 제외됩니다.
-        </p>
-      )}
+      <div aria-live="polite">
+        {parsed.droppedCount > 0 && (
+          <p className="mt-2 text-xs text-ink-soft">
+            값을 읽지 못한 항목 {parsed.droppedCount}개는 제외했습니다.
+          </p>
+        )}
+        {negativeCount > 0 && (
+          <p className="mt-2 text-xs text-ink-soft">
+            음수 값 {negativeCount}개는 이 차트 유형에서 제외됩니다.
+          </p>
+        )}
+      </div>
 
       {hasData ? (
         <div className="mt-4">

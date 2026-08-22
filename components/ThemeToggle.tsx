@@ -39,6 +39,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="라이트/다크 모드 전환"
+      aria-pressed={theme === "dark"}
       className="-my-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface hover:text-ink"
     >
       {theme === null ? null : theme === "dark" ? (

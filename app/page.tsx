@@ -132,6 +132,37 @@ export default function Home() {
         </ol>
       </section>
 
+      {/* 예시 연구 */}
+      <section className="border-t border-line bg-surface">
+        <div className="mx-auto max-w-3xl px-4 py-14">
+          <h2 className="text-xl font-bold text-ink">
+            이론 말고 실제 예시가 필요하다면
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+            가상의 고등학생 연구 하나를 주제 선정부터 저널 투고까지 6단계
+            전체로 따라갑니다. 연구질문이 다듬어지는 과정, 변수 표, t-검정
+            결과 한 줄, IMRaD 요약까지 완성된 모습을 볼 수 있습니다.
+          </p>
+          <Link
+            href="/example"
+            className="card mt-6 flex items-center gap-4 bg-bg px-5 py-4 transition hover:border-accent"
+          >
+            <span className="flex-1">
+              <span className="block font-semibold text-ink">
+                예시 연구 한 편 따라가기
+              </span>
+              <span className="mt-0.5 block text-sm text-ink-soft">
+                백색소음 환경이 고등학생의 단어 회상 점수를 높이는가? (교육용
+                가상 예시)
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium text-accent">
+              보기 →
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {/* 클로징 노트 */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-3xl px-4 py-14">

@@ -109,10 +109,14 @@ export function DisclosureGenerator() {
       </p>
 
       <div className="mt-4">
-        <label className="text-xs font-medium text-ink-soft">
+        <label
+          htmlFor="disclosure-tool-name"
+          className="text-xs font-medium text-ink-soft"
+        >
           사용한 도구 이름 (선택, 예: ChatGPT, Claude)
         </label>
         <input
+          id="disclosure-tool-name"
           value={toolName}
           onChange={(e) => setToolName(e.target.value)}
           className="mt-1 w-full max-w-xs rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 import {
   parseNumberListDetailed,
   pearsonCorrelation,
@@ -148,10 +149,14 @@ function GuideBlock({ onPick }: { onPick: (mode: Mode) => void }) {
 }
 
 export function StatsCalculator() {
-  const [mode, setMode] = useState<Mode>("ttest");
-  const [textA, setTextA] = useState("");
-  const [textB, setTextB] = useState("");
+  const [inputs, setInputs] = usePersistentState<{
+    mode: Mode;
+    textA: string;
+    textB: string;
+  }>("stats-calculator", { mode: "ttest", textA: "", textB: "" });
+  const { mode, textA, textB } = inputs;
   const [error, setError] = useState<string | null>(null);
+  const [resultCopied, setResultCopied] = useState(false);
   const [dropWarning, setDropWarning] = useState<string | null>(null);
   const [ttestResult, setTtestResult] = useState<{
     value: number;
@@ -166,7 +171,7 @@ export function StatsCalculator() {
   } | null>(null);
 
   function switchMode(next: Mode) {
-    setMode(next);
+    setInputs((prev) => ({ ...prev, mode: next }));
     setTtestResult(null);
     setRegressionResult(null);
     setError(null);
@@ -234,6 +239,23 @@ export function StatsCalculator() {
 
   const ttestLabel = mode === "ttest" ? "t" : "r";
 
+  async function copyResult() {
+    let summary = "";
+    if (ttestResult) {
+      summary = `${ttestLabel} = ${ttestResult.value.toFixed(3)}, df = ${ttestResult.df.toFixed(1)}, p = ${ttestResult.p.toFixed(4)}`;
+    } else if (regressionResult) {
+      summary = `Y = ${regressionResult.slope.toFixed(3)}X ${regressionResult.intercept >= 0 ? "+" : "-"} ${Math.abs(regressionResult.intercept).toFixed(3)}, R² = ${regressionResult.r2.toFixed(3)}, p = ${regressionResult.p.toFixed(4)}`;
+    }
+    if (!summary) return;
+    try {
+      await navigator.clipboard.writeText(summary);
+      setResultCopied(true);
+      setTimeout(() => setResultCopied(false), 1500);
+    } catch {
+      // 클립보드 접근 실패 시 무시
+    }
+  }
+
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">간이 통계 계산기</h2>
@@ -248,6 +270,7 @@ export function StatsCalculator() {
         <button
           type="button"
           onClick={() => switchMode("ttest")}
+          aria-pressed={mode === "ttest"}
           className={`rounded-full px-4 py-2 text-xs font-medium ${
             mode === "ttest"
               ? "bg-ink text-bg"
@@ -259,6 +282,7 @@ export function StatsCalculator() {
         <button
           type="button"
           onClick={() => switchMode("correlation")}
+          aria-pressed={mode === "correlation"}
           className={`rounded-full px-4 py-2 text-xs font-medium ${
             mode === "correlation"
               ? "bg-ink text-bg"
@@ -270,6 +294,7 @@ export function StatsCalculator() {
         <button
           type="button"
           onClick={() => switchMode("regression")}
+          aria-pressed={mode === "regression"}
           className={`rounded-full px-4 py-2 text-xs font-medium ${
             mode === "regression"
               ? "bg-ink text-bg"
@@ -282,24 +307,30 @@ export function StatsCalculator() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="stats-values-a" className="text-xs font-medium text-ink-soft">
             {mode === "ttest" ? "그룹 A 값들" : "변수 X 값들"}
           </label>
           <textarea
+            id="stats-values-a"
             value={textA}
-            onChange={(e) => setTextA(e.target.value)}
+            onChange={(e) =>
+              setInputs((prev) => ({ ...prev, textA: e.target.value }))
+            }
             placeholder="예: 12, 15, 14, 18, 13"
             rows={4}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="stats-values-b" className="text-xs font-medium text-ink-soft">
             {mode === "ttest" ? "그룹 B 값들" : "변수 Y 값들"}
           </label>
           <textarea
+            id="stats-values-b"
             value={textB}
-            onChange={(e) => setTextB(e.target.value)}
+            onChange={(e) =>
+              setInputs((prev) => ({ ...prev, textB: e.target.value }))
+            }
             placeholder="예: 22, 19, 25, 21, 20"
             rows={4}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
@@ -318,35 +349,55 @@ export function StatsCalculator() {
         계산하기
       </button>
 
-      {error && <p className="mt-3 text-sm text-ink-soft">{error}</p>}
+      <div aria-live="polite">
+        {error && <p className="mt-3 text-sm text-ink-soft">{error}</p>}
 
-      {dropWarning && (
-        <p className="mt-2 text-xs text-ink-soft">{dropWarning}</p>
-      )}
+        {dropWarning && (
+          <p className="mt-2 text-xs text-ink-soft">{dropWarning}</p>
+        )}
 
-      {ttestResult && (
-        <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
-          <p className="text-ink">
-            {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
-            {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
-          </p>
-          <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
-        </div>
-      )}
+        {ttestResult && (
+          <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-ink">
+                {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
+                {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
+              </p>
+              <button
+                type="button"
+                onClick={copyResult}
+                className="-my-2 shrink-0 px-2 py-2 text-xs text-ink-soft hover:text-ink"
+              >
+                {resultCopied ? "복사됨" : "결과 복사"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
+          </div>
+        )}
 
-      {regressionResult && (
-        <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
-          <p className="text-ink">
-            Y = {regressionResult.slope.toFixed(3)}X{" "}
-            {regressionResult.intercept >= 0 ? "+" : "-"}{" "}
-            {Math.abs(regressionResult.intercept).toFixed(3)}, R² ={" "}
-            {regressionResult.r2.toFixed(3)}, p = {regressionResult.p.toFixed(4)}
-          </p>
-          <p className="mt-1.5 text-ink-soft">
-            {verdict(mode, regressionResult.p)}
-          </p>
-        </div>
-      )}
+        {regressionResult && (
+          <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-ink">
+                Y = {regressionResult.slope.toFixed(3)}X{" "}
+                {regressionResult.intercept >= 0 ? "+" : "-"}{" "}
+                {Math.abs(regressionResult.intercept).toFixed(3)}, R² ={" "}
+                {regressionResult.r2.toFixed(3)}, p = {regressionResult.p.toFixed(4)}
+              </p>
+              <button
+                type="button"
+                onClick={copyResult}
+                className="-my-2 shrink-0 px-2 py-2 text-xs text-ink-soft hover:text-ink"
+              >
+                {resultCopied ? "복사됨" : "결과 복사"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-ink-soft">
+              {verdict(mode, regressionResult.p)}
+            </p>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

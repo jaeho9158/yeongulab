@@ -9,10 +9,23 @@ const CATEGORIES = Object.keys(QUESTION_BANK) as QuestionCategory[];
 export function PresentationQuestionBank() {
   const [category, setCategory] = useState<QuestionCategory>(CATEGORIES[0]);
   const [drawn, setDrawn] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
 
   function draw() {
     const pool = QUESTION_BANK[category];
     setDrawn(shuffle(pool).slice(0, 3));
+    setCopied(false);
+  }
+
+  async function copyDrawn() {
+    if (drawn.length === 0) return;
+    try {
+      await navigator.clipboard.writeText(drawn.join("\n"));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 클립보드 접근 불가 — 조용히 무시
+    }
   }
 
   return (
@@ -28,6 +41,7 @@ export function PresentationQuestionBank() {
           <button
             key={c}
             type="button"
+            aria-pressed={category === c}
             onClick={() => {
               setCategory(c);
               setDrawn([]);
@@ -52,16 +66,25 @@ export function PresentationQuestionBank() {
       </button>
 
       {drawn.length > 0 && (
-        <ul className="mt-4 space-y-2">
-          {drawn.map((q, i) => (
-            <li
-              key={i}
-              className="rounded-lg bg-surface px-4 py-2.5 text-sm text-ink"
-            >
-              {q}
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="mt-4 space-y-2">
+            {drawn.map((q, i) => (
+              <li
+                key={i}
+                className="rounded-lg bg-surface px-4 py-2.5 text-sm text-ink"
+              >
+                {q}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={copyDrawn}
+            className="mt-3 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition hover:border-accent"
+          >
+            {copied ? "복사됨" : "질문 복사"}
+          </button>
+        </>
       )}
     </section>
   );

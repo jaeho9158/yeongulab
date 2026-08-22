@@ -38,6 +38,7 @@ export function TopicIdeaGenerator() {
           <button
             key={c}
             type="button"
+            aria-pressed={category === c}
             onClick={() => setCategory(c)}
             className={`rounded-full px-4 py-2 text-xs font-medium ${
               category === c

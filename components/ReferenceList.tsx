@@ -74,14 +74,15 @@ export function ReferenceList() {
                 <button
                   type="button"
                   onClick={() => copy(ref)}
-                  className="hover:text-ink"
+                  className="-mx-1 -my-2 px-3 py-2 hover:text-ink"
                 >
                   {copiedId === ref.id ? "복사됨" : "APA 복사"}
                 </button>
                 <button
                   type="button"
                   onClick={() => remove(ref.id)}
-                  className="hover:text-ink"
+                  aria-label={`${ref.title} 삭제`}
+                  className="-mx-1 -my-2 px-3 py-2 hover:text-ink"
                 >
                   삭제
                 </button>

@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 const CAPTION_FORMAT_RE = /^(Figure|Fig\.|Table|그림|표)\s*\d+[.:]/;
 
 export function FigureCaptionHelper() {
-  const [kind, setKind] = useState<"Figure" | "Table">("Figure");
-  const [number, setNumber] = useState("1");
-  const [desc, setDesc] = useState("");
+  const [form, setForm] = usePersistentState<{
+    kind: "Figure" | "Table";
+    number: string;
+    desc: string;
+    checkText: string;
+  }>("figure-caption", {
+    kind: "Figure",
+    number: "1",
+    desc: "",
+    checkText: "",
+  });
+  const { kind, number, desc, checkText } = form;
   const [copied, setCopied] = useState(false);
-
-  const [checkText, setCheckText] = useState("");
   const [checked, setChecked] = useState(false);
 
   const assembled = desc ? `${kind} ${number}. ${desc}` : "";
@@ -36,25 +44,52 @@ export function FigureCaptionHelper() {
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-[auto_auto_1fr]">
-        <select
-          value={kind}
-          onChange={(e) => setKind(e.target.value as "Figure" | "Table")}
-          className="rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
-        >
-          <option value="Figure">Figure</option>
-          <option value="Table">Table</option>
-        </select>
-        <input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-16 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
-        />
-        <input
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="설명 (예: 조건별 성장 속도 비교)"
-          className="min-w-0 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
-        />
+        <div>
+          <label htmlFor="caption-kind" className="text-xs font-medium text-ink-soft">
+            종류
+          </label>
+          <select
+            id="caption-kind"
+            value={kind}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                kind: e.target.value as "Figure" | "Table",
+              }))
+            }
+            className="mt-1 block rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
+          >
+            <option value="Figure">Figure</option>
+            <option value="Table">Table</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="caption-number" className="text-xs font-medium text-ink-soft">
+            번호
+          </label>
+          <input
+            id="caption-number"
+            value={number}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, number: e.target.value }))
+            }
+            className="mt-1 block w-16 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
+          />
+        </div>
+        <div className="min-w-0">
+          <label htmlFor="caption-desc" className="text-xs font-medium text-ink-soft">
+            설명
+          </label>
+          <input
+            id="caption-desc"
+            value={desc}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, desc: e.target.value }))
+            }
+            placeholder="설명 (예: 조건별 성장 속도 비교)"
+            className="mt-1 block w-full min-w-0 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+          />
+        </div>
       </div>
 
       {assembled && (
@@ -63,7 +98,7 @@ export function FigureCaptionHelper() {
           <button
             type="button"
             onClick={copy}
-            className="mt-1.5 text-xs text-ink-soft hover:text-ink"
+            className="-mx-1 mt-1.5 -mb-2 px-3 py-2 text-xs text-ink-soft hover:text-ink"
           >
             {copied ? "복사됨" : "복사"}
           </button>
@@ -71,14 +106,15 @@ export function FigureCaptionHelper() {
       )}
 
       <div className="mt-6 border-t border-line pt-4">
-        <label className="text-xs font-medium text-ink-soft">
+        <label htmlFor="caption-check" className="text-xs font-medium text-ink-soft">
           이미 쓴 캡션 형식 확인하기
         </label>
         <div className="mt-1 flex flex-wrap gap-2">
           <input
+            id="caption-check"
             value={checkText}
             onChange={(e) => {
-              setCheckText(e.target.value);
+              setForm((prev) => ({ ...prev, checkText: e.target.value }));
               setChecked(false);
             }}
             placeholder="예: 그림 1. 조건별 성장 속도 비교"

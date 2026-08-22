@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 const CHARS_PER_MINUTE = 320; // 한국어 발표 평균 속도 추정치 (참고용)
 
 export function SpeechTimer() {
-  const [text, setText] = useState("");
+  const [text, setText] = usePersistentState("speech-timer", "");
 
   const charCount = text.replace(/\s/g, "").length;
   const estimatedMinutes = charCount / CHARS_PER_MINUTE;
@@ -27,6 +28,7 @@ export function SpeechTimer() {
       </p>
 
       <textarea
+        aria-label="발표 대본 입력"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="발표 대본을 붙여넣어보세요."

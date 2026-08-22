@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 const LEADING_PATTERNS: { re: RegExp; hint: string }[] = [
   { re: /당연히/, hint: "\"당연히\" — 응답자에게 특정 답을 암시할 수 있습니다." },
@@ -11,7 +12,7 @@ const LEADING_PATTERNS: { re: RegExp; hint: string }[] = [
 ];
 
 export function SurveyBiasChecker() {
-  const [text, setText] = useState("");
+  const [text, setText] = usePersistentState("survey-bias", "");
   const [checked, setChecked] = useState(false);
 
   const lines = text
@@ -34,6 +35,7 @@ export function SurveyBiasChecker() {
       </p>
 
       <textarea
+        aria-label="설문 문항 입력 (한 줄에 하나씩)"
         value={text}
         onChange={(e) => {
           setText(e.target.value);

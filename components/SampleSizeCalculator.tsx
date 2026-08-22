@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 const Z_TABLE: Record<string, number> = {
   "90": 1.645,
@@ -9,10 +9,13 @@ const Z_TABLE: Record<string, number> = {
 };
 
 export function SampleSizeCalculator() {
-  const [confidence, setConfidence] = useState("95");
-  const [marginError, setMarginError] = useState("5");
-  const [population, setPopulation] = useState("");
-  const [proportion, setProportion] = useState("50");
+  const [form, setForm] = usePersistentState("sample-size", {
+    confidence: "95",
+    marginError: "5",
+    population: "",
+    proportion: "50",
+  });
+  const { confidence, marginError, population, proportion } = form;
 
   const z = Z_TABLE[confidence] ?? 1.96;
   const e = Number(marginError) / 100;
@@ -35,10 +38,18 @@ export function SampleSizeCalculator() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-ink-soft">신뢰수준</label>
+          <label
+            htmlFor="sample-size-confidence"
+            className="text-xs font-medium text-ink-soft"
+          >
+            신뢰수준
+          </label>
           <select
+            id="sample-size-confidence"
             value={confidence}
-            onChange={(e) => setConfidence(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, confidence: e.target.value }))
+            }
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           >
             <option value="90">90%</option>
@@ -47,35 +58,53 @@ export function SampleSizeCalculator() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="sample-size-margin"
+            className="text-xs font-medium text-ink-soft"
+          >
             허용 오차범위 (%)
           </label>
           <input
+            id="sample-size-margin"
             type="number"
             value={marginError}
-            onChange={(e) => setMarginError(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, marginError: e.target.value }))
+            }
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="sample-size-proportion"
+            className="text-xs font-medium text-ink-soft"
+          >
             예상 비율 (% · 모르면 50)
           </label>
           <input
+            id="sample-size-proportion"
             type="number"
             value={proportion}
-            onChange={(e) => setProportion(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, proportion: e.target.value }))
+            }
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="sample-size-population"
+            className="text-xs font-medium text-ink-soft"
+          >
             전체 모집단 크기 (모르면 비워두기)
           </label>
           <input
+            id="sample-size-population"
             type="number"
             value={population}
-            onChange={(e) => setPopulation(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, population: e.target.value }))
+            }
             placeholder="예: 우리 학교 전체 학생 수"
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
           />

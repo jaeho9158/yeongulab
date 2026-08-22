@@ -19,6 +19,12 @@ export function SiteHeader() {
             연구 가이드
           </Link>
           <Link
+            href="/example"
+            className="-my-3 -mr-1 flex items-center py-3 pr-1 pl-3 text-ink-soft hover:text-ink"
+          >
+            예시
+          </Link>
+          <Link
             href="/activity"
             className="-my-3 -mr-1 flex items-center py-3 pr-1 pl-3 text-ink-soft hover:text-ink"
           >

@@ -26,6 +26,11 @@ export default function GuideIndexPage() {
         나옵니다. 순서대로 봐도 되고, 지금 막힌 단계만 펼쳐서 봐도 됩니다.
         건너뛰거나 보류해도 괜찮습니다.
       </p>
+      <p className="mt-3 text-sm">
+        <Link href="/example" className="text-accent hover:underline">
+          완성된 예시가 궁금하다면 → 예시 연구 보기
+        </Link>
+      </p>
 
       <div className="mt-10">
         <ProgressOverview

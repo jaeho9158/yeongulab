@@ -1,19 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 import { addReference, formatAPA, formatIEEE } from "@/lib/citations";
 
+type CitationForm = {
+  authors: string;
+  year: string;
+  title: string;
+  source: string;
+  volume: string;
+  issue: string;
+  pages: string;
+  url: string;
+};
+
+const EMPTY_FORM: CitationForm = {
+  authors: "",
+  year: "",
+  title: "",
+  source: "",
+  volume: "",
+  issue: "",
+  pages: "",
+  url: "",
+};
+
 export function CitationFormatter() {
-  const [authors, setAuthors] = useState("");
-  const [year, setYear] = useState("");
-  const [title, setTitle] = useState("");
-  const [source, setSource] = useState("");
-  const [volume, setVolume] = useState("");
-  const [issue, setIssue] = useState("");
-  const [pages, setPages] = useState("");
-  const [url, setUrl] = useState("");
+  const [form, setForm] = usePersistentState<CitationForm>(
+    "citation-form",
+    EMPTY_FORM,
+  );
+  const { authors, year, title, source, volume, issue, pages, url } = form;
   const [copied, setCopied] = useState<"apa" | "ieee" | null>(null);
   const [saved, setSaved] = useState(false);
+
+  function setField(field: keyof CitationForm, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
 
   const hasInput = Boolean(authors || title || source);
   const ref = { authors, year, title, source, volume, issue, pages, url };
@@ -49,70 +73,78 @@ export function CitationFormatter() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="citation-authors" className="text-xs font-medium text-ink-soft">
             저자 (예: Kim, J. S., &amp; Lee, H.)
           </label>
           <input
+            id="citation-authors"
             value={authors}
-            onChange={(e) => setAuthors(e.target.value)}
+            onChange={(e) => setField("authors", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="text-xs font-medium text-ink-soft">제목</label>
+          <label htmlFor="citation-title" className="text-xs font-medium text-ink-soft">제목</label>
           <input
+            id="citation-title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setField("title", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label htmlFor="citation-source" className="text-xs font-medium text-ink-soft">
             학술지·출처명
           </label>
           <input
+            id="citation-source"
             value={source}
-            onChange={(e) => setSource(e.target.value)}
+            onChange={(e) => setField("source", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">연도</label>
+          <label htmlFor="citation-year" className="text-xs font-medium text-ink-soft">연도</label>
           <input
+            id="citation-year"
             value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) => setField("year", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">권(vol)</label>
+          <label htmlFor="citation-volume" className="text-xs font-medium text-ink-soft">권(vol)</label>
           <input
+            id="citation-volume"
             value={volume}
-            onChange={(e) => setVolume(e.target.value)}
+            onChange={(e) => setField("volume", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">호(no)</label>
+          <label htmlFor="citation-issue" className="text-xs font-medium text-ink-soft">호(no)</label>
           <input
+            id="citation-issue"
             value={issue}
-            onChange={(e) => setIssue(e.target.value)}
+            onChange={(e) => setField("issue", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">페이지</label>
+          <label htmlFor="citation-pages" className="text-xs font-medium text-ink-soft">페이지</label>
           <input
+            id="citation-pages"
             value={pages}
-            onChange={(e) => setPages(e.target.value)}
+            onChange={(e) => setField("pages", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">URL (선택)</label>
+          <label htmlFor="citation-url" className="text-xs font-medium text-ink-soft">URL (선택)</label>
           <input
+            id="citation-url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => setField("url", e.target.value)}
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           />
         </div>
@@ -126,7 +158,7 @@ export function CitationFormatter() {
               <button
                 type="button"
                 onClick={() => copy(apa, "apa")}
-                className="text-xs text-ink-soft hover:text-ink"
+                className="-mx-1 -my-2 px-3 py-2 text-xs text-ink-soft hover:text-ink"
               >
                 {copied === "apa" ? "복사됨" : "복사"}
               </button>
@@ -139,7 +171,7 @@ export function CitationFormatter() {
               <button
                 type="button"
                 onClick={() => copy(ieee, "ieee")}
-                className="text-xs text-ink-soft hover:text-ink"
+                className="-mx-1 -my-2 px-3 py-2 text-xs text-ink-soft hover:text-ink"
               >
                 {copied === "ieee" ? "복사됨" : "복사"}
               </button>

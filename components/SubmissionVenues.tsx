@@ -109,10 +109,11 @@ export function SubmissionVenues() {
           <button
             key={cat}
             type="button"
+            aria-pressed={activeCategory === cat}
             onClick={() => setActiveCategory(cat)}
             className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${
               activeCategory === cat
-                ? "bg-accent text-white"
+                ? "bg-ink text-bg"
                 : "bg-surface text-ink-soft hover:text-ink"
             }`}
           >

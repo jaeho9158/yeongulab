@@ -7,6 +7,9 @@ const WEEKS = 12;
 const DAYS_PER_WEEK = 7;
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
+// 범례 스와치 — levelFor의 4단계와 같은 순서
+const LEGEND_LEVELS = ["bg-surface", "bg-accent/30", "bg-accent/60", "bg-accent"];
+
 function levelFor(count: number): string {
   if (count <= 0) return "bg-surface";
   if (count === 1) return "bg-accent/30";
@@ -50,6 +53,11 @@ export function ActivityHeatmap() {
     weeks.push(week);
   }
 
+  // 렌더링되는 기간 안의 총 활동 건수 (그리드 요약 레이블용)
+  const totalCount = weeks
+    .flat()
+    .reduce((sum, date) => sum + (byDay[toLocalDateKey(date)] ?? 0), 0);
+
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">최근 12주간 활동</h2>
@@ -57,16 +65,24 @@ export function ActivityHeatmap() {
         체크리스트 완료, 자가검증 기록 등을 날짜별로 담백하게 보여줍니다.
       </p>
       <div className="mt-4 overflow-x-auto">
-        <div className="flex gap-1">
+        <div
+          // role="img"는 자식을 presentational로 취급해 칸별 라벨이 묻히므로 group을 쓴다
+          role="group"
+          aria-label={`최근 12주간 활동 히트맵, 총 ${totalCount}건`}
+          className="flex gap-1"
+        >
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col gap-1">
               {week.map((date, di) => {
                 const key = toLocalDateKey(date);
                 const count = byDay[key] ?? 0;
+                const label = `${date.getMonth() + 1}월 ${date.getDate()}일: ${count}건`;
                 return (
                   <div
                     key={di}
                     title={`${key}: ${count}건`}
+                    aria-label={count > 0 ? label : undefined}
+                    aria-hidden={count === 0 ? true : undefined}
                     className={`h-3 w-3 rounded-sm ${levelFor(count)}`}
                   />
                 );
@@ -75,7 +91,14 @@ export function ActivityHeatmap() {
           ))}
         </div>
       </div>
-      <p className="mt-3 text-xs text-ink-soft">
+      <div className="mt-3 flex items-center gap-1.5 text-xs text-ink-soft">
+        <span>적음</span>
+        {LEGEND_LEVELS.map((cls) => (
+          <span key={cls} className={`h-3 w-3 rounded-sm ${cls}`} />
+        ))}
+        <span>많음</span>
+      </div>
+      <p className="mt-2 text-xs text-ink-soft">
         {WEEKDAY_LABELS[0]}부터 {WEEKDAY_LABELS[6]}까지, 왼쪽이 과거·오른쪽이 최근입니다.
       </p>
     </section>

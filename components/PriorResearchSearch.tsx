@@ -124,7 +124,7 @@ export function PriorResearchSearch() {
               <button
                 type="button"
                 onClick={() => save(paper)}
-                className="mt-2 text-xs text-ink-soft hover:text-ink"
+                className="-mx-2 -mb-3 mt-2 flex min-h-11 items-center px-2 py-3 text-xs text-ink-soft hover:text-ink"
               >
                 {savedIds[paper.paperId] ? "저장됨" : "내 레퍼런스에 저장"}
               </button>

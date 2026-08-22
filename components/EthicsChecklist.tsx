@@ -84,6 +84,12 @@ const CATEGORIES: ChecklistCategory[] = [
 
 const TOTAL_ITEMS = CATEGORIES.reduce((sum, c) => sum + c.items.length, 0);
 
+// 카테고리별 시작 인덱스(누적) — 렌더 중 변수를 증가시키지 않고 평탄 인덱스를 구한다
+const OFFSETS = CATEGORIES.reduce<number[]>((acc, c, i) => {
+  acc.push(i === 0 ? 0 : acc[i - 1] + CATEGORIES[i - 1].items.length);
+  return acc;
+}, []);
+
 export function EthicsChecklist({
   slug,
   title = "연구윤리 · 재현가능성 체크리스트",
@@ -109,7 +115,6 @@ export function EthicsChecklist({
       // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
     }
     setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   function toggle(index: number) {
@@ -128,8 +133,6 @@ export function EthicsChecklist({
 
   const doneCount = checked.filter(Boolean).length;
 
-  let cursor = 0;
-
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-3">
@@ -144,15 +147,14 @@ export function EthicsChecklist({
       </p>
 
       <div className="mt-4 space-y-6">
-        {CATEGORIES.map((category) => (
+        {CATEGORIES.map((category, ci) => (
           <div key={category.title}>
             <h3 className="text-sm font-semibold text-ink">
               {category.title}
             </h3>
             <ul className="mt-2 space-y-2">
-              {category.items.map((item) => {
-                const index = cursor;
-                cursor += 1;
+              {category.items.map((item, ii) => {
+                const index = OFFSETS[ci] + ii;
                 return (
                   <li key={index}>
                     <label className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-surface">

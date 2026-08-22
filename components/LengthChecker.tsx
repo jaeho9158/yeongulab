@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 export function LengthChecker() {
-  const [text, setText] = useState("");
+  const [text, setText] = usePersistentState("length-checker", "");
 
   const withSpaces = text.length;
   const withoutSpaces = text.replace(/\s/g, "").length;
@@ -29,7 +29,10 @@ export function LengthChecker() {
         className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
       />
 
-      <div className="mt-3 grid grid-cols-2 gap-3 rounded-lg bg-surface px-4 py-3 text-sm sm:grid-cols-4">
+      <div
+        aria-live="polite"
+        className="mt-3 grid grid-cols-2 gap-3 rounded-lg bg-surface px-4 py-3 text-sm sm:grid-cols-4"
+      >
         <div>
           <p className="text-xs text-ink-soft">글자수(공백 포함)</p>
           <p className="mt-0.5 font-medium text-ink">

@@ -119,7 +119,7 @@ export function DeadlineTracker() {
                   <button
                     type="button"
                     onClick={() => remove(item.id)}
-                    className="text-xs text-ink-soft hover:text-ink"
+                    className="-my-2.5 -mr-2 flex min-h-11 items-center px-2 py-2.5 text-xs text-ink-soft hover:text-ink"
                     aria-label={`${item.name} 삭제`}
                   >
                     삭제

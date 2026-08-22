@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { shuffle } from "@/lib/shuffle";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 export function RandomSampler() {
-  const [text, setText] = useState("");
-  const [count, setCount] = useState("5");
+  const [form, setForm] = usePersistentState("random-sampler", {
+    text: "",
+    count: "5",
+  });
+  const { text, count } = form;
   const [picked, setPicked] = useState<string[] | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const items = text
     .split(/[\n,]+/)
@@ -22,6 +27,17 @@ export function RandomSampler() {
     setPicked(shuffle(items).slice(0, n));
   }
 
+  async function copyPicked() {
+    if (!picked || picked.length === 0) return;
+    try {
+      await navigator.clipboard.writeText(picked.join(", "));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 클립보드 접근 불가 — 조용히 무시
+    }
+  }
+
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">랜덤 표본 추첨기</h2>
@@ -31,9 +47,11 @@ export function RandomSampler() {
       </p>
 
       <textarea
+        aria-label="전체 명단 입력"
         value={text}
         onChange={(e) => {
-          setText(e.target.value);
+          const next = e.target.value;
+          setForm((prev) => ({ ...prev, text: next }));
           setPicked(null);
         }}
         placeholder={"1반 1번\n1반 2번\n1반 3번\n..."}
@@ -42,13 +60,20 @@ export function RandomSampler() {
       />
 
       <div className="mt-3 flex items-center gap-2">
-        <label className="text-xs font-medium text-ink-soft">
+        <label
+          htmlFor="random-sampler-count"
+          className="text-xs font-medium text-ink-soft"
+        >
           뽑을 인원 수
         </label>
         <input
+          id="random-sampler-count"
           type="number"
           value={count}
-          onChange={(e) => setCount(e.target.value)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setForm((prev) => ({ ...prev, count: next }));
+          }}
           min={1}
           className="w-20 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
         />
@@ -68,7 +93,16 @@ export function RandomSampler() {
           {picked.length === 0 ? (
             <p className="text-sm text-ink-soft">뽑을 인원 수를 확인해주세요.</p>
           ) : (
-            <p className="text-sm text-ink">{picked.join(", ")}</p>
+            <>
+              <p className="text-sm text-ink">{picked.join(", ")}</p>
+              <button
+                type="button"
+                onClick={copyPicked}
+                className="mt-2 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition hover:border-accent"
+              >
+                {copied ? "복사됨" : "결과 복사"}
+              </button>
+            </>
           )}
         </div>
       )}

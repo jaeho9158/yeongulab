@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 const METHODS = [
   { value: "실험적으로", label: "실험적으로" },
@@ -10,10 +11,13 @@ const METHODS = [
 ];
 
 export function ObjectiveTemplateGenerator() {
-  const [what, setWhat] = useState("");
-  const [condition, setCondition] = useState("");
-  const [outcome, setOutcome] = useState("");
-  const [method, setMethod] = useState(METHODS[0].value);
+  const [form, setForm] = usePersistentState("objective-template", {
+    what: "",
+    condition: "",
+    outcome: "",
+    method: METHODS[0].value,
+  });
+  const { what, condition, outcome, method } = form;
   const [copied, setCopied] = useState(false);
 
   const sentence =
@@ -43,43 +47,69 @@ export function ObjectiveTemplateGenerator() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="objective-what"
+            className="text-xs font-medium text-ink-soft"
+          >
             무엇이 (연구 대상)
           </label>
           <input
+            id="objective-what"
             value={what}
-            onChange={(e) => setWhat(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, what: e.target.value }))
+            }
             placeholder="예: 특정 청각 자극"
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="objective-condition"
+            className="text-xs font-medium text-ink-soft"
+          >
             어떤 조건에서
           </label>
           <input
+            id="objective-condition"
             value={condition}
-            onChange={(e) => setCondition(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, condition: e.target.value }))
+            }
             placeholder="예: 20분간 청취했을 때"
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">
+          <label
+            htmlFor="objective-outcome"
+            className="text-xs font-medium text-ink-soft"
+          >
             어떤 결과나 변화
           </label>
           <input
+            id="objective-outcome"
             value={outcome}
-            onChange={(e) => setOutcome(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, outcome: e.target.value }))
+            }
             placeholder="예: 뇌파 동조와 집중력 향상"
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-ink-soft">방법 유형</label>
+          <label
+            htmlFor="objective-method"
+            className="text-xs font-medium text-ink-soft"
+          >
+            방법 유형
+          </label>
           <select
+            id="objective-method"
             value={method}
-            onChange={(e) => setMethod(e.target.value)}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, method: e.target.value }))
+            }
             className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
           >
             {METHODS.map((m) => (

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistentState } from "@/lib/usePersistentState";
 
 type Row = { name: string; role: "독립변수" | "종속변수" | "통제변수"; note: string };
 
 const ROLES: Row["role"][] = ["독립변수", "종속변수", "통제변수"];
 
 export function VariableTableBuilder() {
-  const [rows, setRows] = useState<Row[]>([
+  const [rows, setRows] = usePersistentState<Row[]>("variable-table", [
     { name: "", role: "독립변수", note: "" },
   ]);
   const [copied, setCopied] = useState(false);
@@ -56,6 +57,7 @@ export function VariableTableBuilder() {
               value={row.name}
               onChange={(e) => update(i, { name: e.target.value })}
               placeholder="변수명 (예: 조명 세기)"
+              aria-label={`${i + 1}번째 변수 이름`}
               className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
             />
             <select
@@ -63,6 +65,7 @@ export function VariableTableBuilder() {
               onChange={(e) =>
                 update(i, { role: e.target.value as Row["role"] })
               }
+              aria-label={`${i + 1}번째 변수 구분`}
               className="rounded-lg border border-line bg-bg px-2 py-2 text-sm text-ink focus:border-accent"
             >
               {ROLES.map((r) => (
@@ -75,6 +78,7 @@ export function VariableTableBuilder() {
               value={row.note}
               onChange={(e) => update(i, { note: e.target.value })}
               placeholder="설명/측정 방법"
+              aria-label={`${i + 1}번째 변수 설명/측정 방법`}
               className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
             />
             <button
