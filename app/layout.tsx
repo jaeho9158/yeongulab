@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -8,15 +7,6 @@ import { AdSlot } from "@/components/AdSlot";
 
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
-
-// 제목용 명조 — 논문 조판 느낌의 시그니처 서체. 본문/라벨은 기존 시스템
-// 폰트를 유지하고 이 서체는 헤드라인에만 절제해서 쓴다.
-const notoSerifKr = Noto_Serif_KR({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -34,11 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="ko"
-      className={`h-full antialiased ${notoSerifKr.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="ko" className="h-full antialiased" suppressHydrationWarning>
       <head>
         {/* 테마 선택을 hydration 전에 <html>에 반영 — 그렇지 않으면 라이트로
             그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. 저장된 값이 없으면

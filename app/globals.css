@@ -2,19 +2,16 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  /* "연구 노트" 팔레트 — 종이/잉크/볼펜/형광펜에서 가져온 색 */
-  --bg: #fbf8f2; /* 따뜻한 종이 */
-  --surface: #f3efe4; /* 종이 위 음영 영역 */
-  --ink: #1e2a24; /* 잉크 그린블랙 */
-  --ink-soft: #5c6a61;
-  --line: #dcd5c5; /* 종이 섬유 톤 경계선 */
-  --accent: #1f5c99; /* 볼펜 파랑 */
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --ink: #17181a;
+  --ink-soft: #6b7076;
+  --line: #e6e7e9;
+  --accent: #2f6f4f; /* 차분한 그린 accent, 포인트로만 사용 */
   --accent-contrast: #ffffff;
-  --highlight: #ffe066; /* 형광펜 — 시그니처 요소 전용, 남발 금지 */
-  --highlight-ink: #1e2a24;
 
-  /* --font-display는 next/font(Noto Serif KR)가 html에 주입한다 — 여기서
-     별도로 정의하면 캐스케이드 순서에 따라 서로 덮어쓸 수 있어 정의하지 않는다. */
+  --font-display: system-ui, -apple-system, "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
   --font-body: system-ui, -apple-system, "Apple SD Gothic Neo",
     "Malgun Gothic", sans-serif;
   --font-label: ui-monospace, "SFMono-Regular", Consolas, "Noto Sans Mono",
@@ -29,8 +26,7 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-contrast: var(--accent-contrast);
-  --color-highlight: var(--highlight);
-  --font-display: var(--font-display, "Noto Serif KR", serif);
+  --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-label: var(--font-label);
 }
@@ -38,29 +34,25 @@
 /* 시스템이 다크모드면 기본 적용 — 단, 사용자가 라이트를 명시로 고르면(data-theme="light") 제외 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #14140f;
-    --surface: #1c1c16;
-    --ink: #ede8da;
-    --ink-soft: #9a9585;
-    --line: #34342a;
-    --accent: #6fa8dc;
-    --accent-contrast: #0a1420;
-    --highlight: #b89a1f;
-    --highlight-ink: #14140f;
+    --bg: #101113;
+    --surface: #17181b;
+    --ink: #f2f3f4;
+    --ink-soft: #93989e;
+    --line: #2a2c2f;
+    --accent: #4fa377;
+    --accent-contrast: #0a1410;
   }
 }
 
 /* 사용자가 다크를 명시로 고르면 시스템 설정과 무관하게 항상 적용 */
 :root[data-theme="dark"] {
-  --bg: #14140f;
-  --surface: #1c1c16;
-  --ink: #ede8da;
-  --ink-soft: #9a9585;
-  --line: #34342a;
-  --accent: #6fa8dc;
-  --accent-contrast: #0a1420;
-  --highlight: #b89a1f;
-  --highlight-ink: #14140f;
+  --bg: #101113;
+  --surface: #17181b;
+  --ink: #f2f3f4;
+  --ink-soft: #93989e;
+  --line: #2a2c2f;
+  --accent: #4fa377;
+  --accent-contrast: #0a1410;
 }
 
 body {
@@ -79,14 +71,14 @@ body {
   outline-offset: 2px;
 }
 
-/* 단계 번호 배지 — 노트 탭처럼 살짝 기울인 사각 라벨 */
+/* 단계 번호 배지 — 절제된 형태 */
 .step-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.375rem;
+  border-radius: 0.625rem;
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--ink);
@@ -94,40 +86,16 @@ body {
   font-weight: 600;
   font-size: 0.9375rem;
   flex-shrink: 0;
-  transform: rotate(-1.5deg);
 }
 
 .card {
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 0.375rem;
+  border-radius: 0.75rem;
 }
 
 .note-box {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 0.375rem;
-}
-
-/* 점선 구분선 — 노트 종이의 절취선 느낌 */
-.rule-dashed {
-  border-top: 1px dashed var(--line);
-}
-
-/* 시그니처 요소: 형광펜으로 그은 듯한 밑줄 강조. 문장 하나에 한 곳만 쓴다. */
-.highlight-mark {
-  position: relative;
-}
-
-.highlight-mark::before {
-  content: "";
-  position: absolute;
-  left: -0.15em;
-  right: -0.15em;
-  bottom: 0.05em;
-  height: 0.38em;
-  background: var(--highlight);
-  transform: rotate(-1deg);
-  z-index: -1;
-  border-radius: 1px;
+  border-radius: 0.75rem;
 }

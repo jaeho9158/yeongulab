@@ -7,7 +7,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
         <Link
           href="/"
-          className="font-display -my-2 flex items-center py-2 text-lg font-bold tracking-tight text-ink"
+          className="-my-2 flex items-center py-2 text-lg font-bold tracking-tight text-ink"
         >
           연구랩
         </Link>
