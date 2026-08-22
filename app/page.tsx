@@ -39,9 +39,8 @@ export default function Home() {
         <p className="font-label text-xs tracking-widest text-ink-soft uppercase">
           무료 · 로그인 불필요
         </p>
-        <h1 className="font-display mt-3 text-4xl leading-[1.3] font-bold tracking-tight text-ink sm:text-5xl">
-          연구는 시작이 반이 아니라,
-          <br />
+        <h1 className="font-display mt-3 text-2xl leading-[1.4] font-bold tracking-tight text-ink sm:text-4xl sm:leading-[1.3] md:text-5xl">
+          연구는 시작이 반이 아니라,{" "}
           <span className="highlight-mark">순서가 반</span>입니다.
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
