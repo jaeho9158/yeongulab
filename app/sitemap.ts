@@ -1,17 +1,33 @@
 import type { MetadataRoute } from "next";
 import { getAllStages } from "@/lib/guide";
+import { SITE_URL } from "@/lib/site";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// 빌드 시점 고정 — 배포할 때마다 갱신된다
+const lastModified = new Date();
 
+/**
+ * /activity(개인 기록)와 /guide/print(인쇄용, noindex)는 의도적으로 뺀다.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const stages = getAllStages();
 
   return [
-    { url: BASE_URL, changeFrequency: "monthly", priority: 1 },
-    { url: `${BASE_URL}/guide`, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${BASE_URL}/example`, changeFrequency: "monthly", priority: 0.8 },
+    { url: SITE_URL, lastModified, changeFrequency: "monthly", priority: 1 },
+    {
+      url: `${SITE_URL}/guide`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/example`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...stages.map((stage) => ({
-      url: `${BASE_URL}/guide/${stage.slug}`,
+      url: `${SITE_URL}/guide/${stage.slug}`,
+      lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),

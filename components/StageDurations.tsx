@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getStageDurations } from "@/lib/activity";
+import { getStageDurations, toLocalDateKey } from "@/lib/activity";
 import { SectionHead } from "@/components/SectionHead";
 
 type StageInfo = {
   order: number;
   slug: string;
   title: string;
-  checklistCount: number;
+  /** 더 이상 쓰지 않음 — 호출부 호환용 */
 };
 
 type DurationInfo = { firstAt: string | null; lastAt: string | null; days: number | null };
 
 // 2026-06-02 → 6.02 (모노 한 줄에 맞는 짧은 표기)
+// ISO 문자열을 그대로 자르면 UTC 날짜라 오전 9시(KST) 전에는 하루가 어긋난다 — 로컬 날짜로 변환
 function formatDate(iso: string): string {
-  const [, m, d] = iso.slice(0, 10).split("-");
+  const [, m, d] = toLocalDateKey(new Date(iso)).split("-");
   return `${Number(m)}.${d}`;
 }
 

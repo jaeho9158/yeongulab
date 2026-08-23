@@ -16,26 +16,40 @@ function verdict(mode: Mode, p: number) {
   if (!Number.isFinite(p)) {
     return "p값을 계산할 수 없어 유의성을 판정할 수 없습니다. 입력 데이터를 확인해주세요.";
   }
-  const strength =
-    p < 0.01
-      ? "매우 유의미한"
-      : p < 0.05
-        ? "통계적으로 유의미한"
-        : null;
 
-  if (!strength) {
-    if (mode === "regression") {
-      return "회귀계수가 통계적으로 유의미하다고 보기 어렵습니다 (p ≥ .05). X로 Y를 설명한다고 말하기엔 근거가 약합니다.";
-    }
-    return "통계적으로 유의미하다고 보기 어렵습니다 (p ≥ .05)";
+  if (p >= 0.05) {
+    return "통계적으로 유의하지 않습니다 (p ≥ .05). 차이나 관계가 없다는 뜻이 아니라, 이 데이터만으로는 우연과 구분하기 어렵다는 뜻입니다.";
   }
 
-  if (mode === "regression") {
-    return `X가 Y를 ${strength} 수준으로 설명하는 것으로 보입니다 (p ${
-      p < 0.01 ? "< .01" : "< .05"
-    }). R²는 X가 Y의 변동을 얼마나 설명하는지를 보여줍니다.`;
+  // p < .05 — 유의 여부만 말하고, 크기·중요성은 효과크기로 따로 판단하게 한다
+  const level = p < 0.01 ? "(p < .01)" : "(p < .05)";
+  if (mode === "ttest") {
+    return `두 집단의 평균 차이가 통계적으로 유의합니다 ${level}. 차이가 얼마나 큰지는 아래 평균 차이와 d로 판단하세요.`;
   }
-  return `${strength} 차이/관계로 보입니다 (p ${p < 0.01 ? "< .01" : "< .05"})`;
+  if (mode === "correlation") {
+    return `두 변수의 상관이 통계적으로 유의합니다 ${level}. 관계가 얼마나 강한지는 r의 크기로 판단하세요.`;
+  }
+  return `회귀계수(기울기)가 통계적으로 유의합니다 ${level}. X가 Y의 변동을 얼마나 설명하는지는 R²로 판단하세요.`;
+}
+
+function CaveatBlock() {
+  return (
+    <ul className="mt-3 list-disc space-y-1 border-t border-line pl-5 pt-3 text-xs leading-relaxed text-ink-soft">
+      <li>
+        서로 독립된 두 집단이고 극단값이 없다는 전제입니다. 같은 사람을 두 번
+        측정했다면(사전·사후) 대응표본 검정이 필요합니다.
+      </li>
+      <li>상관·회귀는 인과관계를 말해주지 않습니다.</li>
+      <li>
+        결과에는 효과크기(평균 차이·d 또는 R²)를 p값과 함께 적으세요.
+      </li>
+      <li>
+        이 t-검정은 등분산을 가정하지 않는 Welch 방식이라 자유도(df)가
+        소수로 나올 수 있습니다.
+      </li>
+      <li>p값은 차이의 크기나 중요성을 말해주지 않습니다.</li>
+    </ul>
+  );
 }
 
 type GuideAnswer = "diff" | "relation" | null;
@@ -162,6 +176,17 @@ export function StatsCalculator() {
     value: number;
     df: number;
     p: number;
+    // t-검정일 때만 채워지는 기술통계·효과크기
+    groups?: {
+      meanA: number;
+      meanB: number;
+      sdA: number;
+      sdB: number;
+      nA: number;
+      nB: number;
+      meanDiff: number;
+      cohenD: number;
+    };
   } | null>(null);
   const [regressionResult, setRegressionResult] = useState<{
     slope: number;
@@ -202,7 +227,21 @@ export function StatsCalculator() {
         setError(r.error);
         return;
       }
-      setTtestResult({ value: r.t, df: r.df, p: r.p });
+      setTtestResult({
+        value: r.t,
+        df: r.df,
+        p: r.p,
+        groups: {
+          meanA: r.meanA,
+          meanB: r.meanB,
+          sdA: r.sdA,
+          sdB: r.sdB,
+          nA: r.nA,
+          nB: r.nB,
+          meanDiff: r.meanDiff,
+          cohenD: r.cohenD,
+        },
+      });
     } else if (mode === "correlation") {
       if (a.length !== b.length || a.length < 3) {
         setError(
@@ -239,10 +278,15 @@ export function StatsCalculator() {
 
   const ttestLabel = mode === "ttest" ? "t" : "r";
 
+  const groupSummary = ttestResult?.groups
+    ? `그룹 A: M = ${ttestResult.groups.meanA.toFixed(2)}, SD = ${ttestResult.groups.sdA.toFixed(2)}, n = ${ttestResult.groups.nA}; 그룹 B: M = ${ttestResult.groups.meanB.toFixed(2)}, SD = ${ttestResult.groups.sdB.toFixed(2)}, n = ${ttestResult.groups.nB}; 평균 차이 = ${ttestResult.groups.meanDiff.toFixed(2)}, d = ${ttestResult.groups.cohenD.toFixed(2)}`
+    : "";
+
   async function copyResult() {
     let summary = "";
     if (ttestResult) {
-      summary = `${ttestLabel} = ${ttestResult.value.toFixed(3)}, df = ${ttestResult.df.toFixed(1)}, p = ${ttestResult.p.toFixed(4)}`;
+      const testLine = `${ttestLabel} = ${ttestResult.value.toFixed(3)}, df = ${ttestResult.df.toFixed(1)}, p = ${ttestResult.p.toFixed(4)}`;
+      summary = groupSummary ? `${groupSummary}; ${testLine}` : testLine;
     } else if (regressionResult) {
       summary = `Y = ${regressionResult.slope.toFixed(3)}X ${regressionResult.intercept >= 0 ? "+" : "-"} ${Math.abs(regressionResult.intercept).toFixed(3)}, R² = ${regressionResult.r2.toFixed(3)}, p = ${regressionResult.p.toFixed(4)}`;
     }
@@ -359,10 +403,24 @@ export function StatsCalculator() {
         {ttestResult && (
           <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-ink">
-                {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
-                {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
-              </p>
+              <div className="text-ink">
+                {ttestResult.groups && (
+                  <p className="mb-1 text-ink-soft">
+                    그룹 A: M = {ttestResult.groups.meanA.toFixed(2)}, SD ={" "}
+                    {ttestResult.groups.sdA.toFixed(2)}, n = {ttestResult.groups.nA}
+                    {" · "}
+                    그룹 B: M = {ttestResult.groups.meanB.toFixed(2)}, SD ={" "}
+                    {ttestResult.groups.sdB.toFixed(2)}, n = {ttestResult.groups.nB}
+                    <br />
+                    평균 차이 = {ttestResult.groups.meanDiff.toFixed(2)}, d ={" "}
+                    {ttestResult.groups.cohenD.toFixed(2)}
+                  </p>
+                )}
+                <p>
+                  {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
+                  {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={copyResult}
@@ -372,6 +430,7 @@ export function StatsCalculator() {
               </button>
             </div>
             <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
+            <CaveatBlock />
           </div>
         )}
 
@@ -395,6 +454,7 @@ export function StatsCalculator() {
             <p className="mt-1.5 text-ink-soft">
               {verdict(mode, regressionResult.p)}
             </p>
+            <CaveatBlock />
           </div>
         )}
       </div>

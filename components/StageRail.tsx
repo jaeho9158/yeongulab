@@ -2,25 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { countDone, subscribeChecklist } from "@/lib/checklist";
 
 type StageInfo = {
   order: number;
   slug: string;
   title: string;
-  checklistCount: number;
+  checklist: string[];
 };
-
-function readDone(slug: string, expectedLength: number): number {
-  try {
-    const raw = window.localStorage.getItem(`research-guide:checklist:${slug}`);
-    if (!raw) return 0;
-    const saved = JSON.parse(raw) as boolean[];
-    if (!Array.isArray(saved) || saved.length !== expectedLength) return 0;
-    return saved.filter(Boolean).length;
-  } catch {
-    return 0;
-  }
-}
 
 /**
  * 단계 페이지 왼쪽 레일 — 6단계 목록(체크리스트 진행도 포함)과
@@ -30,17 +19,24 @@ export function StageRail({
   stages,
   currentSlug,
   toolCount,
+  selfCheckCount,
 }: {
   stages: StageInfo[];
   currentSlug: string;
   toolCount: number;
+  selfCheckCount: number;
 }) {
   const [done, setDone] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
-    const next: Record<string, number> = {};
-    for (const s of stages) next[s.slug] = readDone(s.slug, s.checklistCount);
-    setDone(next);
+    function load() {
+      const next: Record<string, number> = {};
+      for (const s of stages) next[s.slug] = countDone(s.slug, s.checklist);
+      setDone(next);
+    }
+    load();
+    // 같은 페이지에서 체크리스트를 누르면 바로 따라가도록 구독한다
+    return subscribeChecklist(load);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlug]);
 
@@ -55,21 +51,27 @@ export function StageRail({
     {
       href: "#checklist",
       label: "체크리스트",
-      meta: current ? `${currentDone}/${current.checklistCount}` : null,
+      meta: current ? `${currentDone}/${current.checklist.length}` : null,
     },
-    { href: "#self-check", label: "자가검증 질문", meta: null },
+    ...(selfCheckCount > 0
+      ? [{ href: "#self-check", label: "자가검증 질문", meta: null }]
+      : []),
   ];
 
   return (
     <aside className="sticky top-6 hidden lg:block">
-      <p className="px-3 pb-2 font-label text-[11px] tracking-wider text-ink-soft">
+      <h2
+        id="stage-rail-stages"
+        className="px-3 pb-2 font-label text-xs tracking-wider text-ink-soft"
+      >
         6단계
-      </p>
-      <ol className="space-y-0.5">
+      </h2>
+      <ol aria-labelledby="stage-rail-stages" className="space-y-0.5">
         {stages.map((s) => {
           const active = s.slug === currentSlug;
           const d = done?.[s.slug] ?? 0;
-          const complete = d > 0 && d === s.checklistCount;
+          const total = s.checklist.length;
+          const complete = d > 0 && d === total;
           return (
             <li key={s.slug}>
               <Link
@@ -95,14 +97,15 @@ export function StageRail({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    role="img"
                     aria-label="완료"
                     className="text-accent"
                   >
                     <path d="M5 12l5 5L19 7" />
                   </svg>
                 ) : done && (d > 0 || active) ? (
-                  <span className="font-label text-[11px] font-medium text-ink-soft">
-                    {d}/{s.checklistCount}
+                  <span className="font-label text-xs font-medium text-ink-soft">
+                    {d}/{total}
                   </span>
                 ) : null}
               </Link>
@@ -112,10 +115,13 @@ export function StageRail({
       </ol>
 
       <div className="mt-5 border-t border-line pt-5">
-        <p className="px-3 pb-2 font-label text-[11px] tracking-wider text-ink-soft">
+        <h2
+          id="stage-rail-sections"
+          className="px-3 pb-2 font-label text-xs tracking-wider text-ink-soft"
+        >
           이 페이지
-        </p>
-        <ul className="space-y-0.5">
+        </h2>
+        <ul aria-labelledby="stage-rail-sections" className="space-y-0.5">
           {sections.map((sec) => (
             <li key={sec.href}>
               <a
@@ -124,7 +130,7 @@ export function StageRail({
               >
                 {sec.label}
                 {sec.meta && (
-                  <span className="font-label text-[11px]">{sec.meta}</span>
+                  <span className="font-label text-xs">{sec.meta}</span>
                 )}
               </a>
             </li>

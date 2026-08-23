@@ -2,22 +2,37 @@
 
 import { useState } from "react";
 import { addReference } from "@/lib/citations";
+import type { Paper, SearchSource } from "@/lib/paperSearch";
 
-type Paper = {
-  paperId: string;
-  title: string;
-  abstract: string | null;
-  year: number | null;
-  authors: { name: string }[];
-  url: string | null;
+const CLIENT_TIMEOUT_MS = 10000;
+
+type ErrorKind = "input" | "rate-limit" | "upstream" | "timeout" | "network";
+
+const ERROR_MESSAGES: Record<ErrorKind, string> = {
+  input: "검색어를 확인해주세요. 너무 길거나 비어 있으면 검색할 수 없습니다.",
+  "rate-limit":
+    "지금은 검색 요청이 많이 몰려 있습니다. 잠시 후 다시 시도해보세요.",
+  upstream:
+    "외부 학술 검색 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해보세요.",
+  timeout:
+    "응답이 너무 오래 걸려 검색을 중단했습니다. 키워드를 줄이거나 잠시 후 다시 시도해보세요.",
+  network: "검색 서비스에 연결하지 못했습니다. 인터넷 연결을 확인해주세요.",
 };
+
+function classifyStatus(status: number): ErrorKind {
+  if (status === 400) return "input";
+  if (status === 429) return "rate-limit";
+  return "upstream";
+}
 
 export function PriorResearchSearch() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "done">(
     "idle",
   );
+  const [errorKind, setErrorKind] = useState<ErrorKind>("network");
   const [results, setResults] = useState<Paper[]>([]);
+  const [source, setSource] = useState<SearchSource | null>(null);
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
 
   function save(paper: Paper) {
@@ -25,7 +40,7 @@ export function PriorResearchSearch() {
       authors: paper.authors.map((a) => a.name).join(", "),
       year: paper.year ? String(paper.year) : "",
       title: paper.title,
-      source: "",
+      source: paper.venue ?? "",
       url: paper.url ?? "",
     });
     window.dispatchEvent(new Event("research-guide:references-updated"));
@@ -37,16 +52,31 @@ export function PriorResearchSearch() {
     const q = query.trim();
     if (!q) return;
     setStatus("loading");
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
     try {
       const url = new URL("/api/search-papers", window.location.origin);
       url.searchParams.set("query", q);
-      const res = await fetch(url.toString());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(url.toString(), { signal: controller.signal });
+      if (!res.ok) {
+        setErrorKind(classifyStatus(res.status));
+        setStatus("error");
+        return;
+      }
       const data = await res.json();
-      setResults(data.data ?? []);
+      setResults(Array.isArray(data.data) ? data.data : []);
+      setSource(data.source === "openalex" ? "openalex" : "semantic-scholar");
       setStatus("done");
-    } catch {
+    } catch (err) {
+      setErrorKind(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "timeout"
+          : "network",
+      );
       setStatus("error");
+    } finally {
+      window.clearTimeout(timer);
     }
   }
 
@@ -54,13 +84,14 @@ export function PriorResearchSearch() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">선행연구 검색해보기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Semantic Scholar 학술 검색 API로 키워드를 검색합니다. 계정 없이
-        바로 써볼 수 있습니다.
+        Semantic Scholar 학술 검색 API로 키워드를 검색합니다(요청이 몰리면
+        OpenAlex로 대신 검색). 계정 없이 바로 써볼 수 있습니다.
       </p>
       <form onSubmit={search} className="mt-4 flex flex-wrap gap-2">
         <input
           type="text"
           required
+          maxLength={200}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="예: microplastic water treatment"
@@ -76,20 +107,25 @@ export function PriorResearchSearch() {
       </form>
 
       <p className="mt-2 text-xs text-ink-soft">
-        영어 키워드로 검색할 때 결과가 훨씬 많이 나옵니다. (예: "미세플라스틱"
-        보다 "microplastic")
+        영어 키워드로 검색할 때 결과가 훨씬 많이 나옵니다. (예:
+        &ldquo;미세플라스틱&rdquo; 보다 &ldquo;microplastic&rdquo;)
       </p>
 
       {status === "error" && (
-        <p className="mt-4 text-sm text-ink-soft">
-          검색에 실패했습니다. 요청이 너무 많이 몰렸을 수 있으니 잠시 후 다시
-          시도해보세요.
+        <p className="mt-4 text-sm text-ink-soft" role="alert">
+          {ERROR_MESSAGES[errorKind]}
         </p>
       )}
 
       {status === "done" && results.length === 0 && (
         <p className="mt-4 text-sm text-ink-soft">
           검색 결과가 없습니다. 다른 키워드로 시도해보세요.
+        </p>
+      )}
+
+      {status === "done" && results.length > 0 && source === "openalex" && (
+        <p className="mt-4 font-label text-xs text-ink-soft">
+          OpenAlex 결과 — Semantic Scholar가 혼잡해 대신 검색했습니다.
         </p>
       )}
 
@@ -115,6 +151,7 @@ export function PriorResearchSearch() {
                   .map((a) => a.name)
                   .join(", ") || "저자 미상"}
                 {paper.authors.length > 3 ? " 외" : ""}
+                {paper.venue ? ` · ${paper.venue}` : ""}
               </p>
               {paper.abstract && (
                 <p className="mt-2 line-clamp-3 text-sm text-ink-soft">

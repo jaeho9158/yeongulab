@@ -2,27 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { countDone, subscribeChecklist } from "@/lib/checklist";
 
 type StageInfo = {
   order: number;
   slug: string;
   title: string;
   description: string;
-  checklistCount: number;
+  checklist: string[];
   toolCount: number;
 };
-
-function readDone(slug: string, expectedLength: number): number {
-  try {
-    const raw = window.localStorage.getItem(`research-guide:checklist:${slug}`);
-    if (!raw) return 0;
-    const saved = JSON.parse(raw) as boolean[];
-    if (!Array.isArray(saved) || saved.length !== expectedLength) return 0;
-    return saved.filter(Boolean).length;
-  } catch {
-    return 0;
-  }
-}
 
 /**
  * 가이드 목록의 '차례' — 홈 하단과 같은 세리프 숫자·괘선 목록에
@@ -32,9 +21,13 @@ export function StageToc({ stages }: { stages: StageInfo[] }) {
   const [done, setDone] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
-    const next: Record<string, number> = {};
-    for (const s of stages) next[s.slug] = readDone(s.slug, s.checklistCount);
-    setDone(next);
+    function load() {
+      const next: Record<string, number> = {};
+      for (const s of stages) next[s.slug] = countDone(s.slug, s.checklist);
+      setDone(next);
+    }
+    load();
+    return subscribeChecklist(load);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -42,7 +35,8 @@ export function StageToc({ stages }: { stages: StageInfo[] }) {
     <ol className="border-b border-line">
       {stages.map((stage) => {
         const d = done?.[stage.slug] ?? 0;
-        const complete = d > 0 && d === stage.checklistCount;
+        const total = stage.checklist.length;
+        const complete = d > 0 && d === total;
         return (
           <li key={stage.slug} className="border-t border-line">
             <Link
@@ -60,10 +54,7 @@ export function StageToc({ stages }: { stages: StageInfo[] }) {
                   {stage.description}
                 </span>
               </span>
-              <span
-                className="col-start-2 flex gap-3 font-label text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right"
-                suppressHydrationWarning
-              >
+              <span className="col-start-2 flex gap-3 font-label text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
                 {done && complete ? (
                   <span className="inline-flex items-center gap-1 text-accent">
                     <svg
@@ -75,18 +66,19 @@ export function StageToc({ stages }: { stages: StageInfo[] }) {
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      role="img"
                       aria-label="완료"
                     >
                       <path d="M5 12l5 5L19 7" />
                     </svg>
-                    {d}/{stage.checklistCount}
+                    {d}/{total}
                   </span>
                 ) : (
                   <span className={done && d > 0 ? "text-ink" : undefined}>
-                    {done ? d : 0}/{stage.checklistCount}
+                    {done ? d : 0}/{total}
                   </span>
                 )}
-                <span className="text-[11px]">도구 {stage.toolCount}</span>
+                <span>도구 {stage.toolCount}</span>
               </span>
             </Link>
           </li>

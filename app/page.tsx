@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import { ContinueCard } from "@/components/ContinueCard";
-import { getToolCount } from "@/components/StageTools";
+import { getToolCount } from "@/lib/stageToolMeta";
 
 const STUCK_POINTS = [
   {
@@ -86,7 +86,7 @@ export default function Home() {
             order: s.order,
             slug: s.slug,
             title: s.title,
-            checklistCount: s.checklist.length,
+            checklist: s.checklist,
           }))}
         />
 
@@ -198,9 +198,7 @@ export default function Home() {
                   </span>
                   <span className="col-start-2 flex gap-3 font-label text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
                     <span>{stage.estimatedWeeks}</span>
-                    <span className="text-[11px]">
-                      도구 {getToolCount(stage.slug)}
-                    </span>
+                    <span>도구 {getToolCount(stage.slug)}</span>
                   </span>
                 </Link>
               </li>
@@ -209,12 +207,42 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 예시 연구 — 차례와 같은 괘선 리듬 */}
+      <section className="border-t border-line">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
+          <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-3">
+            <h2 className="font-serif text-xl font-semibold text-ink">
+              예시로 보기
+            </h2>
+            <span className="font-label text-xs tracking-wider text-ink-soft">
+              교육용 예시
+            </span>
+          </div>
+          <Link
+            href="/example"
+            className="group flex items-center justify-between gap-4 border-b border-line py-5"
+          >
+            <span className="block">
+              <span className="block font-serif text-[19px] font-semibold text-ink transition group-hover:text-accent">
+                예시 연구 한 편 따라가기
+              </span>
+              <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
+                가상의 고등학생 연구 한 편을 6단계로 따라갑니다 (교육용 예시)
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium text-accent">
+              보기 →
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {/* 클로징 노트 */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-3xl px-4 py-10">
           <p className="max-w-md font-serif text-base leading-[1.8] text-ink-soft">
-            완료율이나 총 소요기간은 일부러 보여주지 않습니다. 압박감보다
-            지금 할 수 있는 한 걸음이 더 중요하니까요.
+            이건 진도표가 아니라 참고용 가이드입니다. 압박감보다 지금 할 수
+            있는 한 걸음이 더 중요하니, 막힌 단계부터 펼쳐봐도 괜찮습니다.
           </p>
         </div>
       </section>

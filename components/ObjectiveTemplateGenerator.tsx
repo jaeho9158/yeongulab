@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
+import { josa } from "@/lib/ideaBank";
 
 const METHODS = [
   { value: "실험적으로", label: "실험적으로" },
@@ -20,11 +21,14 @@ export function ObjectiveTemplateGenerator() {
   const { what, condition, outcome, method } = form;
   const [copied, setCopied] = useState(false);
 
+  // 받침 유무에 맞춰 조사를 고른다 ("데이터가", "변화를", "집중력을")
+  const subject = what ? `${what}${josa(what, ["이", "가"])}` : "[무엇]이";
+  const object = outcome
+    ? `${outcome}${josa(outcome, ["을", "를"])}`
+    : "[어떤 결과나 변화]를";
   const sentence =
     what || condition || outcome
-      ? `본 연구는 ${what || "[무엇]"}이 ${condition || "[어떤 조건에서]"} ${
-          outcome || "[어떤 결과나 변화]"
-        }를 보이는지를 ${method} 규명하는 것을 목적으로 한다.`
+      ? `본 연구는 ${subject} ${condition || "[어떤 조건에서]"} ${object} 보이는지를 ${method} 규명하는 것을 목적으로 한다.`
       : "";
 
   async function copy() {

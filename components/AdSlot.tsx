@@ -1,46 +1,60 @@
+"use client";
+
+import { useEffect } from "react";
+
 /**
  * Google AdSense 광고 슬롯.
  *
- * 실제 게재를 시작하려면:
- * 1. AdSense 계정 승인 후 `app/layout.tsx`에 로더 스크립트를 추가
- * 2. `NEXT_PUBLIC_ADSENSE_CLIENT_ID` 환경변수에 pub-XXXX ID 설정
- * 3. 이 컴포넌트의 <ins> 태그에 실제 data-ad-slot 값을 채워 넣기
+ * 로더 스크립트(adsbygoogle.js)는 `app/layout.tsx`에서 항상 싣는다(소유권
+ * 확인용). 실제 광고 단위는 `NEXT_PUBLIC_ADSENSE_CLIENT_ID`가 설정된 경우에만
+ * 렌더링되고, 비어 있으면 아무것도 그리지 않는다 — 승인 전 빈 점선 박스가
+ * 본문에 노출되는 일을 막기 위해서다.
  *
- * 승인 전까지는 자리만 잡아두는 플레이스홀더로 렌더링된다.
+ * 사용법: AdSense에서 광고 단위를 만든 뒤 `slot` prop에 data-ad-slot 값을
+ * 넘긴다(없으면 client ID만으로 렌더링).
  *
  * variant:
  * - "bottom": 본문 하단, 가로로 넓은 형태 (모바일/태블릿 기본)
  * - "rail": PC에서 본문 좌우 여백에 세로로 띄우는 스카이스크래퍼 형태
  */
+
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
+}
+
 export function AdSlot({
   label = "광고",
   variant = "bottom",
+  slot,
 }: {
   label?: string;
   variant?: "bottom" | "rail";
+  slot?: string;
 }) {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const sizeClass =
     variant === "rail" ? "h-[600px] w-[160px]" : "my-8 h-24 w-full";
 
-  if (!clientId) {
-    return (
-      <div
-        aria-hidden
-        className={`flex items-center justify-center rounded-lg border border-dashed border-line text-center text-xs text-ink-soft/60 ${sizeClass}`}
-      >
-        {label}
-        <br />
-        (AdSense 승인 후 노출)
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!clientId) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      // 로더가 아직 없거나 차단된 경우 — 광고만 비고 페이지는 정상 동작
+    }
+  }, [clientId]);
+
+  if (!clientId) return null;
 
   return (
     <ins
       className={`adsbygoogle block ${sizeClass}`}
       style={{ display: "block" }}
+      aria-label={label}
       data-ad-client={clientId}
+      data-ad-slot={slot}
       data-ad-format={variant === "rail" ? "vertical" : "auto"}
       data-full-width-responsive={variant === "rail" ? "false" : "true"}
     />

@@ -57,8 +57,9 @@ export function getActivityByDay(): Record<string, number> {
   return byDay;
 }
 
+// firstAt/lastAt은 ISO(UTC) 문자열 — 날짜로 표시할 때는 toLocalDateKey(new Date(...))를 쓸 것
 export function getStageDurations(
-  stages: { slug: string; checklistCount: number }[],
+  stages: { slug: string }[],
 ): Record<string, { firstAt: string | null; lastAt: string | null; days: number | null }> {
   const log = getActivityLog();
   const result: Record<

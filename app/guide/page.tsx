@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
 import { PlanExport } from "@/components/PlanExport";
@@ -7,7 +8,7 @@ import { DataReset } from "@/components/DataReset";
 import { ProgressOverview } from "@/components/ProgressOverview";
 import { SectionHead } from "@/components/SectionHead";
 import { StageToc } from "@/components/StageToc";
-import { getToolCount } from "@/components/StageTools";
+import { getToolCount } from "@/lib/stageToolMeta";
 
 export const metadata: Metadata = {
   title: "연구 6단계 가이드",
@@ -29,6 +30,14 @@ export default function GuideIndexPage() {
         나옵니다. 순서대로 봐도 되고, 지금 막힌 단계만 펼쳐서 봐도 됩니다.
         건너뛰거나 보류해도 괜찮습니다.
       </p>
+      <p className="mt-3 text-sm">
+        <Link
+          href="/example"
+          className="font-medium text-accent hover:underline"
+        >
+          완성된 예시가 궁금하다면 → 예시 연구 보기
+        </Link>
+      </p>
 
       <div className="mt-8">
         <ProgressOverview
@@ -36,7 +45,7 @@ export default function GuideIndexPage() {
             order: s.order,
             slug: s.slug,
             title: s.title,
-            checklistCount: s.checklist.length,
+            checklist: s.checklist,
           }))}
         />
       </div>
@@ -49,7 +58,7 @@ export default function GuideIndexPage() {
             slug: s.slug,
             title: s.title,
             description: s.description,
-            checklistCount: s.checklist.length,
+            checklist: s.checklist,
             toolCount: getToolCount(s.slug),
           }))}
         />

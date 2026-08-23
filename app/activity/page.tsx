@@ -7,6 +7,8 @@ import { StageDurations } from "@/components/StageDurations";
 export const metadata: Metadata = {
   title: "내 활동 기록",
   description: "내 연구 이력을 스스로 돌아보기 위한 활동 기록 페이지입니다.",
+  // 개인 기록 화면 — 검색 색인 제외
+  robots: { index: false },
 };
 
 export default function ActivityPage() {
@@ -31,7 +33,6 @@ export default function ActivityPage() {
           order: s.order,
           slug: s.slug,
           title: s.title,
-          checklistCount: s.checklist.length,
         }))}
       />
 

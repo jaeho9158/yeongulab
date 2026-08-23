@@ -88,10 +88,28 @@ function variance(xs: number[]): number {
 /** 분산 0 등으로 계산이 불가능할 때 UI가 정직하게 보여줄 수 있도록 하는 오류 결과. */
 export type StatError = { error: string };
 
+/**
+ * Welch의 독립표본 t-검정 (등분산을 가정하지 않으므로 자유도가 소수로 나올 수 있다).
+ * 효과크기 cohenD는 합동 표준편차(pooled SD)로 나눈 평균 차이다.
+ */
 export function welchTTest(
   a: number[],
   b: number[],
-): { meanA: number; meanB: number; t: number; df: number; p: number } | StatError {
+):
+  | {
+      meanA: number;
+      meanB: number;
+      sdA: number;
+      sdB: number;
+      nA: number;
+      nB: number;
+      meanDiff: number;
+      cohenD: number;
+      t: number;
+      df: number;
+      p: number;
+    }
+  | StatError {
   const meanA = mean(a);
   const meanB = mean(b);
   const varA = variance(a);
@@ -111,7 +129,24 @@ export function welchTTest(
     (varA / nA + varB / nB) ** 2 /
     ((varA / nA) ** 2 / (nA - 1) + (varB / nB) ** 2 / (nB - 1));
   const p = tTestTwoTailedP(Math.abs(t), df);
-  return { meanA, meanB, t, df, p };
+  const meanDiff = meanA - meanB;
+  const pooledSd = Math.sqrt(
+    ((nA - 1) * varA + (nB - 1) * varB) / (nA + nB - 2),
+  );
+  const cohenD = meanDiff / pooledSd;
+  return {
+    meanA,
+    meanB,
+    sdA: Math.sqrt(varA),
+    sdB: Math.sqrt(varB),
+    nA,
+    nB,
+    meanDiff,
+    cohenD,
+    t,
+    df,
+    p,
+  };
 }
 
 export function pearsonCorrelation(

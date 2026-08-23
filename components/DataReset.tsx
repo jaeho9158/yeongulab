@@ -1,6 +1,8 @@
 "use client";
 
 const PREFIX = "research-guide:";
+// 테마는 화면 설정이지 '기록'이 아니므로 남겨둔다
+const THEME_KEY = "research-guide:theme";
 
 export function DataReset() {
   function resetAll() {
@@ -12,7 +14,7 @@ export function DataReset() {
       const keys: string[] = [];
       for (let i = 0; i < window.localStorage.length; i++) {
         const key = window.localStorage.key(i);
-        if (key && key.startsWith(PREFIX)) keys.push(key);
+        if (key && key.startsWith(PREFIX) && key !== THEME_KEY) keys.push(key);
       }
       keys.forEach((key) => window.localStorage.removeItem(key));
     } catch {

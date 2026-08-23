@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { logActivity } from "@/lib/activity";
-
-function storageKey(slug: string) {
-  return `research-guide:ethics:${slug}`;
-}
+import { readChecklist, writeChecklist } from "@/lib/checklist";
 
 type ChecklistItem = {
   label: string;
@@ -82,7 +79,9 @@ const CATEGORIES: ChecklistCategory[] = [
   },
 ];
 
-const TOTAL_ITEMS = CATEGORIES.reduce((sum, c) => sum + c.items.length, 0);
+// 평탄화한 항목 문구 — 저장소(lib/checklist)는 이 문구를 id로 쓴다
+const ITEM_LABELS = CATEGORIES.flatMap((c) => c.items.map((i) => i.label));
+const TOTAL_ITEMS = ITEM_LABELS.length;
 
 // 카테고리별 시작 인덱스(누적) — 렌더 중 변수를 증가시키지 않고 평탄 인덱스를 구한다
 const OFFSETS = CATEGORIES.reduce<number[]>((acc, c, i) => {
@@ -103,17 +102,7 @@ export function EthicsChecklist({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(storageKey(slug));
-      if (raw) {
-        const saved = JSON.parse(raw) as boolean[];
-        if (Array.isArray(saved) && saved.length === TOTAL_ITEMS) {
-          setChecked(saved);
-        }
-      }
-    } catch {
-      // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
-    }
+    setChecked(readChecklist(slug, ITEM_LABELS, "ethics"));
     setHydrated(true);
   }, [slug]);
 
@@ -121,11 +110,7 @@ export function EthicsChecklist({
     const wasChecked = checked[index] ?? false;
     const next = checked.map((v, i) => (i === index ? !v : v));
     setChecked(next);
-    try {
-      window.localStorage.setItem(storageKey(slug), JSON.stringify(next));
-    } catch {
-      // 저장 실패해도 화면 상태는 유지
-    }
+    writeChecklist(slug, ITEM_LABELS, next, "ethics");
     if (!wasChecked) {
       logActivity({ type: "STAGE_ITEM_DONE", refId: `${slug}:ethics:${index}` });
     }
@@ -135,12 +120,11 @@ export function EthicsChecklist({
 
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-bold text-ink">{title}</h2>
-        <span className="text-xs text-ink-soft" suppressHydrationWarning>
-          {hydrated ? `${doneCount} / ${TOTAL_ITEMS} 확인` : ""}
-        </span>
-      </div>
+      {/* 접이식 도구 안에서는 h2가 감춰지므로(.tool-embed), 카운터는 본문 첫 줄에 둔다 */}
+      <h2 className="text-lg font-bold text-ink">{title}</h2>
+      <p className="min-h-4 text-xs text-ink-soft">
+        {hydrated ? `${doneCount} / ${TOTAL_ITEMS} 확인` : ""}
+      </p>
       <p className="mt-1 text-xs text-ink-soft">
         이 기기의 브라우저에만 저장됩니다. 참고용 자가점검이며, 모두 체크해야
         하는 것은 아닙니다.

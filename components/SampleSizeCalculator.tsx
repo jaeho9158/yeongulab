@@ -35,6 +35,11 @@ export function SampleSizeCalculator() {
         설문·조사를 몇 명한테 돌려야 할지 감이 안 잡힐 때 참고용으로
         씁니다.
       </p>
+      <p className="mt-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs leading-relaxed text-ink-soft">
+        이 계산기는 설문·비율 조사용입니다(Cochran 공식). 두 집단 평균
+        비교(실험)에는 검정력 분석이 필요합니다(중간 효과 d=0.5, 검정력
+        80%면 집단당 약 64명).
+      </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
@@ -113,10 +118,17 @@ export function SampleSizeCalculator() {
 
       <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
         {result ? (
-          <p className="text-ink">
-            최소 <strong>{result}명</strong>에게 응답을 받으면 위 조건을
-            충족합니다.
-          </p>
+          <>
+            <p className="text-ink">
+              최소 <strong>{result}명</strong>에게 응답을 받으면 위 조건을
+              충족합니다.
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-ink-soft">
+              무작위 표집일 때만 의미가 있고, 편의 표집(내 반 친구들)에는
+              적용되지 않습니다. 오차범위를 10%로 넓히면 약 97명(95% 신뢰수준,
+              예상 비율 50% 기준)입니다.
+            </p>
+          </>
         ) : (
           <p className="text-ink-soft">오차범위와 예상 비율을 확인해주세요.</p>
         )}

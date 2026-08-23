@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { logActivity } from "@/lib/activity";
-
-function storageKey(slug: string) {
-  return `research-guide:checklist:${slug}`;
-}
+import { readChecklist, writeChecklist } from "@/lib/checklist";
 
 export function ChecklistCard({
   slug,
@@ -21,20 +18,8 @@ export function ChecklistCard({
 
   useEffect(() => {
     // 클라이언트 라우팅으로 slug만 바뀌면 컴포넌트가 재사용되므로,
-    // 저장값이 없어도 항상 초기화해 이전 단계의 체크가 남지 않게 한다
-    let next: boolean[] = Array(items.length).fill(false);
-    try {
-      const raw = window.localStorage.getItem(storageKey(slug));
-      if (raw) {
-        const saved = JSON.parse(raw) as boolean[];
-        if (Array.isArray(saved) && saved.length === items.length) {
-          next = saved;
-        }
-      }
-    } catch {
-      // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
-    }
-    setChecked(next);
+    // 저장값이 없어도 항상 다시 읽어 이전 단계의 체크가 남지 않게 한다
+    setChecked(readChecklist(slug, items));
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
@@ -43,11 +28,7 @@ export function ChecklistCard({
     const wasChecked = checked[index] ?? false;
     const next = checked.map((v, i) => (i === index ? !v : v));
     setChecked(next);
-    try {
-      window.localStorage.setItem(storageKey(slug), JSON.stringify(next));
-    } catch {
-      // 저장 실패해도 화면 상태는 유지
-    }
+    writeChecklist(slug, items, next);
     if (!wasChecked) {
       logActivity({ type: "STAGE_ITEM_DONE", refId: `${slug}:${index}` });
     }

@@ -8,7 +8,8 @@ import { AdSlot } from "@/components/AdSlot";
 import { ChecklistCard } from "@/components/ChecklistCard";
 import { ReflectionBox } from "@/components/ReflectionBox";
 import { StageRail } from "@/components/StageRail";
-import { ToolAccordion, getToolCount } from "@/components/StageTools";
+import { ToolAccordion } from "@/components/StageTools";
+import { getToolCount } from "@/lib/stageToolMeta";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -49,10 +50,11 @@ export default async function GuideStagePage({
           order: s.order,
           slug: s.slug,
           title: s.title,
-          checklistCount: s.checklist.length,
+          checklist: s.checklist,
         }))}
         currentSlug={stage.slug}
         toolCount={getToolCount(stage.slug)}
+        selfCheckCount={stage.selfCheck.length}
       />
 
       <article className="min-w-0">

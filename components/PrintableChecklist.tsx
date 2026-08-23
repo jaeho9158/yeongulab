@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toLocalDateKey } from "@/lib/activity";
+import { readChecklist } from "@/lib/checklist";
 
 type StageForPrint = {
   order: number;
@@ -9,20 +11,6 @@ type StageForPrint = {
   checklist: string[];
   selfCheck: string[];
 };
-
-function readChecklist(slug: string, expectedLength: number): boolean[] {
-  try {
-    const raw = window.localStorage.getItem(`research-guide:checklist:${slug}`);
-    if (!raw) return Array(expectedLength).fill(false);
-    const saved = JSON.parse(raw) as boolean[];
-    if (!Array.isArray(saved) || saved.length !== expectedLength) {
-      return Array(expectedLength).fill(false);
-    }
-    return saved;
-  } catch {
-    return Array(expectedLength).fill(false);
-  }
-}
 
 function readReflection(slug: string): string {
   try {
@@ -40,16 +28,19 @@ export function PrintableChecklist({ stages }: { stages: StageForPrint[] }) {
   const [reflectionByStage, setReflectionByStage] = useState<
     Record<string, string>
   >({});
+  // 인쇄일은 렌더 중 new Date()를 쓰면 서버/클라이언트가 달라지므로 hydration 뒤에 채운다
+  const [printedOn, setPrintedOn] = useState("");
 
   useEffect(() => {
     const checked: Record<string, boolean[]> = {};
     const reflections: Record<string, string> = {};
     for (const stage of stages) {
-      checked[stage.slug] = readChecklist(stage.slug, stage.checklist.length);
+      checked[stage.slug] = readChecklist(stage.slug, stage.checklist);
       reflections[stage.slug] = readReflection(stage.slug);
     }
     setCheckedByStage(checked);
     setReflectionByStage(reflections);
+    setPrintedOn(toLocalDateKey(new Date()));
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,9 +66,9 @@ export function PrintableChecklist({ stages }: { stages: StageForPrint[] }) {
 
       <div className="hidden print:block">
         <h1 className="text-xl font-bold">내 연구 진행 노트</h1>
-        <p className="mt-1 text-xs text-ink-soft">
-          인쇄일: {new Date().toISOString().slice(0, 10)}
-        </p>
+        {printedOn && (
+          <p className="mt-1 text-xs text-ink-soft">인쇄일: {printedOn}</p>
+        )}
       </div>
 
       <div className="mt-8 space-y-8 print:mt-4 print:space-y-6">

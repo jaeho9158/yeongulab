@@ -114,9 +114,10 @@ export default function ExamplePage() {
       <div className="card mt-5 px-6 py-5">
         <p className="text-sm text-ink-soft">
           &lsquo;백색소음&rsquo;, &lsquo;단기 기억&rsquo;, &lsquo;청소년
-          집중력&rsquo; 키워드로 학술 검색을 하고, 관련성 높은 문헌 3편을
-          골라 핵심을 한 줄씩 정리했습니다. (아래 문헌은 모두 형식을 보여주기
-          위한 가상의 예시 문헌입니다.)
+          집중력&rsquo; 키워드로 학술 검색을 하고, 체크리스트의
+          &ldquo;5~10편&rdquo; 기준에 맞춰 관련성 높은 문헌 6편을 골라 핵심을
+          한 줄씩 정리했습니다. (아래 문헌은 모두 형식을 보여주기 위한 가상의
+          예시 문헌입니다.)
         </p>
         <ul className="mt-3 space-y-2 text-sm text-ink-soft">
           <li className="rounded-lg bg-surface px-4 py-3">
@@ -134,6 +135,22 @@ export default function ExamplePage() {
             인지과학연구, 12(3), 201-218. <em>(가상의 예시 문헌)</em> —
             20개 단어·2분 암기·자유 회상이라는 표준 절차를 방법으로 채택.
           </li>
+          <li className="rounded-lg bg-surface px-4 py-3">
+            한서윤 (2020). 소음 수준이 단순 과제 수행에 미치는 영향. 환경심리연구,
+            6(2), 88-104. <em>(가상의 예시 문헌)</em> — 약 50dB 수준에서
+            수행이 가장 안정적이었다는 보고 → 소음 크기 결정 근거.
+          </li>
+          <li className="rounded-lg bg-surface px-4 py-3">
+            Park, J., &amp; Lee, S. (2019). White noise and working memory in
+            adolescents. <em>Journal of Student Cognition</em>, 4(1), 12-25.{" "}
+            <em>(가상의 예시 문헌)</em> — 개인별로 소음 선호가 달라 평균
+            효과가 작게 나올 수 있음을 지적.
+          </li>
+          <li className="rounded-lg bg-surface px-4 py-3">
+            오지훈, 강나래 (2018). 학교 현장 실험 연구의 설계와 한계. 교육연구방법,
+            10(4), 301-320. <em>(가상의 예시 문헌)</em> — 같은 교실에서 조건
+            순서를 무작위로 바꾸는 설계를 권장.
+          </li>
         </ul>
       </div>
       <WhyBox>
@@ -147,39 +164,51 @@ export default function ExamplePage() {
       {/* 3단계 */}
       <StageHeading order={3} title="방법론 설계" slug="methodology" />
       <div className="card mt-5 px-6 py-5">
-        <p className="text-sm font-semibold text-ink">목적 진술 (사이트 템플릿 사용)</p>
+        <p className="text-sm font-semibold text-ink">
+          목적 진술 (&lsquo;목적 진술 만들어보기&rsquo; 도구 사용)
+        </p>
         <p className="mt-2 rounded-lg bg-surface px-4 py-3 text-sm text-ink">
           본 연구는 백색소음 환경이 고등학생의 단어 회상 과제에서 조용한
           환경보다 높은 점수를 보이는지를 실험적으로 규명하는 것을 목적으로
           한다.
         </p>
-        <p className="mt-5 text-sm font-semibold text-ink">변수 표</p>
+        <p className="mt-5 text-sm font-semibold text-ink">
+          변수 표 (&lsquo;변수 정의표 만들기&rsquo; 도구로 복사한 형식)
+        </p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-ink">
+                <th className="py-2 pr-4 font-semibold">변수명</th>
                 <th className="py-2 pr-4 font-semibold">구분</th>
-                <th className="py-2 pr-4 font-semibold">변수</th>
-                <th className="py-2 font-semibold">정의·통제 방법</th>
+                <th className="py-2 font-semibold">설명/측정 방법</th>
               </tr>
             </thead>
             <tbody className="text-ink-soft">
               <tr className="border-b border-line">
-                <td className="py-2 pr-4">독립변수</td>
                 <td className="py-2 pr-4">청각 환경</td>
-                <td className="py-2">백색소음(약 50dB) vs 조용한 환경</td>
+                <td className="py-2 pr-4">독립변수</td>
+                <td className="py-2">백색소음(50±3 dB) vs 조용한 환경</td>
               </tr>
               <tr className="border-b border-line">
-                <td className="py-2 pr-4">종속변수</td>
                 <td className="py-2 pr-4">단어 회상 점수</td>
+                <td className="py-2 pr-4">종속변수</td>
                 <td className="py-2">20개 단어 중 회상한 개수 (0~20점)</td>
               </tr>
-              <tr>
+              <tr className="border-b border-line">
+                <td className="py-2 pr-4">장소</td>
                 <td className="py-2 pr-4">통제변수</td>
-                <td className="py-2 pr-4">시간대, 장소, 단어 목록, 암기 시간</td>
-                <td className="py-2">
-                  같은 교시·같은 교실, 동일 난이도 단어 목록, 2분 고정
-                </td>
+                <td className="py-2">같은 교실</td>
+              </tr>
+              <tr className="border-b border-line">
+                <td className="py-2 pr-4">단어 목록</td>
+                <td className="py-2 pr-4">통제변수</td>
+                <td className="py-2">동일 난이도의 같은 목록</td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-4">암기 시간</td>
+                <td className="py-2 pr-4">통제변수</td>
+                <td className="py-2">2분 고정 (타이머)</td>
               </tr>
             </tbody>
           </table>
@@ -202,15 +231,19 @@ export default function ExamplePage() {
       <StageHeading order={4} title="데이터 수집" slug="data-collection" />
       <div className="card mt-5 px-6 py-5">
         <p className="text-sm text-ink-soft">
-          <strong className="text-ink">표본 계획:</strong> 표본크기 계산기로
-          확인하니 중간 이상의 효과를 검출하려면 집단당 20명 이상이
-          권장됐지만, 현실적으로 모집 가능한 인원을 고려해 집단당 16명(총
-          32명)으로 진행하고, 이 한계를 논문의 제한점에 명시하기로 했습니다.
+          <strong className="text-ink">표본 계획:</strong> 사이트의
+          &lsquo;표본 크기 계산기&rsquo;는 설문·비율 조사용이라 두 집단 평균
+          비교에는 쓸 수 없었습니다. 선생님께 여쭤보니 중간 크기 효과(d=0.5)를
+          80% 확률로 잡아내려면 집단당 약 64명이 필요하다고 했지만, 현실적으로
+          모집 가능한 인원은 집단당 16명(총 32명)이었습니다. 그래서 이 인원으로
+          진행하되, &ldquo;이 표본으로는 큰 효과만 검출할 수 있다&rdquo;는
+          점을 논문의 제한점에 적기로 했습니다.
         </p>
         <p className="mt-3 text-sm text-ink-soft">
-          참여자 32명을 제비뽑기로 두 집단에 무작위 배정하고, 같은 교시에 같은
-          교실에서 각각 백색소음 조건과 조용한 조건으로 단어 회상 과제를
-          진행했습니다.
+          참여자 32명을 제비뽑기로 두 집단에 무작위 배정했습니다. 두 소리
+          조건을 한 교실에서 동시에 틀 수는 없으므로, 같은 교실에서 연속된 두
+          교시에 조건 순서를 무작위로 정해 실시했습니다. 소음 크기는 스마트폰
+          소음 측정 앱으로 학생 자리에서 50±3 dB임을 확인했습니다.
         </p>
         <p className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm text-ink-soft">
           <strong className="text-ink">수집 결과 (가상의 수치):</strong>{" "}
@@ -229,14 +262,28 @@ export default function ExamplePage() {
       <StageHeading order={5} title="논문화" slug="writing" />
       <div className="card mt-5 px-6 py-5">
         <p className="text-sm text-ink-soft">
-          통계분석기로 독립표본 t-검정을 돌리고, 결과를 한 줄로 정리했습니다.
+          &lsquo;간이 통계 계산기&rsquo;로 독립표본 t-검정을 돌리고, 결과를
+          한 줄로 정리했습니다.
+        </p>
+        <p className="mt-3 rounded-lg bg-surface px-4 py-3 text-xs text-ink-soft">
+          도구 출력(Welch 방식이라 자유도가 소수): 평균 차이 = 2.40, d = 0.96;
+          t = 2.713, df = 29.8, p = 0.0110
         </p>
         <p className="mt-3 rounded-lg bg-surface px-4 py-3 text-sm text-ink">
           독립표본 t-검정 결과, 백색소음 집단(M=16.9, SD=2.4)이 조용한 환경
-          집단(M=14.5, SD=2.6)보다 유의하게 높았다, t(30)=2.71, p=.011.
+          집단(M=14.5, SD=2.6)보다 유의하게 높았다, t(30) = 2.71, p = .011,
+          d = 0.96, 평균 차이의 95% CI [0.6, 4.2].
+        </p>
+        <p className="mt-3 text-sm text-ink-soft">
+          d ≈ 0.96은 관례상 큰 효과지만, 표본이 작아 신뢰구간이 0.6점에서
+          4.2점까지로 넓습니다 — 실제 효과가 작을 가능성도 남겨두고
+          해석했습니다. (논문에는 두 집단 크기가 같아 자유도를 정수 30으로
+          적었고, Welch 자유도 29.8과 결과 차이는 없습니다. 신뢰구간은 합동
+          분산 기준입니다.)
         </p>
         <p className="mt-4 text-sm text-ink-soft">
-          집단별 평균은 막대그래프(오차막대 포함)로 시각화하고, 논문 전체는
+          집단별 평균은 &lsquo;간이 차트 그리기&rsquo;로 막대그래프를 만들어
+          보고, 오차막대는 스프레드시트에서 따로 추가했습니다. 논문 전체는
           IMRaD 구조로 정리했습니다.
         </p>
         <ul className="mt-3 space-y-1.5 text-sm text-ink-soft">
@@ -246,17 +293,24 @@ export default function ExamplePage() {
           </li>
           <li>
             <strong className="text-ink">방법(M):</strong> 참여자 32명, 무작위
-            배정, 단어 회상 절차, 동의 절차
+            배정, 두 교시에 걸친 조건 순서 무작위화, 단어 회상 절차, 동의 절차
           </li>
           <li>
             <strong className="text-ink">결과(R):</strong> 위 t-검정 결과와
             그래프 — 해석 없이 수치만
           </li>
           <li>
-            <strong className="text-ink">논의(D):</strong> 결과의 의미, 표본
-            크기·단일 학교라는 제한점, 후속 연구 제안
+            <strong className="text-ink">논의(D):</strong> 결과의 의미, 아래
+            제한점, 후속 연구 제안
           </li>
         </ul>
+        <p className="mt-4 text-sm text-ink-soft">
+          <strong className="text-ink">논의에 적은 제한점:</strong> 작은 표본(큰
+          효과만 검출 가능)과 단일 학교, 단 한 번만 측정한 단일 회기 설계, 소음
+          조건을 참여자와 실험자 모두에게 숨길 수 없었던 맹검 불가, 개인별
+          소음 선호를 통제하지 못한 점, 그리고 실험자가 결과를 기대하면서
+          진행한 데서 생길 수 있는 실험자 기대 효과.
+        </p>
         <p className="mt-4 text-sm text-ink-soft">
           참고문헌은 APA 형식으로 정리했습니다. 예: 김철수, 박영희 (2023).
           청소년의 학습 환경과 집중력. 청소년연구, 15(2), 123-145.{" "}
@@ -267,23 +321,31 @@ export default function ExamplePage() {
         결과(R)에는 수치만 쓰고 해석은 논의(D)로 분리하는 것이 IMRaD의
         핵심입니다. 또 p=.011이 &ldquo;백색소음이 항상 효과 있다&rdquo;를
         뜻하지는 않습니다 — 이 표본, 이 과제, 이 조건에서 차이가 우연이라고
-        보기 어렵다는 뜻일 뿐이므로, 논의에서 과장하지 않고 제한점과 함께
-        서술했습니다.
+        보기 어렵다는 뜻일 뿐입니다. 차이가 얼마나 큰지는 p가 아니라 효과크기
+        d와 신뢰구간이 말해주므로 둘을 함께 적고, 논의에서 과장하지 않고
+        제한점과 함께 서술했습니다.
       </WhyBox>
 
       {/* 6단계 */}
       <StageHeading order={6} title="저널 투고" slug="submission" />
       <div className="card mt-5 px-6 py-5">
         <p className="text-sm text-ink-soft">
-          투고처 목록에서 청소년 연구를 받는 곳을 골라, 투고 전 점검을
-          마쳤습니다.
+          &lsquo;투고처 후보 모음&rsquo;에서 청소년 연구를 받는 곳을 골라,
+          투고 전 점검을 마쳤습니다.
         </p>
         <ul className="mt-3 space-y-1.5 text-sm text-ink-soft">
-          <li>✔ 투고 규정의 분량·형식 요건 확인 (분량 검사기 사용)</li>
+          <li>✔ 투고 규정의 분량·형식 요건 확인 (&lsquo;분량 체크기&rsquo; 사용)</li>
           <li>✔ 참고문헌 형식 통일 (APA)</li>
           <li>✔ 연구윤리·동의 절차 서술 포함 여부 확인</li>
-          <li>✔ AI 도구 사용 내역 공개문 작성 (공개문 생성기 사용)</li>
-          <li>✔ 발표 대비 예상 질문 정리 — &ldquo;소음 크기를 왜 50dB로 했나요?&rdquo; 등</li>
+          <li>
+            ✔ AI 도구 사용 내역 공개문 작성 (&lsquo;AI 활용 disclosure 문구
+            만들기&rsquo; 사용)
+          </li>
+          <li>
+            ✔ 발표 대비 예상 질문 정리 (&lsquo;예상 질문 뽑기&rsquo; 사용) —
+            &ldquo;소음 크기를 왜 50dB로 했나요?&rdquo;, &ldquo;효과크기는
+            얼마인가요?&rdquo; 등
+          </li>
         </ul>
       </div>
       <WhyBox>

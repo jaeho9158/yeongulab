@@ -1,25 +1,53 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
 
+const SITE_TITLE = "연구랩 가이드 — 청소년 연구 로드맵";
+const SITE_DESCRIPTION =
+  "청소년이 연구 주제 선정부터 논문 투고까지 6단계로 따라갈 수 있는 무료 가이드.";
+
+// 홈 하단 '차례' 등 세 곳에서만 쓰는 세리프 — 600 한 굵기만 싣는다
+// (font-medium(500) 자리는 브라우저가 가장 가까운 600으로 그린다).
+const SERIF_FONT_CSS =
+  "https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600&display=swap";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "연구랩 가이드 — 청소년 연구 로드맵",
+    default: SITE_TITLE,
     template: "%s | 연구랩 가이드",
   },
-  description:
-    "청소년이 연구 주제 선정부터 논문 투고까지 6단계로 따라갈 수 있는 무료 가이드.",
+  description: SITE_DESCRIPTION,
+  // "./"는 현재 경로 기준으로 풀린다 — 페이지마다 자기 URL이 canonical이 된다
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: "./",
+  },
+  twitter: { card: "summary" },
   verification: {
     other: {
       "naver-site-verification": "65d6516f9b1748e2c9238a53c6d469a728445806",
     },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#101113" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,16 +60,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* 홈 하단 '차례' 단락의 세리프(Noto Serif KR). next/font는 빌드 시 서버가
             폰트를 내려받아야 해서 오프라인/차단 환경에서 빌드가 깨지므로, 브라우저가
-            직접 받는 <link>로 싣고 CSS에서 시스템 세리프로 폴백한다. */}
+            직접 받는 <link>로 싣고 CSS에서 시스템 세리프로 폴백한다.
+            렌더 차단을 피하려고 media="print"로 먼저 받은 뒤, 아래 인라인 스크립트가
+            로드 완료 시 media를 "all"로 바꾼다(hydration 전에도 동작). */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <link rel="preload" as="style" href={SERIF_FONT_CSS} />
         <link
+          id="serif-font-css"
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&display=swap"
+          href={SERIF_FONT_CSS}
+          media="print"
+        />
+        <script
+          id="serif-font-swap"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var l=document.getElementById("serif-font-css");if(!l)return;var s=function(){l.media="all"};l.addEventListener("load",s);if(l.sheet)s();})();`,
+          }}
         />
         {/* 테마 선택을 hydration 전에 <html>에 반영 — 그렇지 않으면 라이트로
             그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. 저장된 값이 없으면

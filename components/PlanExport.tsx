@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { GuideStage } from "@/lib/guide";
 import { toLocalDateKey } from "@/lib/activity";
+import { readChecklist } from "@/lib/checklist";
 
 type ExportableStage = Pick<
   GuideStage,
@@ -29,17 +30,8 @@ function buildMarkdown(stages: ExportableStage[]): string {
   for (const stage of stages) {
     lines.push(`## ${stage.order}. ${stage.title}`);
 
-    const checkedRaw = readLocal(`research-guide:checklist:${stage.slug}`);
-    let checked: boolean[] = [];
-    try {
-      // 화면 표시(ChecklistCard)와 동일하게, 길이가 맞는 배열만 인정한다
-      const parsed = checkedRaw ? JSON.parse(checkedRaw) : null;
-      if (Array.isArray(parsed) && parsed.length === stage.checklist.length) {
-        checked = parsed;
-      }
-    } catch {
-      checked = [];
-    }
+    // 화면 표시(ChecklistCard)와 같은 읽기 경로를 쓴다
+    const checked = readChecklist(stage.slug, stage.checklist);
     if (stage.checklist.length > 0) {
       lines.push("", "**체크리스트**", "");
       stage.checklist.forEach((item, i) => {

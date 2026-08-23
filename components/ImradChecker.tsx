@@ -4,36 +4,96 @@ import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 
 type SectionKey = "intro" | "method" | "result" | "discussion";
+type OptionalKey = "abstract" | "references";
+
+// 제목 줄만 인정한다: 줄 전체가 "(번호) 섹션명"뿐이어야 하고, 본문 속의
+// "연구 방법은…" 같은 문장은 잡지 않는다. 앞의 "##", "2.", "Ⅱ." 등은 허용.
+const HEADING_PREFIX = String.raw`^\s*(#+\s*)?((\d+|[IVXⅠ-Ⅻ]+)\s*[.)]?\s*)?`;
+const HEADING_SUFFIX = String.raw`\s*:?\s*$`;
+function heading(body: string): RegExp {
+  return new RegExp(`${HEADING_PREFIX}(${body})${HEADING_SUFFIX}`, "i");
+}
 
 const SECTION_PATTERNS: Record<SectionKey, { label: string; re: RegExp }> = {
-  intro: { label: "서론", re: /(서론|introduction)/i },
-  method: { label: "방법", re: /(방법|methods?)/i },
-  result: { label: "결과", re: /(결과|results?)/i },
-  discussion: { label: "논의", re: /(논의|discussion)/i },
+  intro: { label: "서론", re: heading(String.raw`서\s*론|introduction`) },
+  method: {
+    label: "방법",
+    re: heading(
+      String.raw`(연구\s*)?(방\s*법|대상\s*(및|과)\s*방법)|(materials?\s*(and|&)\s*)?methods?`,
+    ),
+  },
+  result: {
+    label: "결과",
+    re: heading(String.raw`(연구\s*)?결\s*과|results?`),
+  },
+  discussion: {
+    label: "논의",
+    re: heading(String.raw`논\s*의|고\s*찰|discussion`),
+  },
+};
+
+// "결과 및 논의"처럼 합쳐진 제목은 결과·논의 둘 다로 인정한다.
+const COMBINED_RESULT_DISCUSSION = heading(
+  String.raw`결과\s*(및|와|과)\s*(논의|고찰)|results?\s*(and|&)\s*discussion`,
+);
+
+const OPTIONAL_PATTERNS: Record<OptionalKey, { label: string; re: RegExp }> = {
+  abstract: { label: "초록", re: heading(String.raw`초\s*록|요\s*약|abstract`) },
+  references: {
+    label: "참고문헌",
+    re: heading(String.raw`참고\s*문헌|references?|bibliography`),
+  },
 };
 
 const INTERPRETIVE_WORDS = [
   "때문이다",
   "의미한다",
   "시사한다",
-  "보여준다",
   "판단된다",
 ];
 
 function splitBySections(text: string) {
+  const lines = text.split("\n");
   const markers: { key: SectionKey; index: number }[] = [];
-  for (const key of Object.keys(SECTION_PATTERNS) as SectionKey[]) {
-    const m = SECTION_PATTERNS[key].re.exec(text);
-    if (m) markers.push({ key, index: m.index });
+  const found = new Set<SectionKey>();
+  let offset = 0;
+  for (const line of lines) {
+    if (COMBINED_RESULT_DISCUSSION.test(line)) {
+      for (const key of ["result", "discussion"] as const) {
+        if (!found.has(key)) {
+          found.add(key);
+          markers.push({ key, index: offset });
+        }
+      }
+    } else {
+      for (const key of Object.keys(SECTION_PATTERNS) as SectionKey[]) {
+        if (!found.has(key) && SECTION_PATTERNS[key].re.test(line)) {
+          found.add(key);
+          markers.push({ key, index: offset });
+          break;
+        }
+      }
+    }
+    offset += line.length + 1;
   }
   markers.sort((a, b) => a.index - b.index);
 
   const sections: Partial<Record<SectionKey, string>> = {};
   markers.forEach((m, i) => {
-    const end = i + 1 < markers.length ? markers[i + 1].index : text.length;
+    // 같은 줄에서 시작한 섹션(결과 및 논의)은 다음 '다른' 위치까지를 본문으로 본다
+    let next = i + 1;
+    while (next < markers.length && markers[next].index === m.index) next++;
+    const end = next < markers.length ? markers[next].index : text.length;
     sections[m.key] = text.slice(m.index, end);
   });
   return sections;
+}
+
+function findOptionalSections(text: string): OptionalKey[] {
+  const lines = text.split("\n");
+  return (Object.keys(OPTIONAL_PATTERNS) as OptionalKey[]).filter((key) =>
+    lines.some((line) => OPTIONAL_PATTERNS[key].re.test(line)),
+  );
 }
 
 export function ImradChecker() {
@@ -42,6 +102,7 @@ export function ImradChecker() {
 
   const sections = checked ? splitBySections(text) : {};
   const foundKeys = Object.keys(sections) as SectionKey[];
+  const optionalFound = checked ? findOptionalSections(text) : [];
 
   const hasPurposeStatement = /(목적|규명|검증)/.test(sections.intro ?? "");
   const resultHasInterpretation = INTERPRETIVE_WORDS.some((w) =>
@@ -64,7 +125,7 @@ export function ImradChecker() {
           setText(e.target.value);
           setChecked(false);
         }}
-        placeholder="서론, 방법, 결과, 논의를 포함한 초고를 붙여넣어보세요."
+        placeholder={"섹션 제목을 한 줄에 하나씩 쓴 초고를 붙여넣어보세요. 예)\n1. 서론\n…\n2. 연구 방법\n…\n3. 결과\n…\n4. 논의"}
         rows={8}
         className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
       />
@@ -86,6 +147,20 @@ export function ImradChecker() {
                 {foundKeys.includes(key) ? "✓" : "✗"}{" "}
                 {SECTION_PATTERNS[key].label} 섹션{" "}
                 {foundKeys.includes(key) ? "발견" : "못 찾음"}
+              </p>
+            ))}
+            {foundKeys.length === 0 && (
+              <p className="text-ink-soft">
+                섹션 제목은 &ldquo;2. 연구 방법&rdquo;처럼 한 줄에 제목만 따로
+                써야 인식됩니다. 본문 문장 속의 &ldquo;연구 방법은…&rdquo;은
+                세지 않습니다.
+              </p>
+            )}
+            {(Object.keys(OPTIONAL_PATTERNS) as OptionalKey[]).map((key) => (
+              <p key={key} className="text-ink-soft">
+                {optionalFound.includes(key)
+                  ? `✓ ${OPTIONAL_PATTERNS[key].label} 섹션 발견 (선택 항목)`
+                  : `ℹ ${OPTIONAL_PATTERNS[key].label} 섹션이 안 보입니다 — 필수는 아니지만, 투고처가 요구한다면 추가하세요.`}
               </p>
             ))}
             {foundKeys.includes("intro") && (
