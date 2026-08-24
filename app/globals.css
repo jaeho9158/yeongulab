@@ -113,3 +113,46 @@ body {
 .tool-embed > section > div:first-child > h2:first-child {
   display: none;
 }
+
+/* 페이지 전환 애니메이션 — app/template.tsx의 <ViewTransition enter="page-enter"
+   exit="page-exit">가 내비게이션마다 이 두 클래스를 붙인다. 나가는 화면은
+   빠르게 사라지고, 들어오는 화면은 살짝 아래에서 떠오르며 자리를 잡는다. */
+::view-transition-old(.page-exit) {
+  animation: 120ms ease-out both page-fade-out;
+}
+::view-transition-new(.page-enter) {
+  animation:
+    170ms ease-out both page-fade-in,
+    220ms cubic-bezier(0.16, 1, 0.3, 1) both page-rise-in;
+}
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes page-rise-in {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+/* 전환 중에도 클릭이 씹히지 않게 오버레이는 포인터 이벤트를 통과시킨다 */
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+  }
+}
