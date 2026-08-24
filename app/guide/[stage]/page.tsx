@@ -86,12 +86,22 @@ export default async function GuideStagePage({
           <MDXRemote
             source={stage.content}
             options={{
-              mdxOptions: { remarkPlugins: [remarkGfm] },
+              // singleTilde: false — remark-gfm은 기본으로 물결표 하나(~)도 취소선
+              // 기호로 먹는다. 본문에 "3~4주"처럼 물결표 두 개가 한 문장에 있으면
+              // 그 사이가 통째로 취소선 처리되므로, GFM 표준대로 ~~두 개~~만
+              // 취소선으로 인정하게 막는다.
+              mdxOptions: {
+                remarkPlugins: [[remarkGfm, { singleTilde: false }]],
+              },
             }}
             components={{
               table: (props) => (
                 <div className="overflow-x-auto">
-                  <table {...props} />
+                  {/* prose의 기본 table 스타일이 width:100%라 화면보다 넓어질 일이
+                      없어 overflow-x-auto가 절대 발동하지 않고 칸만 눌린다.
+                      min-w-max로 표가 내용만큼 넓어지게 해야 좁은 화면에서
+                      실제로 가로 스크롤된다. */}
+                  <table {...props} className="min-w-max" />
                 </div>
               ),
             }}
