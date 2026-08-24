@@ -59,7 +59,7 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-4 pt-18 pb-12">
-        <p className="font-label text-xs font-medium tracking-wider text-accent">
+        <p className="text-xs font-semibold text-accent">
           무료 · 로그인 불필요
         </p>
         <h1 className="mt-3.5 text-4xl leading-[1.18] font-bold tracking-tight text-ink sm:text-5xl">
@@ -111,7 +111,7 @@ export default function Home() {
                 <span className="mt-2.5 block text-[13px] font-semibold text-ink">
                   {stage.title}
                 </span>
-                <span className="mt-1 block font-label text-[11px] text-ink-soft">
+                <span className="mt-1 block text-xs text-ink-soft">
                   {stage.estimatedWeeks.replace(/\s*\(.*\)|\s*\+.*$/, "")}
                 </span>
               </Link>
@@ -165,10 +165,10 @@ export default function Home() {
       <section className="border-t border-ink">
         <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-[22px] font-semibold text-ink">
+            <h2 className="text-[22px] font-bold tracking-tight text-ink">
               주제 선정부터 저널 투고까지
             </h2>
-            <span className="font-label text-xs tracking-wider text-ink-soft">
+            <span className="text-xs text-ink-soft">
               차례
             </span>
           </div>
@@ -185,18 +185,18 @@ export default function Home() {
                   href={`/guide/${stage.slug}`}
                   className="group grid grid-cols-[3.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-1 py-5 sm:grid-cols-[4.5rem_minmax(0,1fr)_8.25rem] sm:gap-5"
                 >
-                  <span className="font-serif text-[34px] leading-none font-medium text-ink">
+                  <span className="font-label text-2xl leading-none font-semibold text-ink">
                     {String(stage.order).padStart(2, "0")}
                   </span>
                   <span className="block">
-                    <span className="block font-serif text-[19px] font-semibold text-ink transition group-hover:text-accent">
+                    <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
                       {stage.title}
                     </span>
                     <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
                       {stage.description}
                     </span>
                   </span>
-                  <span className="col-start-2 flex gap-3 font-label text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
+                  <span className="col-start-2 flex gap-3 text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
                     <span>{stage.estimatedWeeks}</span>
                     <span>도구 {getToolCount(stage.slug)}</span>
                   </span>
@@ -211,10 +211,10 @@ export default function Home() {
       <section className="border-t border-line">
         <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
           <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-3">
-            <h2 className="font-serif text-xl font-semibold text-ink">
+            <h2 className="text-xl font-bold tracking-tight text-ink">
               예시로 보기
             </h2>
-            <span className="font-label text-xs tracking-wider text-ink-soft">
+            <span className="text-xs text-ink-soft">
               교육용 예시
             </span>
           </div>
@@ -223,7 +223,7 @@ export default function Home() {
             className="group flex items-center justify-between gap-4 border-b border-line py-5"
           >
             <span className="block">
-              <span className="block font-serif text-[19px] font-semibold text-ink transition group-hover:text-accent">
+              <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
                 예시 연구 한 편 따라가기
               </span>
               <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
@@ -240,7 +240,7 @@ export default function Home() {
       {/* 클로징 노트 */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-3xl px-4 py-10">
-          <p className="max-w-md font-serif text-base leading-[1.8] text-ink-soft">
+          <p className="max-w-md text-[15px] leading-[1.8] text-ink-soft">
             이건 진도표가 아니라 참고용 가이드입니다. 압박감보다 지금 할 수
             있는 한 걸음이 더 중요하니, 막힌 단계부터 펼쳐봐도 괜찮습니다.
           </p>

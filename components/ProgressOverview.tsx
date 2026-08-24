@@ -59,7 +59,7 @@ export function ProgressOverview({ stages }: { stages: StageInfo[] }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-[15px] font-bold text-ink">전체 진행 상황</h2>
-          <p className="mt-1 font-label text-xs text-ink-soft">
+          <p className="mt-1 text-xs text-ink-soft">
             {hydrated ? `${doneItems} / ${totalItems} 항목 완료 · ` : ""}이 기기
             기준
           </p>

@@ -62,7 +62,7 @@ export function StageRail({
     <aside className="sticky top-6 hidden lg:block">
       <h2
         id="stage-rail-stages"
-        className="px-3 pb-2 font-label text-xs tracking-wider text-ink-soft"
+        className="px-3 pb-2 text-xs text-ink-soft"
       >
         6단계
       </h2>
@@ -117,7 +117,7 @@ export function StageRail({
       <div className="mt-5 border-t border-line pt-5">
         <h2
           id="stage-rail-sections"
-          className="px-3 pb-2 font-label text-xs tracking-wider text-ink-soft"
+          className="px-3 pb-2 text-xs text-ink-soft"
         >
           이 페이지
         </h2>

@@ -16,7 +16,7 @@ export default function ActivityPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14">
-      <p className="font-label text-xs tracking-wider text-accent">기록</p>
+      <p className="text-xs font-semibold text-accent">기록</p>
       <h1 className="mt-2.5 text-3xl font-bold tracking-tight text-ink">
         내 활동 기록
       </h1>

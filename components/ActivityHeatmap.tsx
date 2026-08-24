@@ -93,7 +93,7 @@ export function ActivityHeatmap() {
           ))}
         </div>
       </div>
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 font-label text-[11px] text-ink-soft">
+      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-soft">
         <p>
           {WEEKDAY_LABELS[0]}부터 {WEEKDAY_LABELS[6]}까지 · 왼쪽이 과거, 오른쪽이 최근
         </p>

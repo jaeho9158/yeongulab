@@ -70,7 +70,7 @@ export default async function GuideStagePage({
             {String(stage.order).padStart(2, "0")}
           </span>
           <div>
-            <p className="font-label text-xs text-ink-soft">
+            <p className="text-xs text-ink-soft">
               {stage.order} / {stages.length}단계 · {stage.estimatedWeeks}
             </p>
             <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-ink">

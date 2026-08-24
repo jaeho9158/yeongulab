@@ -51,13 +51,13 @@ export function StageDurations({ stages }: { stages: StageInfo[] }) {
                 key={stage.slug}
                 className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1 border-t border-line py-3.5 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]"
               >
-                <span className="font-label text-xs text-ink-soft">
+                <span className="text-xs text-ink-soft">
                   {String(stage.order).padStart(2, "0")}
                 </span>
                 <span className="text-[15px] font-semibold text-ink">
                   {stage.title}
                 </span>
-                <span className="col-start-2 font-label text-xs text-ink-soft sm:col-start-auto">
+                <span className="col-start-2 text-xs text-ink-soft sm:col-start-auto">
                   {info.firstAt && formatDate(info.firstAt)} ~{" "}
                   {info.lastAt && formatDate(info.lastAt)} ·{" "}
                   <span className="text-ink">{info.days}일</span>

@@ -20,14 +20,14 @@ export function SectionHead({
       <Tag
         className={
           serif
-            ? "font-serif text-xl font-semibold text-ink"
+            ? "text-xl font-bold tracking-tight text-ink"
             : "text-lg font-bold text-ink"
         }
       >
         {title}
       </Tag>
       {meta && (
-        <span className="font-label text-[11px] tracking-wider text-ink-soft">
+        <span className="text-xs text-ink-soft">
           {meta}
         </span>
       )}

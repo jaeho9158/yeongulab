@@ -21,7 +21,7 @@ export default function GuideIndexPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14">
-      <p className="font-label text-xs tracking-wider text-accent">가이드</p>
+      <p className="text-xs font-semibold text-accent">가이드</p>
       <h1 className="mt-2.5 text-3xl font-bold tracking-tight text-ink">
         연구 6단계 가이드
       </h1>

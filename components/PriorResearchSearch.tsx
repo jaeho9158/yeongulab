@@ -124,7 +124,7 @@ export function PriorResearchSearch() {
       )}
 
       {status === "done" && results.length > 0 && source === "openalex" && (
-        <p className="mt-4 font-label text-xs text-ink-soft">
+        <p className="mt-4 text-xs text-ink-soft">
           OpenAlex 결과 — Semantic Scholar가 혼잡해 대신 검색했습니다.
         </p>
       )}

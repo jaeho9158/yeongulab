@@ -8,7 +8,7 @@ export function SiteFooter() {
           연구랩 가이드는 청소년 연구자를 위한 무료 로드맵입니다. 언제든
           막힌 단계로 바로 돌아와 다시 봐도 괜찮습니다.
         </p>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 font-label text-xs text-ink-soft">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-soft">
           <span>© {new Date().getFullYear().toString()} 연구랩 가이드</span>
           <div className="flex items-center gap-1">
             <Link

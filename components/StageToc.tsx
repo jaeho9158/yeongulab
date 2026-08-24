@@ -43,18 +43,18 @@ export function StageToc({ stages }: { stages: StageInfo[] }) {
               href={`/guide/${stage.slug}`}
               className="group grid grid-cols-[3.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-1 py-5 sm:grid-cols-[4.5rem_minmax(0,1fr)_7.5rem] sm:gap-5"
             >
-              <span className="font-serif text-[34px] leading-none font-medium text-ink">
+              <span className="font-label text-2xl leading-none font-semibold text-ink">
                 {String(stage.order).padStart(2, "0")}
               </span>
               <span className="block">
-                <span className="block font-serif text-[19px] font-semibold text-ink transition group-hover:text-accent">
+                <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
                   {stage.title}
                 </span>
                 <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
                   {stage.description}
                 </span>
               </span>
-              <span className="col-start-2 flex gap-3 font-label text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
+              <span className="col-start-2 flex gap-3 text-xs text-ink-soft sm:col-start-auto sm:flex-col sm:items-end sm:gap-1 sm:pt-1.5 sm:text-right">
                 {done && complete ? (
                   <span className="inline-flex items-center gap-1 text-accent">
                     <svg
