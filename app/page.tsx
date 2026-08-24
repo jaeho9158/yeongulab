@@ -62,7 +62,10 @@ export default function Home() {
         <p className="text-xs font-semibold text-accent">
           무료 · 로그인 불필요
         </p>
-        <h1 className="mt-3.5 text-4xl leading-[1.18] font-bold tracking-tight text-ink sm:text-5xl">
+        {/* 모바일(<640px)에서 text-4xl로는 첫 줄(13자)이 한 줄에 안 들어가
+            "아니/라,"처럼 꺾이므로 글자만 줄인다(24px이면 두 줄 모두 수납).
+            줄바꿈은 모든 크기에서 쉼표 뒤 고정. */}
+        <h1 className="mt-3.5 text-2xl leading-[1.4] font-bold tracking-tight text-ink sm:text-4xl sm:leading-[1.18] md:text-5xl">
           연구는 시작이 반이 아니라,
           <br />
           순서가 반입니다.
