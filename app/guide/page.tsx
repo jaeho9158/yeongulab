@@ -11,9 +11,11 @@ import { StageToc } from "@/components/StageToc";
 import { getToolCount } from "@/lib/stageToolMeta";
 
 export const metadata: Metadata = {
-  title: "연구 6단계 가이드",
+  // "청소년 연구 6단계 가이드"를 그대로 타이틀 앞머리에 — 실제 검색어와
+  // 일치할수록 구글이 그 구절을 굵게 강조해 보여준다.
+  title: "청소년 연구 6단계 가이드",
   description:
-    "주제 선정, 선행연구 조사, 방법론 설계, 데이터 수집, 논문화, 저널 투고까지 청소년 연구의 6단계를 안내합니다.",
+    "청소년 연구 6단계 가이드: 주제 선정, 선행연구 조사, 방법론 설계, 데이터 수집, 논문화, 저널 투고까지 6단계를 무료로 안내합니다.",
 };
 
 export default function GuideIndexPage() {

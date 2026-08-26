@@ -9,9 +9,13 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
 
-const SITE_TITLE = "연구랩 가이드 — 청소년 연구 로드맵";
+// "청소년 연구 6단계 가이드"를 앞에 두는 이유 — "연구랩"은 흔한 일반명사라
+// 그 단어만으로는 검색에 안 걸린다. 실제로 사람들이 찾을 법한 구절(청소년
+// 연구 6단계 가이드)을 타이틀 맨 앞에 그대로 넣어야 그 검색어와 일치해 노출
+// 확률이 올라가고, 검색결과에서도 일치한 구절이 굵게 강조된다.
+const SITE_TITLE = "청소년 연구 6단계 가이드 — 연구랩";
 const SITE_DESCRIPTION =
-  "청소년이 연구 주제 선정부터 논문 투고까지 6단계로 따라갈 수 있는 무료 가이드.";
+  "청소년 연구 6단계 가이드. 주제 선정부터 논문 투고까지 무료로 따라갈 수 있습니다. 로그인 없이 바로 시작하세요.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
