@@ -63,7 +63,8 @@ const VENUES: Venue[] = [
     note: "학생부(초·중·고)와 교원·일반부로 나뉘는 전국 단위 과학 탐구 대회. 보통 시·도 예선(지역 과학전람회)을 거쳐 출품하므로 학교 과학 담당 선생님과 먼저 상의하세요.",
     costNote: "무료 출품",
     deadlineMonth: null,
-    href: "https://www.science.go.kr/board?menuId=MENU00389",
+    // 옛 주소(board?menuId=MENU00389)는 404가 된다. 국립중앙과학관 전람회 행사안내 게시판.
+    href: "https://www.science.go.kr/mps/1078/bbs/157/moveBbsNttList.do",
   },
   {
     name: "한국청소년학술대회 (KSCY)",
@@ -73,7 +74,8 @@ const VENUES: Venue[] = [
     note: "청소년이 연구를 발표·토론하는 컨퍼런스 형태의 행사로, 학술지 게재와는 다릅니다. 참가비가 있으니 비용과 발표 형식을 공고에서 확인하세요.",
     costNote: "참가비 있음 (공고 확인)",
     deadlineMonth: null,
-    href: "https://www.kscy.kr",
+    // kscy.kr 도메인이 사라져(DNS 미해석) 링크를 뺀다 — href가 없으면
+    // "검색해서 공식 공고 확인" 안내가 대신 나간다. 새 주소가 확인되면 다시 넣을 것.
   },
   {
     name: "사이언스올",
