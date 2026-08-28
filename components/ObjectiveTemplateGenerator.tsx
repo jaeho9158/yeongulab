@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
-import { josa } from "@/lib/ideaBank";
+import { josa } from "@/lib/korean";
 
 const METHODS = [
   { value: "실험적으로", label: "실험적으로" },

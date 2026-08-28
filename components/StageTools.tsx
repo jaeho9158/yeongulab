@@ -79,6 +79,12 @@ const SubmissionVenues = dynamic(() =>
 const EthicsChecklist = dynamic(() =>
   import("@/components/EthicsChecklist").then((m) => m.EthicsChecklist),
 );
+const ResearchDesignQuiz = dynamic(() =>
+  import("@/components/ResearchDesignQuiz").then((m) => m.ResearchDesignQuiz),
+);
+const AcademicPhrases = dynamic(() =>
+  import("@/components/AcademicPhrases").then((m) => m.AcademicPhrases),
+);
 
 /** 도구 제목 → 렌더러. 제목은 lib/stageToolMeta가 단일 출처이며, 빠지면 타입 오류. */
 const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
@@ -86,6 +92,7 @@ const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
   "내 연구질문, 조사형일까 탐구형일까": () => <ResearchQuestionQuiz />,
   "선행연구 검색해보기": () => <PriorResearchSearch />,
   "내 레퍼런스 목록": () => <ReferenceList />,
+  "내 연구질문에 맞는 설계 유형 찾기": () => <ResearchDesignQuiz />,
   "목적 진술 만들어보기": () => <ObjectiveTemplateGenerator />,
   "변수 정의표 만들기": () => <VariableTableBuilder />,
   "표본 크기 계산기": () => <SampleSizeCalculator />,
@@ -95,6 +102,7 @@ const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
   "간이 차트 그리기": () => <SimpleChart />,
   "그림·표 캡션 도우미": () => <FigureCaptionHelper />,
   "IMRaD 구조 점검": () => <ImradChecker />,
+  "논문에 쓰는 영어 표현": () => <AcademicPhrases />,
   "분량 체크기": () => <LengthChecker />,
   "인용 형식 만들어보기": () => <CitationFormatter />,
   "연구윤리 · 재현가능성 체크리스트": (slug) => <EthicsChecklist slug={slug} />,
