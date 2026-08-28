@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
-import { getAllStages, getStageBySlug } from "@/lib/guide";
+import { extractHeadings, getAllStages, getStageBySlug } from "@/lib/guide";
 import { AdSlot } from "@/components/AdSlot";
 import { ChecklistCard } from "@/components/ChecklistCard";
 import { ReflectionBox } from "@/components/ReflectionBox";
@@ -43,6 +43,12 @@ export default async function GuideStagePage({
   const prev = stages.find((s) => s.order === stage.order - 1);
   const next = stages.find((s) => s.order === stage.order + 1);
 
+  // 본문 H2 목록을 레일 목차로 쓴다. 아래 h2 렌더러가 '문서에서 몇 번째
+  // H2인가'로 같은 배열을 집어 id를 붙이므로, 제목 글자를 다시 해석하지
+  // 않는다 — 링크·강조가 섞인 제목이 생겨도 레일과 본문이 어긋나지 않는다.
+  const headings = extractHeadings(stage.content);
+  let renderedH2 = 0;
+
   return (
     <div className="mx-auto grid max-w-[60rem] items-start gap-12 px-4 py-10 lg:grid-cols-[13rem_minmax(0,1fr)] lg:py-12">
       <StageRail
@@ -53,6 +59,7 @@ export default async function GuideStagePage({
           checklist: s.checklist,
         }))}
         currentSlug={stage.slug}
+        headings={headings}
         toolCount={getToolCount(stage.slug)}
         selfCheckCount={stage.selfCheck.length}
       />
@@ -95,6 +102,15 @@ export default async function GuideStagePage({
               },
             }}
             components={{
+              // 레일 목차가 가리킬 앵커. scroll-mt는 클릭해서 이동했을 때
+              // 제목이 화면 맨 위에 딱 붙지 않도록 띄워둔다.
+              h2: (props) => (
+                <h2
+                  id={headings[renderedH2++]?.id}
+                  className="scroll-mt-24"
+                  {...props}
+                />
+              ),
               table: (props) => (
                 <div className="overflow-x-auto">
                   {/* prose의 기본 table 스타일이 width:100%라 화면보다 넓어질 일이
