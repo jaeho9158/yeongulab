@@ -19,6 +19,13 @@ const ERROR_MESSAGES: Record<ErrorKind, string> = {
   network: "검색 서비스에 연결하지 못했습니다. 인터넷 연결을 확인해주세요.",
 };
 
+/** 예시 검색 칩 — 세 소스 모두에서 관련 결과가 잘 나오는 것을 확인한 키워드. */
+const EXAMPLE_QUERIES = [
+  "white noise short-term memory",
+  "screen time sleep quality teenagers",
+  "microplastic freshwater fish",
+];
+
 function classifyStatus(status: number): ErrorKind {
   if (status === 400) return "input";
   if (status === 429) return "rate-limit";
@@ -47,9 +54,10 @@ export function PriorResearchSearch() {
     setSavedIds((prev) => ({ ...prev, [paper.paperId]: true }));
   }
 
-  async function search(e: React.FormEvent) {
-    e.preventDefault();
-    const q = query.trim();
+  // 폼 제출과 예시 칩 클릭이 같은 경로를 쓴다 — 칩은 setQuery 직후 상태가
+  // 아직 안 바뀐 시점이므로 검색어를 인자로 직접 받는다.
+  async function runSearch(rawQuery: string) {
+    const q = rawQuery.trim();
     if (!q) return;
     setStatus("loading");
 
@@ -84,6 +92,11 @@ export function PriorResearchSearch() {
     }
   }
 
+  function search(e: React.FormEvent) {
+    e.preventDefault();
+    void runSearch(query);
+  }
+
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">선행연구 검색해보기</h2>
@@ -114,6 +127,26 @@ export function PriorResearchSearch() {
         영어 키워드로 검색할 때 결과가 훨씬 많이 나옵니다. (예:
         &ldquo;미세플라스틱&rdquo; 보다 &ldquo;microplastic&rdquo;)
       </p>
+
+      {/* 첫 검색의 문턱을 낮추는 예시 칩 — 실제로 결과가 잘 나오는 걸 확인한
+          키워드만 둔다. 첫 번째는 /example의 가상 연구와 같은 주제. */}
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <span className="text-xs text-ink-soft">이런 식으로:</span>
+        {EXAMPLE_QUERIES.map((example) => (
+          <button
+            key={example}
+            type="button"
+            disabled={status === "loading"}
+            onClick={() => {
+              setQuery(example);
+              void runSearch(example);
+            }}
+            className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft transition hover:border-accent hover:text-ink disabled:opacity-50"
+          >
+            {example}
+          </button>
+        ))}
+      </div>
 
       {status === "error" && (
         <p className="mt-4 text-sm text-ink-soft" role="alert">
