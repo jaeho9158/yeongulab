@@ -102,3 +102,14 @@ TODO/FIXME 주석: **0건** (깨끗함).
 - **B 완료**: 3단 폴백 제어 흐름을 `lib/searchChain.ts`의 `runSearchChain(query, fetchers)`로 추출. 권장 순서대로 **체인 테스트 7건을 먼저 추가**(1차 성공 시 단락, 4xx 무폴백 전달, 429→Crossref 폴백+초록 보강, 보강 실패 격리, 2차 0건→OpenAlex, 3차 429/502) 후 route를 교체. route는 fetch 함수 4개 주입만 담당.
 - 검증: vitest **63건 전부 통과**, tsc 0 오류, `next build` 성공, `next start` 스모크에서 실검색("white noise short-term memory" → 1969 Sloboda 논문 1위)과 빈 쿼리 400 확인.
 - 커밋 2개 추가 (A+C, B). push는 하지 않음.
+
+## 6단계(추가 지시): 보류했던 부채 #1·#2 실행 — localStorage 패턴 통일 (2026-08-29)
+
+브랜치 chore/localstorage-unify.
+
+1. **jsdom 셋업**: vitest.config.ts(경로 별칭), jsdom·@testing-library/react·user-event 추가. 컴포넌트 테스트는 파일별 `@vitest-environment jsdom`.
+2. **보호 테스트 먼저**: ChecklistCard(6)·ReflectionBox(4)·ContinueCard(4) — 저장값 반영, 체크→저장+활동기록, slug 변경 시 오염 방지, 빈 items 미렌더 등 현재 동작 고정 후 커밋.
+3. **리팩터링**: `lib/useSeededState.ts` 신설 — "서버와 같은 초기 렌더 → 마운트 후 시드" 패턴의 단일 구현(null=시드 전). 컴포넌트 11곳 + usePersistentState를 이 훅으로 통일. ReflectionBox '저장됨'은 slug 비교 파생값으로 전환.
+4. **결과**: eslint 오류 12건 → **0건**(경고 포함 0). vitest 77건 통과, tsc 0, next build 성공. 로컬 프로덕션(next start)을 실크롬으로 확인 — 체크리스트 v2 저장·테마 토글 정상, 하이드레이션 콘솔 에러 없음(확장프로그램 노이즈만).
+
+남은 부채: #3·#4(대형 컴포넌트 분할), #8(스크롤 기준선 이중 하드코딩), #9·#10(파싱 검증·저장 실패 표시), major 업그레이드 3건.
