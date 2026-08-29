@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { countDone, subscribeChecklist } from "@/lib/checklist";
+import { useSeededState } from "@/lib/useSeededState";
 
 type StageInfo = {
   order: number;
@@ -17,25 +18,26 @@ type Progress = {
 };
 
 export function ProgressOverview({ stages }: { stages: StageInfo[] }) {
-  const [hydrated, setHydrated] = useState(false);
-  const [progress, setProgress] = useState<Record<string, Progress>>({});
+  function load(): Record<string, Progress> {
+    const next: Record<string, Progress> = {};
+    for (const stage of stages) {
+      next[stage.slug] = {
+        done: countDone(stage.slug, stage.checklist),
+        total: stage.checklist.length,
+      };
+    }
+    return next;
+  }
+
+  const [seeded, setSeeded] = useSeededState(load);
+  const hydrated = seeded !== null;
+  const progress = seeded ?? {};
 
   useEffect(() => {
-    function load() {
-      const next: Record<string, Progress> = {};
-      for (const stage of stages) {
-        next[stage.slug] = {
-          done: countDone(stage.slug, stage.checklist),
-          total: stage.checklist.length,
-        };
-      }
-      setProgress(next);
-      setHydrated(true);
-    }
-    load();
-    return subscribeChecklist(load);
+    // 같은 페이지의 체크 이벤트 + 다른 탭의 storage 변경을 따라간다
+    return subscribeChecklist(() => setSeeded(load()));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setSeeded]);
 
   const totalItems = stages.reduce((sum, s) => sum + s.checklist.length, 0);
   const doneItems = stages.reduce(

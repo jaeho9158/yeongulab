@@ -70,7 +70,7 @@ export function SurveyBiasChecker() {
       </button>
 
       {checked && (
-        <ul className="mt-4 space-y-2">
+        <ul aria-live="polite" className="mt-4 space-y-2">
           {flagged.map((f, i) => (
             <li
               key={i}

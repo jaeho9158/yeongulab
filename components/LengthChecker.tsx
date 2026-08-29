@@ -22,6 +22,7 @@ export function LengthChecker() {
       </p>
 
       <textarea
+        aria-label="글자수를 셀 본문 붙여넣기"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="초록이나 본문을 붙여넣어보세요."

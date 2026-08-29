@@ -28,6 +28,20 @@ describe("formatAPA", () => {
   });
 });
 
+describe("formatAPA 부분 필드 조합", () => {
+  it("volume만: 괄호 없이 권만", () => {
+    expect(formatAPA({ ...base, issue: undefined })).toContain("Journal of Tests, 12, 1-10.");
+  });
+  it("issue만: 저널명에 바로 붙지 않고 쉼표+괄호 (경계)", () => {
+    expect(formatAPA({ ...base, volume: undefined })).toContain("Journal of Tests, (3), 1-10.");
+  });
+  it("pages만: 권·호 없이 쪽수만", () => {
+    expect(formatAPA({ ...base, volume: undefined, issue: undefined })).toContain(
+      "Journal of Tests, 1-10.",
+    );
+  });
+});
+
 describe("formatIEEE", () => {
   it("전체 필드를 IEEE 형식으로 조합한다", () => {
     expect(formatIEEE(base)).toBe(
@@ -43,5 +57,28 @@ describe("formatIEEE", () => {
   });
   it("전부 비면 빈 문자열 (실패)", () => {
     expect(formatIEEE({ authors: "", year: "", title: "", source: "" })).toBe("");
+  });
+});
+
+describe("readReferences 손상 데이터 필터 (#9)", () => {
+  it("배열 아님·필드 누락·타입 불일치 항목을 거른다", async () => {
+    const { vi } = await import("vitest");
+    const store = new Map<string, string>();
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: (k: string) => store.get(k) ?? null,
+        setItem: (k: string, v: string) => void store.set(k, v),
+      },
+    });
+    const { readReferences } = await import("../citations");
+    const good = { id: "1", authors: "Kim", year: "2020", title: "T", source: "J" };
+    store.set(
+      "research-guide:references",
+      JSON.stringify([good, { id: 2, title: "bad" }, "garbage", null]),
+    );
+    expect(readReferences()).toEqual([good]);
+    store.set("research-guide:references", JSON.stringify({ not: "array" }));
+    expect(readReferences()).toEqual([]);
+    vi.unstubAllGlobals();
   });
 });

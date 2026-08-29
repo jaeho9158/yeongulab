@@ -105,6 +105,54 @@ describe("runSearchChain", () => {
     expect(r.body.source).toBe("openalex");
   });
 
+  it("1차가 200이면 0건이어도 그대로 반환한다 — 의도된 동작(폴백은 오류 시에만)", async () => {
+    const r = await runSearchChain(
+      "q",
+      fetchers({ semanticScholar: async () => json({ data: [] }) }),
+    );
+    if (!("data" in r.body)) throw new Error("성공 응답이어야 함");
+    expect(r.body.source).toBe("semantic-scholar");
+    expect(r.body.data).toEqual([]);
+  });
+
+  it("2차 Crossref가 4xx여도 3차로 폴백한다", async () => {
+    const r = await runSearchChain(
+      "q",
+      fetchers({
+        semanticScholar: async () => json({}, 500),
+        crossref: async () => json({}, 404),
+        openAlex: async () => json(OA_OK),
+      }),
+    );
+    if (!("data" in r.body)) throw new Error("성공 응답이어야 함");
+    expect(r.body.source).toBe("openalex");
+  });
+
+  it("DOI가 아닌 paperId는 초록 보강 조회에서 제외된다", async () => {
+    const asked: string[][] = [];
+    const r = await runSearchChain(
+      "q",
+      fetchers({
+        semanticScholar: async () => json({}, 429),
+        crossref: async () =>
+          json({
+            message: {
+              items: [
+                { DOI: "10.1/a", title: ["Has DOI"] },
+                { title: ["No DOI"] },
+              ],
+            },
+          }),
+        openAlexByDois: async (dois) => {
+          asked.push(dois);
+          return json({ results: [] });
+        },
+      }),
+    );
+    if (!("data" in r.body)) throw new Error("성공 응답이어야 함");
+    expect(asked).toEqual([["10.1/a"]]);
+  });
+
   it("3차 429는 429로, 그 외 실패는 502로 (실패)", async () => {
     const base = {
       semanticScholar: async () => json({}, 500),

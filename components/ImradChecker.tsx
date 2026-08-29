@@ -120,6 +120,7 @@ export function ImradChecker() {
       </p>
 
       <textarea
+        aria-label="점검할 초고 붙여넣기"
         value={text}
         onChange={(e) => {
           setText(e.target.value);

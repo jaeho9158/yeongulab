@@ -107,6 +107,7 @@ export function PriorResearchSearch() {
       <form onSubmit={search} className="mt-4 flex flex-wrap gap-2">
         <input
           type="text"
+          aria-label="검색 키워드 (영어)"
           required
           maxLength={200}
           value={query}

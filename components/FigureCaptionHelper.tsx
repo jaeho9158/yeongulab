@@ -93,7 +93,7 @@ export function FigureCaptionHelper() {
       </div>
 
       {assembled && (
-        <div className="mt-3 rounded-lg bg-surface px-4 py-3">
+        <div aria-live="polite" className="mt-3 rounded-lg bg-surface px-4 py-3">
           <p className="text-sm text-ink">{assembled}</p>
           <button
             type="button"

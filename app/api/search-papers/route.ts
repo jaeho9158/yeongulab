@@ -71,11 +71,13 @@ async function fetchCrossref(query: string): Promise<Response> {
 async function fetchOpenAlexByDois(dois: string[]): Promise<Response> {
   const url = new URL("https://api.openalex.org/works");
   // filter=doi:a|b|c 는 OR 조회다. 한 번에 50건까지 받으므로 상한을 넘지 않는다.
+  // |·,는 filter 문법의 구분자라, DOI에 섞여 오면(비정상 응답) 절이 분해되므로 제외한다.
+  const safeDois = dois.filter((d) => !/[|,]/.test(d));
   url.searchParams.set(
     "filter",
-    `doi:${dois.map((d) => `https://doi.org/${d.toLowerCase()}`).join("|")}`,
+    `doi:${safeDois.map((d) => `https://doi.org/${d.toLowerCase()}`).join("|")}`,
   );
-  url.searchParams.set("per-page", String(dois.length));
+  url.searchParams.set("per-page", String(Math.max(safeDois.length, 1)));
   url.searchParams.set("select", "doi,abstract_inverted_index");
   url.searchParams.set("mailto", SITE_CONTACT_EMAIL);
 

@@ -27,8 +27,12 @@ function listRecordKeys(): string[] {
 function collectData(): Record<string, string> {
   const data: Record<string, string> = {};
   for (const key of listRecordKeys()) {
-    const value = window.localStorage.getItem(key);
-    if (value !== null) data[key] = value;
+    try {
+      const value = window.localStorage.getItem(key);
+      if (value !== null) data[key] = value;
+    } catch {
+      // 개별 키 읽기 실패는 건너뛴다 — 읽을 수 있는 것만 내보낸다
+    }
   }
   return data;
 }

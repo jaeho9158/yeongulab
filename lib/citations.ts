@@ -22,7 +22,15 @@ export function formatAPA(ref: Omit<Reference, "id">): string {
     `(${ref.year || "n.d."}). `,
     ref.title && titleWithPeriod(ref.title),
     ref.source &&
-      `${ref.source}${ref.volume ? `, ${ref.volume}` : ""}${ref.issue ? `(${ref.issue})` : ""}${ref.pages ? `, ${ref.pages}` : ""}. `,
+      // 호(issue)는 권(volume) 뒤에 괄호로 붙는 게 APA 관례다. 권 없이 호만
+      // 있으면 "Journal(3)"처럼 붙지 않게 쉼표를 두고 괄호로 쓴다.
+      `${ref.source}${
+        ref.volume
+          ? `, ${ref.volume}${ref.issue ? `(${ref.issue})` : ""}`
+          : ref.issue
+            ? `, (${ref.issue})`
+            : ""
+      }${ref.pages ? `, ${ref.pages}` : ""}. `,
     ref.url,
   ]
     .filter(Boolean)
@@ -58,10 +66,30 @@ function generateId(): string {
 
 const REFERENCES_STORAGE_KEY = "research-guide:references";
 
+/** 손상된 저장값(필드 누락·타입 불일치)이 화면·인용 출력에 닿지 않게 항목 단위로 거른다. */
+function isReference(value: unknown): value is Reference {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  const optionalOk = (x: unknown) => x === undefined || typeof x === "string";
+  return (
+    typeof v.id === "string" &&
+    typeof v.authors === "string" &&
+    typeof v.year === "string" &&
+    typeof v.title === "string" &&
+    typeof v.source === "string" &&
+    optionalOk(v.volume) &&
+    optionalOk(v.issue) &&
+    optionalOk(v.pages) &&
+    optionalOk(v.url)
+  );
+}
+
 export function readReferences(): Reference[] {
   try {
     const raw = window.localStorage.getItem(REFERENCES_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(isReference) : [];
   } catch {
     return [];
   }

@@ -62,6 +62,9 @@ export function DeadlineTracker() {
       setError("이름과 날짜를 모두 입력해주세요.");
       return;
     }
+    // 검증 오류를 먼저 지운 뒤 저장한다 — persist가 저장 실패를 setError로
+    // 알리는데, 뒤에서 setError(null)을 부르면 그 경고가 배칭에 지워진다
+    setError(null);
     const next = [
       ...items,
       { id: crypto.randomUUID(), name: name.trim(), date },
@@ -69,7 +72,6 @@ export function DeadlineTracker() {
     persist(next);
     setName("");
     setDate("");
-    setError(null);
   }
 
   function remove(id: string) {
@@ -86,6 +88,7 @@ export function DeadlineTracker() {
 
       <form onSubmit={add} className="mt-4 flex flex-wrap gap-2">
         <input
+          aria-label="대회·저널 이름"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -112,7 +115,11 @@ export function DeadlineTracker() {
         </button>
       </form>
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-2 text-xs text-red-600">
+          {error}
+        </p>
+      )}
 
       {hydrated && items.length > 0 && (
         <ul className="mt-4 space-y-2">

@@ -89,7 +89,7 @@ export function RandomSampler() {
       </div>
 
       {picked && (
-        <div className="mt-4 rounded-lg bg-surface px-4 py-3">
+        <div aria-live="polite" className="mt-4 rounded-lg bg-surface px-4 py-3">
           {picked.length === 0 ? (
             <p className="text-sm text-ink-soft">뽑을 인원 수를 확인해주세요.</p>
           ) : (

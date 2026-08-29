@@ -124,3 +124,20 @@ TODO/FIXME 주석: **0건** (깨끗함).
 - **major 업그레이드**: @types/node 20→**24 적용**(Vercel 런타임 24.x와 일치; 26은 런타임 불일치라 부적절). **typescript 7 시도 후 되돌림**(typescript-eslint 미지원으로 lint 사망 — TS 7.1 지원 후 재시도). **eslint 10 시도 후 되돌림**(eslint-config-next 규칙 크래시 — 대응 릴리스 후 재시도).
 
 검증: vitest **97건 전부 통과**(16파일), tsc 0, lint 클린(0 문제), next build 성공.
+
+## 8단계(추가 지시): 서브에이전트 7종 전면 재점검 및 발견 문제 전량 수정 (2026-08-29)
+
+병렬 점검 7종: 변경분 코드 리뷰 / 빌드·테스트·린트 재검증 / 보고서 대조 / 콘텐츠·외부링크 / 접근성 / 테스트 품질 / API·설정 보안. 재검증·보고서 대조·링크 점검은 전부 클린(외부 링크 12건 200, MDX 문법 위험 0, 보고서 주장 사실 부합).
+
+수정한 발견 사항:
+- **[중] DeadlineTracker 추가 경로에서 저장 실패 경고가 배칭에 지워지던 버그** — setError(null)을 persist 앞으로 이동 (코드 리뷰 발견; 부채 #10 수정의 결함이었음)
+- **[하] ReflectionBox '자동저장됨'이 단계 재방문 시 되살아나던 표시 오류** — 페이지에서 key={slug} 재마운트로 해결
+- **[하] OpenAlex DOI filter의 |·, 오염 가능성** — 구분자 포함 DOI 제외 (보안 점검 발견)
+- **접근성 12건**: DeadlineTracker 오류 role="alert"·이름 라벨, ReflectionBox 라벨 연결·상태 aria-live, ImradChecker·LengthChecker·PriorResearchSearch 입력 aria-label, DisclosureGenerator select 6개 aria-label, 결과 영역 aria-live 7곳(RandomSampler·SurveyBiasChecker·SampleSizeCalculator·CitationFormatter·FigureCaptionHelper·ObjectiveTemplateGenerator·DisclosureGenerator)
+- **사이트맵에 /privacy 추가** (콘텐츠 점검 발견)
+- **테스트 품질 상위 5 전부 반영**: ① flaky(user.type→paste + testTimeout 15s) ② readReferences 항목 검증 신설+테스트 ③ formatAPA 부분 필드(issue-only "Journal(3)" 버그) 수정+테스트 3건 ④ searchChain 미커버 분기 테스트 3건(200-0건 의도 문서화·Crossref 4xx 폴백·비DOI 제외) ⑤ 극단 p값을 scipy 기준값과 대조(t=15/df=3, 소수 df, 불균등 n Welch — 전부 일치 확인)
+- **ProgressOverview를 useSeededState로 통일** (6단계에서 누락됐던 마지막 1곳), PlanBackup collectData try 포장
+
+수정하지 않기로 한 것(정당 사유): API 레이트리밋 부재·CSP 부재(무로그인 공개 사이트+AdSense 트레이드오프, 보안 점검도 '감수 가능' 판정), 테스트만 쓰는 export 유지(테스트가 직접 참조), Semantic Scholar 무인증 429(알려진 특성, 키 등록 대기).
+
+최종: vitest **106건 통과**, tsc 0, lint 0, next build 성공.

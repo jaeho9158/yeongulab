@@ -9,12 +9,15 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
+// user.type은 한 글자씩 쳐서 병렬 실행에서 느리다 — 붙여넣기로 대체
 async function fill(user: ReturnType<typeof userEvent.setup>, a: string, b: string) {
   const boxes = screen.getAllByRole("textbox");
   await user.clear(boxes[0]);
-  await user.type(boxes[0], a);
+  await user.click(boxes[0]);
+  await user.paste(a);
   await user.clear(boxes[1]);
-  await user.type(boxes[1], b);
+  await user.click(boxes[1]);
+  await user.paste(b);
 }
 
 describe("StatsCalculator", () => {

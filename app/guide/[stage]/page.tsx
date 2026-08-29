@@ -132,7 +132,13 @@ export default async function GuideStagePage({
           <ChecklistCard slug={stage.slug} items={stage.checklist} />
         </div>
         <div id="self-check" className="scroll-mt-24">
-          <ReflectionBox slug={stage.slug} questions={stage.selfCheck} />
+          {/* key로 단계마다 재마운트 — '자동저장됨' 같은 방문-내 표시 상태가
+              다른 단계 것에서 넘어오지 않게 한다 */}
+          <ReflectionBox
+            key={stage.slug}
+            slug={stage.slug}
+            questions={stage.selfCheck}
+          />
         </div>
 
         <div className="2xl:hidden">

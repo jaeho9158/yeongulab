@@ -116,7 +116,7 @@ export function SampleSizeCalculator() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
+      <div aria-live="polite" className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
         {result ? (
           <>
             <p className="text-ink">

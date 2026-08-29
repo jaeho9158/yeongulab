@@ -137,6 +137,7 @@ export function DisclosureGenerator() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm text-ink">{opt.label}</span>
               <select
+                aria-label={`${opt.label} 활용 정도`}
                 value={usage[opt.key] ?? "none"}
                 onChange={(e) =>
                   setLevel(opt.key, e.target.value as UsageLevel)
@@ -155,7 +156,7 @@ export function DisclosureGenerator() {
       </ul>
 
       {text && (
-        <div className="mt-4 rounded-lg bg-surface px-4 py-3">
+        <div aria-live="polite" className="mt-4 rounded-lg bg-surface px-4 py-3">
           <p className="text-sm text-ink">{text}</p>
           <button
             type="button"

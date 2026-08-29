@@ -125,7 +125,7 @@ export function ObjectiveTemplateGenerator() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg bg-surface px-4 py-3">
+      <div aria-live="polite" className="mt-4 rounded-lg bg-surface px-4 py-3">
         <p className="text-sm leading-relaxed text-ink">
           {sentence || "빈칸을 채우면 여기에 문장이 완성됩니다."}
         </p>

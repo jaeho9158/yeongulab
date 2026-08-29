@@ -70,10 +70,14 @@ export function ReflectionBox({
           <li key={i}>{q}</li>
         ))}
       </ul>
-      <label className="mt-4 block text-xs font-medium text-ink-soft">
+      <label
+        htmlFor="reflection-text"
+        className="mt-4 block text-xs font-medium text-ink-soft"
+      >
         내 생각 적어보기 (선택)
       </label>
       <textarea
+        id="reflection-text"
         value={text}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="여기에 답을 적어보면 다음 단계로 넘어갈 준비가 됐는지 스스로 확인할 수 있습니다."
@@ -81,6 +85,7 @@ export function ReflectionBox({
         className="mt-2 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
       />
       <p
+        aria-live="polite"
         className={`mt-1.5 text-xs ${status === "failed" ? "text-red-600" : "text-ink-soft"}`}
         suppressHydrationWarning
       >

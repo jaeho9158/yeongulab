@@ -152,7 +152,7 @@ export function CitationFormatter() {
 
       {hasInput && (
         <div className="mt-4 space-y-3">
-          <div className="rounded-lg bg-surface px-4 py-3">
+          <div aria-live="polite" className="rounded-lg bg-surface px-4 py-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-medium text-ink-soft">APA</p>
               <button
@@ -165,7 +165,7 @@ export function CitationFormatter() {
             </div>
             <p className="mt-1 text-sm text-ink">{apa}</p>
           </div>
-          <div className="rounded-lg bg-surface px-4 py-3">
+          <div aria-live="polite" className="rounded-lg bg-surface px-4 py-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-medium text-ink-soft">IEEE</p>
               <button
