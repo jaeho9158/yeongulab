@@ -7,6 +7,17 @@ type Deadline = { id: string; name: string; date: string };
 
 const STORAGE_KEY = "research-guide:deadlines";
 
+/** 손상된 저장값이 렌더를 깨지 않게 항목 단위로 거른다. */
+function isDeadline(value: unknown): value is Deadline {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.name === "string" &&
+    typeof v.date === "string"
+  );
+}
+
 function daysUntil(dateStr: string): number {
   const target = new Date(dateStr + "T00:00:00");
   const today = new Date();
@@ -18,7 +29,10 @@ export function DeadlineTracker() {
   const [seeded, setItems] = useSeededState<Deadline[]>(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.filter(isDeadline);
+      }
     } catch {
       // 저장된 값이 없거나 접근 불가 — 빈 목록으로 시작
     }
@@ -35,7 +49,10 @@ export function DeadlineTracker() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
-      // 저장 실패해도 화면 상태는 유지
+      // 화면 상태는 유지하되, 새로고침하면 사라진다는 걸 알려준다
+      setError(
+        "브라우저 저장소에 저장하지 못했습니다(프라이빗 모드나 저장 공간 부족일 수 있어요). 이 목록은 새로고침하면 사라집니다.",
+      );
     }
   }
 

@@ -13,6 +13,18 @@ export type ActivityEntry = {
   occurredAt: string;
 };
 
+/** 손상된 저장값(필드 누락·타입 불일치)이 집계를 깨지 않게 항목 단위로 거른다. */
+function isActivityEntry(value: unknown): value is ActivityEntry {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.type === "string" &&
+    typeof v.refId === "string" &&
+    typeof v.occurredAt === "string" &&
+    !Number.isNaN(new Date(v.occurredAt).getTime())
+  );
+}
+
 export function logActivity(entry: Omit<ActivityEntry, "occurredAt">): void {
   try {
     const log = getActivityLog();
@@ -31,7 +43,7 @@ function getActivityLog(): ActivityEntry[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as ActivityEntry[];
+    return parsed.filter(isActivityEntry);
   } catch {
     return [];
   }

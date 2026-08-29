@@ -40,6 +40,20 @@ describe("getActivityByDay", () => {
     ]);
     expect(getActivityByDay()).toEqual({ "2026-08-01": 2, "2026-08-02": 1 });
   });
+  it("손상된 항목은 걸러지고 정상 항목만 집계된다 (실패 격리)", () => {
+    store.set(
+      LOG_KEY,
+      JSON.stringify([
+        { type: "NOTE", refId: "topic:a", occurredAt: at(2026, 8, 1) },
+        { type: "NOTE", refId: 123, occurredAt: at(2026, 8, 1) },
+        { refId: "topic:b" },
+        { type: "NOTE", refId: "topic:c", occurredAt: "not-a-date" },
+        "garbage",
+      ]),
+    );
+    expect(getActivityByDay()).toEqual({ "2026-08-01": 1 });
+  });
+
   it("저장값이 없거나 손상돼도 빈 결과 (실패)", () => {
     expect(getActivityByDay()).toEqual({});
     store.set(LOG_KEY, "{bad");

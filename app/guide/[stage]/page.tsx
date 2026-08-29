@@ -102,7 +102,9 @@ export default async function GuideStagePage({
               },
             }}
             components={{
-              // 레일 목차가 가리킬 앵커. scroll-mt는 클릭해서 이동했을 때
+              // 레일 목차가 가리킬 앵커. scroll-mt-24(96px)는 StageRail의
+              // ANCHOR_SCROLL_MARGIN_PX와 짝 — 바꾸면 같이 바꿀 것.
+              // scroll-mt는 클릭해서 이동했을 때
               // 제목이 화면 맨 위에 딱 붙지 않도록 띄워둔다.
               h2: (props) => (
                 <h2

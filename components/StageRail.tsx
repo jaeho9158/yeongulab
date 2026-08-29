@@ -6,6 +6,13 @@ import { countDone, subscribeChecklist } from "@/lib/checklist";
 // 타입만 가져온다 — lib/guide는 fs를 쓰므로 값으로 import하면 클라이언트에서 깨진다
 import type { Heading } from "@/lib/guide";
 
+// 본문 앵커의 Tailwind scroll-mt-24(=96px)와 짝을 이루는 값이다.
+// 앵커 클릭 시 제목이 96px 지점에 멈추므로, "그 기준선을 지났는가"는
+// 4px 여유를 더한 100px로 판정한다. scroll-mt-24를 바꾸면 여기도 같이 바꿀 것
+// (app/guide/[stage]/page.tsx, components/StageTools.tsx).
+const ANCHOR_SCROLL_MARGIN_PX = 96;
+const ACTIVE_BASELINE_PX = ANCHOR_SCROLL_MARGIN_PX + 4;
+
 type StageInfo = {
   order: number;
   slug: string;
@@ -91,10 +98,8 @@ export function StageRail({
       for (const id of order) {
         const el = document.getElementById(id);
         if (!el) continue;
-        // 제목이 기준선(앵커 이동 시 멈추는 96px) 아래로 내려가 있으면 아직
-        // 그 섹션 전이다. 기준선 위(또는 살짝 아래 4px 여유)를 지난 마지막
-        // 제목이 현재 섹션.
-        if (el.getBoundingClientRect().top <= 100) current = id;
+        // 기준선을 지난 마지막 제목이 현재 섹션이다.
+        if (el.getBoundingClientRect().top <= ACTIVE_BASELINE_PX) current = id;
         else break;
       }
       setActiveId(current ?? order[0] ?? null);

@@ -24,9 +24,11 @@ export function ReflectionBox({
     }
   }, [slug]);
   const text = seededText ?? "";
-  // "저장됨" 표시는 slug별이다: 다른 단계로 이동하면 자동으로 꺼진다
-  const [savedFor, setSavedFor] = useState<string | null>(null);
-  const saved = savedFor === slug;
+  // 저장 상태 표시는 slug별이다: 다른 단계로 이동하면 자동으로 초기화된다
+  const [statusFor, setStatusFor] = useState<
+    { slug: string; state: "saved" | "failed" } | null
+  >(null);
+  const status = statusFor?.slug === slug ? statusFor.state : null;
   const logTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function ReflectionBox({
     setText(value);
     try {
       window.localStorage.setItem(storageKey(slug), value);
-      setSavedFor(slug);
+      setStatusFor({ slug, state: "saved" });
       // 키 입력마다 기록하면 활동 로그가 넘치므로, 입력이 멈춘 뒤 한 번만 기록
       if (logTimerRef.current !== null) {
         window.clearTimeout(logTimerRef.current);
@@ -53,7 +55,8 @@ export function ReflectionBox({
         logActivity({ type: "REFLECTION", refId: slug });
       }, 3000);
     } catch {
-      // 저장 실패해도 입력은 유지
+      // 입력은 유지하되, 저장이 안 되고 있다는 걸 알려준다
+      setStatusFor({ slug, state: "failed" });
     }
   }
 
@@ -77,8 +80,15 @@ export function ReflectionBox({
         rows={4}
         className="mt-2 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
       />
-      <p className="mt-1.5 text-xs text-ink-soft" suppressHydrationWarning>
-        {saved ? "이 기기에 자동저장됨" : "이 기기의 브라우저에만 저장됩니다"}
+      <p
+        className={`mt-1.5 text-xs ${status === "failed" ? "text-red-600" : "text-ink-soft"}`}
+        suppressHydrationWarning
+      >
+        {status === "failed"
+          ? "저장하지 못했습니다(프라이빗 모드나 저장 공간 부족일 수 있어요). 입력 내용은 이 화면을 벗어나면 사라집니다."
+          : status === "saved"
+            ? "이 기기에 자동저장됨"
+            : "이 기기의 브라우저에만 저장됩니다"}
       </p>
     </section>
   );
