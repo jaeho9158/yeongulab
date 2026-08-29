@@ -94,3 +94,11 @@ TODO/FIXME 주석: **0건** (깨끗함).
 
 ### 보류 (테스트 미확보로 이번 계획에서 제외)
 부채 #1·#2(컴포넌트 localStorage 패턴 통일)는 대상 컴포넌트의 렌더링 테스트가 없어 계획에서 뺐다. 착수하려면 jsdom + @testing-library/react 셋업이 선행돼야 한다.
+
+## 5단계(추가 지시): 리팩터링 계획 A·B·C 전부 실행 (2026-08-29)
+
+- **A 완료**: `parseNumberList` 삭제(사용처 없음). `verdict()`를 `lib/statsVerdict.ts`로 추출하고 테스트 4건 추가(모드별 문구·p<.01/.05 경계·NaN 판정 불가).
+- **C 완료**: 외부 미사용 export 4건 내부화 — `getActivityLog`, `checklistKey`, `REFERENCES_STORAGE_KEY`, `pickRandom` (모두 파일 내부 사용은 유지). PlanBackup은 prefix 스캔 방식이라 영향 없음 확인.
+- **B 완료**: 3단 폴백 제어 흐름을 `lib/searchChain.ts`의 `runSearchChain(query, fetchers)`로 추출. 권장 순서대로 **체인 테스트 7건을 먼저 추가**(1차 성공 시 단락, 4xx 무폴백 전달, 429→Crossref 폴백+초록 보강, 보강 실패 격리, 2차 0건→OpenAlex, 3차 429/502) 후 route를 교체. route는 fetch 함수 4개 주입만 담당.
+- 검증: vitest **63건 전부 통과**, tsc 0 오류, `next build` 성공, `next start` 스모크에서 실검색("white noise short-term memory" → 1969 Sloboda 논문 1위)과 빈 쿼리 400 확인.
+- 커밋 2개 추가 (A+C, B). push는 하지 않음.
