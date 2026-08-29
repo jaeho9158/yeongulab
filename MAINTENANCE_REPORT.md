@@ -1,6 +1,20 @@
 # MAINTENANCE_REPORT
 
-(요약은 마지막에 작성)
+## 요약 (2026-08-29, 브랜치 chore/maintenance — push 안 함)
+
+**실제로 바뀐 것**
+- 커밋 5개, 변경 파일 12개: 의존성 패치 3건(next 16.3.1→16.3.3, eslint-config-next 동기, @types/react-dom 19.2.5), vitest 도입, 테스트 파일 7개(52건 전부 통과), 이 보고서.
+- 프로덕션 코드는 한 줄도 수정하지 않음 (2·4단계 지시대로 조사·계획만).
+
+**판단이 필요한 것**
+1. major 업그레이드 3건 보류: eslint 10, typescript 7, @types/node 26 (1단계 표 참고).
+2. `npm run lint` 오류 12건 — 업그레이드 전부터 있던 기존 문제(react-hooks/set-state-in-effect). 수정하려면 컴포넌트 리팩터링 필요 → 부채 #1.
+3. 4단계 리팩터링 계획 A·B·C — 검토 후 지시 주시면 실행.
+
+**막혀서 건너뛴 것**
+- 없음 (테스트 2회 연속 실패로 포기한 대상 없음). 컴포넌트 렌더링 테스트는 jsdom 셋업이 선행돼야 해서 의도적으로 범위 제외.
+
+---
 
 ## 1단계: 의존성 점검 (2026-08-29)
 
@@ -42,3 +56,41 @@
 | 10 | 에러 상태 미표시 | PlanBackup 복원 실패, ReflectionBox 저장 실패 등이 조용히 무시됨 | 사용자는 저장된 줄 알고 데이터를 잃을 수 있음 | 중 |
 
 TODO/FIXME 주석: **0건** (깨끗함).
+
+## 3단계: 테스트 작성
+
+프레임워크가 없어 **vitest 4.x**를 devDependency로 설치하고 `npm test`(=`vitest run`) 스크립트를 추가했다. 컴포넌트(jsdom) 테스트는 이번 범위에서 제외하고, 서비스가 틀린 결과를 내보낼 수 있는 순수 로직부터 채웠다. **7개 파일, 52개 테스트, 전부 통과.** 각 배치 후 vitest + tsc 통과 확인 후 커밋.
+
+| 배치 | 파일 | 대상 | 이유 |
+|---|---|---|---|
+| 1 | lib/__tests__/stats.test.ts | Welch t-검정·상관·회귀·p값·파싱 | 손으로 옮긴 수치해석 — 틀리면 사용자에게 틀린 통계 판정 (부채 #5). 알려진 통계값(t=2, df=10 → p≈.0734 등)과 대조 |
+| 1 | lib/__tests__/paperSearch.test.ts | 3개 API 매퍼·JATS 제거·역색인 복원·초록 보강 | 외부 입력 지점 (부채 #6). 깨진 응답/누락 필드 실패 케이스 포함 |
+| 1 | lib/__tests__/citations.test.ts | APA/IEEE 포맷 | "Study.." 이중 마침표 회귀 방지 |
+| 2 | lib/__tests__/checklist.test.ts | v2 저장·구버전 boolean[] 마이그레이션 | 사용자 진행 데이터의 핵심 저장소. localStorage는 스텁으로 대체 |
+| 2 | lib/__tests__/korean.test.ts | 받침·조사 | 괄호 제거·숫자 읽기 경계 |
+| 2 | lib/__tests__/activity.test.ts | 소요일수·일별 집계 | "0일" 버그 회귀 방지(같은 날=1일) |
+| 3 | lib/__tests__/guide.test.ts | H2 추출·슬러그 중복 번호 | 레일 목차 앵커가 여기서 나옴 |
+
+건너뛴 것: 자명한 코드(usePersistentState의 단순 위임부, stageToolMeta 상수), 컴포넌트 렌더링(jsdom 셋업 필요 — 별도 작업 권장), search-papers route 자체(fetch 목킹 필요 — 매퍼 계층으로 핵심은 커버됨). 2회 연속 실패로 포기한 대상: 없음.
+
+## 4단계: 리팩터링 계획 (실행 안 함 — 검토 후 지시 대기)
+
+테스트가 확보된 부채 항목만 대상으로 한다.
+
+### 계획 A — 부채 #5: lib/stats.ts 죽은 코드 정리 및 StatsCalculator 분리 준비
+- **보호 테스트**: stats.test.ts (t/df/p/d 수치 고정, 오류 경계 5건)
+- **변경**: ① `parseNumberList`(stats.ts:233) 삭제 — 외부 사용처 0, `parseNumberListDetailed`만 사용됨. ② `tTestTwoTailedP`는 welchTTest 내부에서 사용하므로 유지하되 export 제거 여부는 선택(현재 테스트가 직접 참조하므로 export 유지 권장). ③ 이후 StatsCalculator.tsx의 `verdict()`를 lib/stats.ts 옆 `lib/statsVerdict.ts`로 옮기면 컴포넌트 없이 판정 문구까지 테스트 가능.
+- **위험**: 낮음. 삭제 대상은 grep 상 사용처 없음 + 전체 테스트가 잡아줌.
+
+### 계획 B — 부채 #6: search-papers route 슬림화
+- **보호 테스트**: paperSearch.test.ts (매퍼·보강 로직 전부)
+- **변경**: route.ts의 3단 폴백 제어 흐름을 `lib/paperSearch.ts`의 `searchWithFallback(fetchers)` 같은 순수 조합 함수로 추출하고, route는 fetch 함수 주입만 담당. 그러면 폴백 순서·shouldFallback 분기(429/5xx vs 4xx)도 fetch 목 없이 단위 테스트 가능.
+- **위험**: 중간. 현재 route 테스트가 없으므로 **추출 후 폴백 체인 테스트를 먼저 추가하고 나서** 배포 권장.
+
+### 계획 C — 부채 #7: 죽은 코드 제거 (lib 한정)
+- **보호 테스트**: 전체 스위트 + tsc + next build
+- **변경**: `lib/ideaBank.ts pickRandom`, `lib/checklist.ts checklistKey`(내부 사용 있음 — export만 제거), `lib/activity.ts getActivityLog`(내부 사용 있음 — export만 제거), `lib/citations.ts REFERENCES_STORAGE_KEY`(PlanBackup의 prefix 스캔과 무관한지 확인 후). 각각 삭제→빌드→테스트로 개별 확인.
+- **위험**: 낮음. 단, PlanBackup이 키 문자열을 동적으로 다루므로 문자열 검색까지 확인할 것.
+
+### 보류 (테스트 미확보로 이번 계획에서 제외)
+부채 #1·#2(컴포넌트 localStorage 패턴 통일)는 대상 컴포넌트의 렌더링 테스트가 없어 계획에서 뺐다. 착수하려면 jsdom + @testing-library/react 셋업이 선행돼야 한다.
