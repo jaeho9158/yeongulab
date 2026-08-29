@@ -159,3 +159,10 @@ body {
     animation-delay: 0s !important;
   }
 }
+
+/* 단계 페이지 레일의 내부 스크롤바 — 다크모드에서 기본 스크롤바가 도드라져
+   테마 색을 따르는 얇은 바로 낮춘다 */
+.rail-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}

@@ -66,8 +66,13 @@ export function StageRail({
     [headings, toolCount, selfCheckCount, current, currentDone],
   );
 
-  // 스크롤 위치에 따라 현재 섹션을 표시한다. 화면 상단 근처에 들어온 것만
-  // '보이는' 것으로 치고(rootMargin), 그중 문서 순서가 가장 앞선 것을 고른다.
+  // 스크롤 위치에 따라 현재 섹션을 표시한다.
+  //
+  // IntersectionObserver가 아니라 스크롤 위치 계산을 쓰는 이유: 제목은 한 줄
+  // 높이라 빠른 휠 스크롤이나 앵커 점프에서 관찰 밴드를 '건너뛰면' 교차
+  // 이벤트가 아예 안 와서 표시가 옛 값에 머문다(실브라우저에서 확인).
+  // "기준선(96px = scroll-mt-24)을 지난 마지막 제목"을 매 스크롤마다 계산하면
+  // 어떤 점프에서도 결정적으로 맞는다. rAF로 프레임당 1회로 묶는다.
   const ids = useMemo(
     () => sections.map((s) => s.href.slice(1)),
     [sections],
@@ -75,33 +80,41 @@ export function StageRail({
   const idsKey = ids.join("|");
 
   useEffect(() => {
-    const targets = idsKey
-      .split("|")
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (targets.length === 0) return;
-
     const order = idsKey.split("|");
-    const visible = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.add(entry.target.id);
-          else visible.delete(entry.target.id);
-        }
-        const first = order.find((id) => visible.has(id));
-        // 위로 스크롤해 아무것도 안 잡히는 구간에서는 직전 값을 유지한다
-        if (first) setActiveId(first);
-      },
-      { rootMargin: "-80px 0px -55% 0px" },
-    );
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    let raf = 0;
+
+    function update() {
+      raf = 0;
+      let current: string | null = null;
+      for (const id of order) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        // 제목이 기준선(앵커 이동 시 멈추는 96px) 아래로 내려가 있으면 아직
+        // 그 섹션 전이다. 기준선 위(또는 살짝 아래 4px 여유)를 지난 마지막
+        // 제목이 현재 섹션.
+        if (el.getBoundingClientRect().top <= 100) current = id;
+        else break;
+      }
+      setActiveId(current ?? order[0] ?? null);
+    }
+
+    function onScroll() {
+      if (raf === 0) raf = requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [idsKey]);
 
   return (
     // 목차가 길어지면(H2가 12개인 단계도 있다) 화면을 넘기므로 레일 안에서 스크롤한다
-    <aside className="sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto pr-1 lg:block">
+    <aside className="rail-scroll sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto pr-1 lg:block">
       <h2 id="stage-rail-stages" className="px-3 pb-2 text-xs text-ink-soft">
         6단계
       </h2>

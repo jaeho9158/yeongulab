@@ -10,12 +10,17 @@ export type Reference = {
   url?: string;
 };
 
+/** 제목이 이미 . ? ! 로 끝나면 마침표를 겹쳐 붙이지 않는다 ("Study.." 방지). */
+function titleWithPeriod(title: string): string {
+  return /[.?!]$/.test(title) ? `${title} ` : `${title}. `;
+}
+
 export function formatAPA(ref: Omit<Reference, "id">): string {
   return [
     ref.authors && `${ref.authors} `,
     // APA 관례상 연도가 없으면 (n.d.)로 표기한다
     `(${ref.year || "n.d."}). `,
-    ref.title && `${ref.title}. `,
+    ref.title && titleWithPeriod(ref.title),
     ref.source &&
       `${ref.source}${ref.volume ? `, ${ref.volume}` : ""}${ref.issue ? `(${ref.issue})` : ""}${ref.pages ? `, ${ref.pages}` : ""}. `,
     ref.url,
@@ -27,7 +32,8 @@ export function formatAPA(ref: Omit<Reference, "id">): string {
 export function formatIEEE(ref: Omit<Reference, "id">): string {
   const joined = [
     ref.authors && `${ref.authors}, `,
-    ref.title && `"${ref.title}," `,
+    // 따옴표 안에서 마침표+쉼표가 겹치지 않게 끝 마침표는 떼어낸다 (?·!는 유지)
+    ref.title && `"${ref.title.replace(/\.$/, "")}," `,
     ref.source && `${ref.source}, `,
     ref.volume && `vol. ${ref.volume}, `,
     ref.issue && `no. ${ref.issue}, `,
