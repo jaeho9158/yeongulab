@@ -113,3 +113,14 @@ TODO/FIXME 주석: **0건** (깨끗함).
 4. **결과**: eslint 오류 12건 → **0건**(경고 포함 0). vitest 77건 통과, tsc 0, next build 성공. 로컬 프로덕션(next start)을 실크롬으로 확인 — 체크리스트 v2 저장·테마 토글 정상, 하이드레이션 콘솔 에러 없음(확장프로그램 노이즈만).
 
 남은 부채: #3·#4(대형 컴포넌트 분할), #8(스크롤 기준선 이중 하드코딩), #9·#10(파싱 검증·저장 실패 표시), major 업그레이드 3건.
+
+## 7단계(추가 지시): 남은 부채 전부 처리 (2026-08-29, 브랜치 chore/debt-remainder)
+
+- **#8 완료**: StageRail의 96px/100px 이중 하드코딩을 `ANCHOR_SCROLL_MARGIN_PX`(+4 여유) 상수로 정리, scroll-mt-24 쪽(page.tsx)에도 결합 주석.
+- **#9 완료**: activity 로그·마감일 트래커의 JSON.parse 결과를 항목 단위 타입가드로 검증 — 손상 데이터가 집계·렌더를 깨지 않음(테스트 5건). PlanBackup은 이미 검증·오류표시가 있어 손대지 않음.
+- **#10 완료**: ReflectionBox·DeadlineTracker의 localStorage 저장 실패를 조용히 삼키지 않고 "저장하지 못했습니다(새로고침 시 사라짐)" 안내로 표면화.
+- **#3 완료**: StatsCalculator 463→314줄 — GuideBlock·CaveatBlock을 components/stats/로 분리. 보호 테스트 5건(t-검정 수치·오류·제외 경고·모드 전환·입력 유지) 먼저 작성.
+- **#4 부분 완료(판단)**: 순수 로직(parsePairs 쌍 검증·arcPath 호 경로)을 lib/chartGeometry로 분리해 테스트 7건 + 렌더 보호 테스트 3건. SVG 분기 자체의 컴포넌트 분할은 공유 레이아웃 수식과 강결합이라 회귀 위험 > 이득으로 보고 하지 않음.
+- **major 업그레이드**: @types/node 20→**24 적용**(Vercel 런타임 24.x와 일치; 26은 런타임 불일치라 부적절). **typescript 7 시도 후 되돌림**(typescript-eslint 미지원으로 lint 사망 — TS 7.1 지원 후 재시도). **eslint 10 시도 후 되돌림**(eslint-config-next 규칙 크래시 — 대응 릴리스 후 재시도).
+
+검증: vitest **97건 전부 통과**(16파일), tsc 0, lint 클린(0 문제), next build 성공.
