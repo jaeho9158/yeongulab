@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 import { verdict, type StatsMode as Mode } from "@/lib/statsVerdict";
+import { CaveatBlock } from "./stats/CaveatBlock";
+import { GuideBlock } from "./stats/GuideBlock";
 import {
   parseNumberListDetailed,
   pearsonCorrelation,
@@ -10,136 +12,6 @@ import {
   welchTTest,
 } from "@/lib/stats";
 
-
-function CaveatBlock() {
-  return (
-    <ul className="mt-3 list-disc space-y-1 border-t border-line pl-5 pt-3 text-xs leading-relaxed text-ink-soft">
-      <li>
-        서로 독립된 두 집단이고 극단값이 없다는 전제입니다. 같은 사람을 두 번
-        측정했다면(사전·사후) 대응표본 검정이 필요합니다.
-      </li>
-      <li>상관·회귀는 인과관계를 말해주지 않습니다.</li>
-      <li>
-        결과에는 효과크기(평균 차이·d 또는 R²)를 p값과 함께 적으세요.
-      </li>
-      <li>
-        이 t-검정은 등분산을 가정하지 않는 Welch 방식이라 자유도(df)가
-        소수로 나올 수 있습니다.
-      </li>
-      <li>p값은 차이의 크기나 중요성을 말해주지 않습니다.</li>
-    </ul>
-  );
-}
-
-type GuideAnswer = "diff" | "relation" | null;
-type GuideRelationAnswer = "predict" | "association" | null;
-
-function GuideBlock({ onPick }: { onPick: (mode: Mode) => void }) {
-  const [open, setOpen] = useState(false);
-  const [step1, setStep1] = useState<GuideAnswer>(null);
-  const [step2, setStep2] = useState<GuideRelationAnswer>(null);
-
-  const recommended: Mode | null =
-    step1 === "diff" ? "ttest" : step1 === "relation" && step2 === "predict" ? "regression" : step1 === "relation" && step2 === "association" ? "correlation" : null;
-
-  const recommendedLabel =
-    recommended === "ttest"
-      ? "두 그룹 평균 비교 (t-검정)"
-      : recommended === "regression"
-        ? "두 변수 관계 (회귀분석)"
-        : recommended === "correlation"
-          ? "두 변수 관계 (상관분석)"
-          : null;
-
-  return (
-    <div className="mt-4 rounded-lg border border-line bg-surface px-4 py-3">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left text-sm font-medium text-ink"
-      >
-        <span>어떤 분석이 맞을지 모르겠다면?</span>
-        <span className="text-ink-soft">{open ? "접기 ▲" : "펼치기 ▼"}</span>
-      </button>
-
-      {open && (
-        <div className="mt-3 space-y-3 text-sm">
-          <div>
-            <p className="text-ink-soft">
-              비교하려는 게 무엇인가요?
-            </p>
-            <div className="mt-1.5 flex flex-wrap gap-3">
-              <label className="flex items-center gap-1.5 text-ink">
-                <input
-                  type="radio"
-                  name="guide-step1"
-                  checked={step1 === "diff"}
-                  onChange={() => {
-                    setStep1("diff");
-                    setStep2(null);
-                  }}
-                />
-                두 그룹의 평균 차이
-              </label>
-              <label className="flex items-center gap-1.5 text-ink">
-                <input
-                  type="radio"
-                  name="guide-step1"
-                  checked={step1 === "relation"}
-                  onChange={() => setStep1("relation")}
-                />
-                두 변수 사이의 관계
-              </label>
-            </div>
-          </div>
-
-          {step1 === "relation" && (
-            <div>
-              <p className="text-ink-soft">
-                한 변수로 다른 변수를 예측/설명하고 싶나요?
-              </p>
-              <div className="mt-1.5 flex flex-wrap gap-3">
-                <label className="flex items-center gap-1.5 text-ink">
-                  <input
-                    type="radio"
-                    name="guide-step2"
-                    checked={step2 === "predict"}
-                    onChange={() => setStep2("predict")}
-                  />
-                  예, 예측/설명하고 싶어요
-                </label>
-                <label className="flex items-center gap-1.5 text-ink">
-                  <input
-                    type="radio"
-                    name="guide-step2"
-                    checked={step2 === "association"}
-                    onChange={() => setStep2("association")}
-                  />
-                  아니요, 그냥 관련이 있는지만
-                </label>
-              </div>
-            </div>
-          )}
-
-          {recommended && (
-            <div className="rounded-lg bg-bg px-3 py-2.5">
-              <p className="text-ink-soft">
-                추천 분석: <span className="font-medium text-ink">{recommendedLabel}</span>
-              </p>
-              <button
-                type="button"
-                onClick={() => onPick(recommended)}
-                className="mt-2 rounded-lg bg-ink px-4 py-2 text-xs font-medium text-bg transition hover:opacity-85"
-              >
-                이 방식으로 계산하기
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function StatsCalculator() {
   const [inputs, setInputs] = usePersistentState<{
