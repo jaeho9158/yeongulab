@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { logActivity } from "@/lib/activity";
 import { readChecklist, writeChecklist } from "@/lib/checklist";
+import { useSeededState } from "@/lib/useSeededState";
 
 export function ChecklistCard({
   slug,
@@ -11,18 +11,14 @@ export function ChecklistCard({
   slug: string;
   items: string[];
 }) {
-  const [checked, setChecked] = useState<boolean[]>(() =>
-    Array(items.length).fill(false),
+  // 클라이언트 라우팅으로 slug만 바뀌면 컴포넌트가 재사용되므로,
+  // 저장값이 없어도 항상 다시 읽어 이전 단계의 체크가 남지 않게 한다
+  const [seeded, setChecked] = useSeededState(
+    () => readChecklist(slug, items),
+    [slug],
   );
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    // 클라이언트 라우팅으로 slug만 바뀌면 컴포넌트가 재사용되므로,
-    // 저장값이 없어도 항상 다시 읽어 이전 단계의 체크가 남지 않게 한다
-    setChecked(readChecklist(slug, items));
-    setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  const hydrated = seeded !== null;
+  const checked = seeded ?? Array<boolean>(items.length).fill(false);
 
   function toggle(index: number) {
     const wasChecked = checked[index] ?? false;

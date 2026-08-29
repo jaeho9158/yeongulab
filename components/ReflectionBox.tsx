@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 import { logActivity } from "@/lib/activity";
 
 function storageKey(slug: string) {
@@ -14,20 +15,21 @@ export function ReflectionBox({
   slug: string;
   questions: string[];
 }) {
-  const [text, setText] = useState("");
-  const [saved, setSaved] = useState(false);
+  // slug가 바뀌면 항상 다시 읽는다 — 저장값이 없을 때 이전 단계의 메모가 남지 않게
+  const [seededText, setText] = useSeededState(() => {
+    try {
+      return window.localStorage.getItem(storageKey(slug)) ?? "";
+    } catch {
+      return ""; // 접근 불가 — 빈 값으로 진행
+    }
+  }, [slug]);
+  const text = seededText ?? "";
+  // "저장됨" 표시는 slug별이다: 다른 단계로 이동하면 자동으로 꺼진다
+  const [savedFor, setSavedFor] = useState<string | null>(null);
+  const saved = savedFor === slug;
   const logTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // slug가 바뀌면 항상 초기화 — 저장값이 없을 때 이전 단계의 메모가 남지 않게 한다
-    let raw: string | null = null;
-    try {
-      raw = window.localStorage.getItem(storageKey(slug));
-    } catch {
-      // 무시하고 빈 값으로 진행
-    }
-    setText(raw ?? "");
-    setSaved(false);
     return () => {
       // 단계 이동/언마운트 시 대기 중인 활동기록 타이머 정리
       if (logTimerRef.current !== null) {
@@ -41,7 +43,7 @@ export function ReflectionBox({
     setText(value);
     try {
       window.localStorage.setItem(storageKey(slug), value);
-      setSaved(true);
+      setSavedFor(slug);
       // 키 입력마다 기록하면 활동 로그가 넘치므로, 입력이 멈춘 뒤 한 번만 기록
       if (logTimerRef.current !== null) {
         window.clearTimeout(logTimerRef.current);

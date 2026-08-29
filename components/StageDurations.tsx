@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getStageDurations, toLocalDateKey } from "@/lib/activity";
+import { useSeededState } from "@/lib/useSeededState";
 import { SectionHead } from "@/components/SectionHead";
 
 type StageInfo = {
@@ -21,16 +21,12 @@ function formatDate(iso: string): string {
 }
 
 export function StageDurations({ stages }: { stages: StageInfo[] }) {
-  const [hydrated, setHydrated] = useState(false);
-  const [durations, setDurations] = useState<Record<string, DurationInfo>>({});
+  const [seeded] = useSeededState<Record<string, DurationInfo>>(() =>
+    getStageDurations(stages),
+  );
 
-  useEffect(() => {
-    setDurations(getStageDurations(stages));
-    setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (!hydrated) return null;
+  if (seeded === null) return null;
+  const durations = seeded;
 
   const hasAny = stages.some((s) => durations[s.slug]?.days !== null && durations[s.slug]?.days !== undefined);
 

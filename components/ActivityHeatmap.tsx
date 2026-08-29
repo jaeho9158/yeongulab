@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getActivityByDay, toLocalDateKey } from "@/lib/activity";
+import { useSeededState } from "@/lib/useSeededState";
 import { SectionHead } from "@/components/SectionHead";
 
 const WEEKS = 12;
@@ -19,15 +19,9 @@ function levelFor(count: number): string {
 }
 
 export function ActivityHeatmap() {
-  const [hydrated, setHydrated] = useState(false);
-  const [byDay, setByDay] = useState<Record<string, number>>({});
+  const [byDay] = useSeededState(getActivityByDay);
 
-  useEffect(() => {
-    setByDay(getActivityByDay());
-    setHydrated(true);
-  }, []);
-
-  if (!hydrated) return null;
+  if (byDay === null) return null;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

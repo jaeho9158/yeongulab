@@ -2,8 +2,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  // 컴포넌트 테스트의 JSX(automatic 런타임)와 "@/..." 경로 별칭 지원
-  esbuild: { jsx: "automatic" },
+  // 컴포넌트 테스트(.tsx)의 JSX는 vitest 4의 기본 변환(oxc, automatic 런타임)이 처리한다
   resolve: {
     alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
   },

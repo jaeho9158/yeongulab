@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 
 type Theme = "light" | "dark";
 
@@ -16,12 +16,14 @@ function systemPrefersDark(): boolean {
 export function ThemeToggle() {
   // 마운트 전엔 실제 적용된 테마를 알 수 없다(서버는 모른다) — layout.tsx의
   // 인라인 스크립트가 이미 <html data-theme>을 정해뒀으니 그걸 그대로 읽는다.
-  const [theme, setTheme] = useState<Theme | null>(null);
-
-  useEffect(() => {
+  const [theme, setTheme] = useSeededState<Theme>(() => {
     const attr = document.documentElement.getAttribute("data-theme");
-    setTheme(attr === "light" || attr === "dark" ? attr : (systemPrefersDark() ? "dark" : "light"));
-  }, []);
+    return attr === "light" || attr === "dark"
+      ? attr
+      : systemPrefersDark()
+        ? "dark"
+        : "light";
+  });
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";

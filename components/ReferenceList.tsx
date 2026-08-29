@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 import {
   type Reference,
   formatAPA,
@@ -10,14 +11,9 @@ import {
 } from "@/lib/citations";
 
 export function ReferenceList() {
-  const [refs, setRefs] = useState<Reference[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [seeded, setRefs] = useSeededState<Reference[]>(readReferences);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setRefs(readReferences());
-    setHydrated(true);
-  }, []);
+  const refs = seeded ?? [];
 
   useEffect(() => {
     // 같은 페이지의 저장 이벤트 + 다른 탭의 storage 변경을 반영
@@ -30,7 +26,7 @@ export function ReferenceList() {
       window.removeEventListener("research-guide:references-updated", reload);
       window.removeEventListener("storage", reload);
     };
-  }, []);
+  }, [setRefs]);
 
   function remove(id: string) {
     setRefs(removeReference(id));
@@ -46,7 +42,7 @@ export function ReferenceList() {
     }
   }
 
-  if (!hydrated) return null;
+  if (seeded === null) return null;
 
   return (
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">

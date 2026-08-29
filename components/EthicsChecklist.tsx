@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 import { logActivity } from "@/lib/activity";
 import { readChecklist, writeChecklist } from "@/lib/checklist";
 
@@ -96,15 +96,12 @@ export function EthicsChecklist({
   slug: string;
   title?: string;
 }) {
-  const [checked, setChecked] = useState<boolean[]>(() =>
-    Array(TOTAL_ITEMS).fill(false),
+  const [seeded, setChecked] = useSeededState(
+    () => readChecklist(slug, ITEM_LABELS, "ethics"),
+    [slug],
   );
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setChecked(readChecklist(slug, ITEM_LABELS, "ethics"));
-    setHydrated(true);
-  }, [slug]);
+  const hydrated = seeded !== null;
+  const checked = seeded ?? Array<boolean>(TOTAL_ITEMS).fill(false);
 
   function toggle(index: number) {
     const wasChecked = checked[index] ?? false;

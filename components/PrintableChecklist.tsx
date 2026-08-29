@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 import { toLocalDateKey } from "@/lib/activity";
 import { readChecklist } from "@/lib/checklist";
 
@@ -21,29 +21,24 @@ function readReflection(slug: string): string {
 }
 
 export function PrintableChecklist({ stages }: { stages: StageForPrint[] }) {
-  const [hydrated, setHydrated] = useState(false);
-  const [checkedByStage, setCheckedByStage] = useState<Record<string, boolean[]>>(
-    {},
-  );
-  const [reflectionByStage, setReflectionByStage] = useState<
-    Record<string, string>
-  >({});
   // 인쇄일은 렌더 중 new Date()를 쓰면 서버/클라이언트가 달라지므로 hydration 뒤에 채운다
-  const [printedOn, setPrintedOn] = useState("");
-
-  useEffect(() => {
+  const [seeded] = useSeededState(() => {
     const checked: Record<string, boolean[]> = {};
     const reflections: Record<string, string> = {};
     for (const stage of stages) {
       checked[stage.slug] = readChecklist(stage.slug, stage.checklist);
       reflections[stage.slug] = readReflection(stage.slug);
     }
-    setCheckedByStage(checked);
-    setReflectionByStage(reflections);
-    setPrintedOn(toLocalDateKey(new Date()));
-    setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return {
+      checkedByStage: checked,
+      reflectionByStage: reflections,
+      printedOn: toLocalDateKey(new Date()),
+    };
+  });
+  const hydrated = seeded !== null;
+  const checkedByStage = seeded?.checkedByStage ?? {};
+  const reflectionByStage = seeded?.reflectionByStage ?? {};
+  const printedOn = seeded?.printedOn ?? "";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 print:max-w-none print:px-0 print:py-0">

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 
 type Deadline = { id: string; name: string; date: string };
 
@@ -14,21 +15,20 @@ function daysUntil(dateStr: string): number {
 }
 
 export function DeadlineTracker() {
-  const [items, setItems] = useState<Deadline[]>([]);
-  const [name, setName] = useState("");
-  const [date, setDate] = useState("");
-  const [hydrated, setHydrated] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
+  const [seeded, setItems] = useSeededState<Deadline[]>(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) return JSON.parse(raw);
     } catch {
       // 저장된 값이 없거나 접근 불가 — 빈 목록으로 시작
     }
-    setHydrated(true);
-  }, []);
+    return [];
+  });
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const hydrated = seeded !== null;
+  const items = seeded ?? [];
 
   function persist(next: Deadline[]) {
     setItems(next);

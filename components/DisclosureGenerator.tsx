@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSeededState } from "@/lib/useSeededState";
 
 const STORAGE_KEY = "research-guide:disclosure";
 
@@ -40,40 +41,41 @@ type SavedState = {
 };
 
 export function DisclosureGenerator() {
-  const [usage, setUsage] = useState<Record<string, UsageLevel>>({});
-  const [toolName, setToolName] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
+  const [seeded, setSeeded] = useSeededState<SavedState>(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw) as SavedState;
         if (saved && typeof saved === "object") {
-          if (saved.usage && typeof saved.usage === "object") {
-            setUsage(saved.usage);
-          }
-          if (typeof saved.toolName === "string") {
-            setToolName(saved.toolName);
-          }
+          return {
+            usage:
+              saved.usage && typeof saved.usage === "object" ? saved.usage : {},
+            toolName: typeof saved.toolName === "string" ? saved.toolName : "",
+          };
         }
       }
     } catch {
       // localStorage 접근 불가(프라이빗 모드 등) — 기본값으로 진행
     }
-    setHydrated(true);
-  }, []);
+    return { usage: {}, toolName: "" };
+  });
+  const [copied, setCopied] = useState(false);
+  const hydrated = seeded !== null;
+  const usage = seeded?.usage ?? {};
+  const toolName = seeded?.toolName ?? "";
+
+  function setToolName(value: string) {
+    setSeeded((prev) => ({ usage: prev?.usage ?? {}, toolName: value }));
+  }
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (seeded === null) return;
     try {
-      const state: SavedState = { usage, toolName };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
     } catch {
       // 저장 실패해도 화면 상태는 유지
     }
-  }, [usage, toolName, hydrated]);
+  }, [seeded]);
 
   const selected = OPTIONS.filter(
     (o) => usage[o.key] && usage[o.key] !== "none",
@@ -87,7 +89,10 @@ export function DisclosureGenerator() {
       : `본 연구는 작성 과정에서 AI 도구${toolName ? `(${toolName})` : ""}를 다음 범위에서 활용하였다: ${selected.join(", ")}. 연구의 핵심 아이디어, 분석 결과 해석, 최종 결론은 저자가 직접 검토하고 작성하였다. (작성일: ${today})`;
 
   function setLevel(key: string, level: UsageLevel) {
-    setUsage((prev) => ({ ...prev, [key]: level }));
+    setSeeded((prev) => ({
+      usage: { ...(prev?.usage ?? {}), [key]: level },
+      toolName: prev?.toolName ?? "",
+    }));
   }
 
   async function copy() {
