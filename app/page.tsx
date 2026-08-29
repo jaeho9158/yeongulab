@@ -3,6 +3,7 @@ import { getAllStages } from "@/lib/guide";
 import { ContinueCard } from "@/components/ContinueCard";
 import { StageStrip } from "@/components/StageStrip";
 import { getToolCount } from "@/lib/stageToolMeta";
+import { GLOSSARY } from "@/lib/site";
 
 const STUCK_POINTS = [
   {
@@ -221,6 +222,40 @@ export default function Home() {
               보기 →
             </span>
           </Link>
+        </div>
+      </section>
+
+      {/* 함께 쓰는 도구 — 예시 섹션과 같은 괘선 리듬 */}
+      <section className="border-t border-line">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
+          <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-3">
+            <h2 className="text-xl font-bold tracking-tight text-ink">
+              함께 쓰면 좋은 도구
+            </h2>
+            <span className="text-xs text-ink-soft">
+              별도 사이트
+            </span>
+          </div>
+          <a
+            href={GLOSSARY.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-between gap-4 border-b border-line py-5"
+          >
+            <span className="block">
+              <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
+                {GLOSSARY.name}
+              </span>
+              <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
+                {GLOSSARY.description}
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium text-accent">
+              열기
+              <span aria-hidden> ↗</span>
+              <span className="sr-only"> (새 창에서 열림)</span>
+            </span>
+          </a>
         </div>
       </section>
 

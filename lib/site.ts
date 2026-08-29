@@ -19,3 +19,16 @@ export const SITE_NAME = "연구랩 가이드";
 
 /** 운영자 연락처 — 개인정보처리방침, 외부 API(OpenAlex polite pool) 식별용 */
 export const SITE_CONTACT_EMAIL = "jaeho9158@gmail.com";
+
+/**
+ * 논문용어사전 — 연구랩과 함께 쓰는 별도 사이트.
+ * 헤더 메뉴와 홈 섹션이 같은 값을 쓰도록 주소·문구를 여기 한 곳에 둔다.
+ * 좁은 헤더에는 navLabel(짧은 이름)을, 본문에는 name(정식 이름)을 쓴다.
+ */
+export const GLOSSARY = {
+  url: "https://termglossary.kr/index.html",
+  name: "논문용어사전",
+  navLabel: "용어사전",
+  description:
+    "논문 읽다 막히는 학술용어를 쉬운 말로 풀어 설명합니다. 통계·의학·공학 등 98개 분야 37,000여 개.",
+} as const;

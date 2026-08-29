@@ -166,3 +166,12 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
+
+/* 헤더 메뉴 — 아주 좁은 화면(≤320px 등)에서만 가로로 밀려 나가게 두고
+   스크롤바는 감춘다. 항목이 잘려도 글자가 세로로 접히는 것보다 낫다. */
+.nav-scroll {
+  scrollbar-width: none;
+}
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
