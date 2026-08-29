@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_CONTACT_EMAIL, SITE_URL } from "@/lib/site";
-import {
-  buildAbstractsByDoi,
-  fillMissingAbstracts,
-  mapCrossref,
-  mapOpenAlex,
-  mapSemanticScholar,
-  type Paper,
-  type SearchResponse,
-} from "@/lib/paperSearch";
+import { runSearchChain } from "@/lib/searchChain";
 
 /**
  * 선행연구 검색 프록시.
@@ -25,6 +17,8 @@ import {
  *      1위부터 주제가 맞는 논문을 준다. 대신 초록 보유율이 낮다(약 40% vs 70%).
  * 3차: OpenAlex. Crossref까지 실패했을 때만 쓴다.
  *
+ * 폴백 순서·상태코드 분기 자체는 lib/searchChain.ts에 있다(단위 테스트 대상).
+ * 이 파일은 HTTP 입출력과 실제 fetch 호출만 담당한다.
  * 응답의 source 필드로 어느 쪽 결과인지 UI에 알린다.
  */
 const MAX_QUERY_LENGTH = 200;
@@ -106,29 +100,6 @@ async function fetchOpenAlex(query: string): Promise<Response> {
   });
 }
 
-function shouldFallback(status: number): boolean {
-  return status === 429 || status >= 500;
-}
-
-/**
- * Crossref 결과에서 초록이 빈 항목을 OpenAlex 초록으로 채운다.
- * 보강은 어디까지나 덤이라, 실패하면 원래 결과를 그대로 돌려준다.
- */
-async function withOpenAlexAbstracts(papers: Paper[]): Promise<Paper[]> {
-  const missing = papers
-    .filter((p) => !p.abstract && p.paperId.startsWith("10."))
-    .map((p) => p.paperId);
-  if (missing.length === 0) return papers;
-
-  try {
-    const res = await fetchOpenAlexByDois(missing);
-    if (!res.ok) return papers;
-    return fillMissingAbstracts(papers, buildAbstractsByDoi(await res.json()));
-  } catch {
-    return papers;
-  }
-}
-
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("query")?.trim();
   if (!query) {
@@ -141,69 +112,15 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // 1차: Semantic Scholar
-  try {
-    const res = await fetchSemanticScholar(query);
-    if (res.ok) {
-      const body: SearchResponse = {
-        data: mapSemanticScholar(await res.json()),
-        source: "semantic-scholar",
-      };
-      return NextResponse.json(body, { headers: SUCCESS_HEADERS });
-    }
-    if (!shouldFallback(res.status)) {
-      // 400대(잘못된 검색어 등)는 폴백해도 같은 결과이므로 그대로 전달
-      return NextResponse.json(
-        { error: `검색 서비스가 요청을 거부했습니다. (${res.status})` },
-        { status: res.status },
-      );
-    }
-  } catch {
-    // 타임아웃·네트워크 오류 — 아래 폴백으로
-  }
+  const result = await runSearchChain(query, {
+    semanticScholar: fetchSemanticScholar,
+    crossref: fetchCrossref,
+    openAlexByDois: fetchOpenAlexByDois,
+    openAlex: fetchOpenAlex,
+  });
 
-  // 2차: Crossref
-  try {
-    const res = await fetchCrossref(query);
-    if (res.ok) {
-      const data = mapCrossref(await res.json());
-      // Crossref가 0건이면 마지막으로 OpenAlex에 물어본다
-      if (data.length > 0) {
-        const body: SearchResponse = {
-          data: await withOpenAlexAbstracts(data),
-          source: "crossref",
-        };
-        return NextResponse.json(body, { headers: SUCCESS_HEADERS });
-      }
-    }
-  } catch {
-    // 타임아웃·네트워크 오류 — 아래 폴백으로
-  }
-
-  // 3차: OpenAlex
-  try {
-    const res = await fetchOpenAlex(query);
-    if (res.ok) {
-      const body: SearchResponse = {
-        data: mapOpenAlex(await res.json()),
-        source: "openalex",
-      };
-      return NextResponse.json(body, { headers: SUCCESS_HEADERS });
-    }
-    if (res.status === 429) {
-      return NextResponse.json(
-        { error: "검색 요청이 너무 많습니다. 잠시 후 다시 시도해주세요." },
-        { status: 429 },
-      );
-    }
-    return NextResponse.json(
-      { error: `검색 서비스에 일시적인 문제가 있습니다. (${res.status})` },
-      { status: 502 },
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "검색 서비스에 연결할 수 없습니다." },
-      { status: 502 },
-    );
-  }
+  return NextResponse.json(result.body, {
+    status: result.status,
+    ...(result.status === 200 ? { headers: SUCCESS_HEADERS } : {}),
+  });
 }
