@@ -66,7 +66,11 @@ export function PriorResearchSearch() {
       }
       const data = await res.json();
       setResults(Array.isArray(data.data) ? data.data : []);
-      setSource(data.source === "openalex" ? "openalex" : "semantic-scholar");
+      setSource(
+        data.source === "openalex" || data.source === "crossref"
+          ? data.source
+          : "semantic-scholar",
+      );
       setStatus("done");
     } catch (err) {
       setErrorKind(
@@ -85,7 +89,7 @@ export function PriorResearchSearch() {
       <h2 className="text-lg font-bold text-ink">선행연구 검색해보기</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Semantic Scholar 학술 검색 API로 키워드를 검색합니다(요청이 몰리면
-        OpenAlex로 대신 검색). 계정 없이 바로 써볼 수 있습니다.
+        Crossref로 대신 검색). 계정 없이 바로 써볼 수 있습니다.
       </p>
       <form onSubmit={search} className="mt-4 flex flex-wrap gap-2">
         <input
@@ -123,9 +127,12 @@ export function PriorResearchSearch() {
         </p>
       )}
 
-      {status === "done" && results.length > 0 && source === "openalex" && (
+      {status === "done" && results.length > 0 && source !== "semantic-scholar" && (
         <p className="mt-4 text-xs text-ink-soft">
-          OpenAlex 결과 — Semantic Scholar가 혼잡해 대신 검색했습니다.
+          {source === "crossref" ? "Crossref" : "OpenAlex"} 결과 — Semantic
+          Scholar가 혼잡해 대신 검색했습니다.
+          {source === "crossref" &&
+            " Crossref는 초록이 없는 논문이 많으니, 제목을 보고 링크로 들어가 초록을 확인하세요."}
         </p>
       )}
 

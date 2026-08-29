@@ -57,6 +57,14 @@ export function getActivityByDay(): Record<string, number> {
   return byDay;
 }
 
+/** 첫날과 마지막 날을 모두 포함한 달력 일수 (같은 날이면 1). */
+function countCalendarDays(first: Date, last: Date): number {
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diff = startOfDay(last) - startOfDay(first);
+  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)) + 1);
+}
+
 // firstAt/lastAt은 ISO(UTC) 문자열 — 날짜로 표시할 때는 toLocalDateKey(new Date(...))를 쓸 것
 export function getStageDurations(
   stages: { slug: string }[],
@@ -77,10 +85,10 @@ export function getStageDurations(
     const times = related.map((e) => new Date(e.occurredAt).getTime()).sort((a, b) => a - b);
     const firstAt = new Date(times[0]).toISOString();
     const lastAt = new Date(times[times.length - 1]).toISOString();
-    const days = Math.max(
-      0,
-      Math.round((times[times.length - 1] - times[0]) / (1000 * 60 * 60 * 24)),
-    );
+    // 경과 '시간'이 아니라 달력 날짜 기준으로 센다. 시간 차로 재면 같은 날
+    // 작업이 0일로 나오고, 밤 11시~새벽 1시처럼 날짜가 바뀐 작업도 0일이 된다.
+    // 첫날과 마지막 날을 모두 포함해서 세므로 하루 만에 끝냈으면 1일이다.
+    const days = countCalendarDays(new Date(times[0]), new Date(times[times.length - 1]));
     result[stage.slug] = { firstAt, lastAt, days };
   }
 

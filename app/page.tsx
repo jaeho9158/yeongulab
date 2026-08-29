@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import { ContinueCard } from "@/components/ContinueCard";
+import { StageStrip } from "@/components/StageStrip";
 import { getToolCount } from "@/lib/stageToolMeta";
 
 const STUCK_POINTS = [
@@ -93,34 +94,17 @@ export default function Home() {
           }))}
         />
 
-        {/* 6단계 스트립 — '순서'라는 메시지를 히어로에서 바로 보여준다 */}
-        <ol className="card relative mt-11 grid grid-cols-3 gap-y-6 px-5 py-4.5 sm:grid-cols-6 sm:gap-y-0">
-          <span
-            aria-hidden
-            className="absolute top-[31px] right-5 left-5 hidden h-px bg-line sm:block"
-          />
-          {stages.map((stage) => (
-            <li key={stage.slug} className="relative">
-              <Link href={`/guide/${stage.slug}`} className="group block">
-                <span
-                  className={`flex h-6.5 w-6.5 items-center justify-center rounded-full border font-label text-[11px] font-semibold transition group-hover:border-accent ${
-                    stage.order === 1
-                      ? "border-ink bg-ink text-bg"
-                      : "border-line bg-bg text-ink"
-                  }`}
-                >
-                  {String(stage.order).padStart(2, "0")}
-                </span>
-                <span className="mt-2.5 block text-[13px] font-semibold text-ink">
-                  {stage.title}
-                </span>
-                <span className="mt-1 block text-xs text-ink-soft">
-                  {stage.estimatedWeeks.replace(/\s*\(.*\)|\s*\+.*$/, "")}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        {/* 6단계 스트립 — '순서'라는 메시지를 히어로에서 바로 보여준다.
+            진행 기록이 있으면 끝낸 단계·지금 할 단계를 표시한다. */}
+        <StageStrip
+          stages={stages.map((s) => ({
+            order: s.order,
+            slug: s.slug,
+            title: s.title,
+            estimatedWeeks: s.estimatedWeeks,
+            checklist: s.checklist,
+          }))}
+        />
       </section>
 
       {/* 막히는 지점 */}

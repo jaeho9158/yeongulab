@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SITE_CONTACT_EMAIL } from "@/lib/site";
+import { SITE_CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 import {
+  mapCrossref,
   mapOpenAlex,
   mapSemanticScholar,
   type SearchResponse,
@@ -14,8 +15,14 @@ import {
  *
  * 1차: Semantic Scholar. 미인증 풀은 Vercel 공용 IP에서 자주 429가 나므로
  *      SEMANTIC_SCHOLAR_API_KEY가 있으면 x-api-key로 보낸다.
- * 폴백: 429/5xx/타임아웃/네트워크 오류면 OpenAlex(키 불필요)로 같은 검색을
- *      다시 시도하고, 응답의 source 필드로 어느 쪽 결과인지 알린다.
+ * 2차: Crossref. OpenAlex보다 앞에 두는 이유는 관련성 때문이다 — OpenAlex의
+ *      relevance_score는 인용수에 크게 좌우돼서, "white noise short-term
+ *      memory"를 넣으면 정작 맞는 논문(1977, 48회 인용)이 프랙탈 논문(7763회
+ *      인용)에 밀린다. Crossref의 query.bibliographic은 같은 검색어에서
+ *      1위부터 주제가 맞는 논문을 준다. 대신 초록 보유율이 낮다(약 40% vs 70%).
+ * 3차: OpenAlex. Crossref까지 실패했을 때만 쓴다.
+ *
+ * 응답의 source 필드로 어느 쪽 결과인지 UI에 알린다.
  */
 const MAX_QUERY_LENGTH = 200;
 const UPSTREAM_TIMEOUT_MS = 8000;
@@ -39,6 +46,25 @@ async function fetchSemanticScholar(query: string): Promise<Response> {
 
   return fetch(url, {
     headers,
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    next: { revalidate: CACHE_SECONDS },
+  });
+}
+
+async function fetchCrossref(query: string): Promise<Response> {
+  const url = new URL("https://api.crossref.org/works");
+  // query.bibliographic은 제목·저자·학술지를 함께 보는 서지 검색이라
+  // 자유 텍스트(query)보다 주제 적중률이 높다
+  url.searchParams.set("query.bibliographic", query);
+  url.searchParams.set("rows", String(RESULT_LIMIT));
+  url.searchParams.set("mailto", SITE_CONTACT_EMAIL);
+
+  return fetch(url, {
+    // polite pool — User-Agent에 연락처를 밝히면 더 안정적인 한도를 받는다
+    headers: {
+      Accept: "application/json",
+      "User-Agent": `yeongulab (+${SITE_URL}; mailto:${SITE_CONTACT_EMAIL})`,
+    },
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     next: { revalidate: CACHE_SECONDS },
   });
@@ -95,7 +121,22 @@ export async function GET(req: NextRequest) {
     // 타임아웃·네트워크 오류 — 아래 폴백으로
   }
 
-  // 폴백: OpenAlex
+  // 2차: Crossref
+  try {
+    const res = await fetchCrossref(query);
+    if (res.ok) {
+      const data = mapCrossref(await res.json());
+      // Crossref가 0건이면 마지막으로 OpenAlex에 물어본다
+      if (data.length > 0) {
+        const body: SearchResponse = { data, source: "crossref" };
+        return NextResponse.json(body, { headers: SUCCESS_HEADERS });
+      }
+    }
+  } catch {
+    // 타임아웃·네트워크 오류 — 아래 폴백으로
+  }
+
+  // 3차: OpenAlex
   try {
     const res = await fetchOpenAlex(query);
     if (res.ok) {
