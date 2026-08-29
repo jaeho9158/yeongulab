@@ -132,7 +132,7 @@ export function PriorResearchSearch() {
           {source === "crossref" ? "Crossref" : "OpenAlex"} 결과 — Semantic
           Scholar가 혼잡해 대신 검색했습니다.
           {source === "crossref" &&
-            " Crossref는 초록이 없는 논문이 많으니, 제목을 보고 링크로 들어가 초록을 확인하세요."}
+            " 초록이 비어 있는 항목은 링크로 들어가 확인하세요."}
         </p>
       )}
 

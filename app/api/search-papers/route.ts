@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 import {
+  buildAbstractsByDoi,
+  fillMissingAbstracts,
   mapCrossref,
   mapOpenAlex,
   mapSemanticScholar,
+  type Paper,
   type SearchResponse,
 } from "@/lib/paperSearch";
 
@@ -70,6 +73,25 @@ async function fetchCrossref(query: string): Promise<Response> {
   });
 }
 
+/** DOI 목록으로 OpenAlex에서 해당 논문만 골라온다 (초록 보강용). */
+async function fetchOpenAlexByDois(dois: string[]): Promise<Response> {
+  const url = new URL("https://api.openalex.org/works");
+  // filter=doi:a|b|c 는 OR 조회다. 한 번에 50건까지 받으므로 상한을 넘지 않는다.
+  url.searchParams.set(
+    "filter",
+    `doi:${dois.map((d) => `https://doi.org/${d.toLowerCase()}`).join("|")}`,
+  );
+  url.searchParams.set("per-page", String(dois.length));
+  url.searchParams.set("select", "doi,abstract_inverted_index");
+  url.searchParams.set("mailto", SITE_CONTACT_EMAIL);
+
+  return fetch(url, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    next: { revalidate: CACHE_SECONDS },
+  });
+}
+
 async function fetchOpenAlex(query: string): Promise<Response> {
   const url = new URL("https://api.openalex.org/works");
   url.searchParams.set("search", query);
@@ -86,6 +108,25 @@ async function fetchOpenAlex(query: string): Promise<Response> {
 
 function shouldFallback(status: number): boolean {
   return status === 429 || status >= 500;
+}
+
+/**
+ * Crossref 결과에서 초록이 빈 항목을 OpenAlex 초록으로 채운다.
+ * 보강은 어디까지나 덤이라, 실패하면 원래 결과를 그대로 돌려준다.
+ */
+async function withOpenAlexAbstracts(papers: Paper[]): Promise<Paper[]> {
+  const missing = papers
+    .filter((p) => !p.abstract && p.paperId.startsWith("10."))
+    .map((p) => p.paperId);
+  if (missing.length === 0) return papers;
+
+  try {
+    const res = await fetchOpenAlexByDois(missing);
+    if (!res.ok) return papers;
+    return fillMissingAbstracts(papers, buildAbstractsByDoi(await res.json()));
+  } catch {
+    return papers;
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -128,7 +169,10 @@ export async function GET(req: NextRequest) {
       const data = mapCrossref(await res.json());
       // Crossref가 0건이면 마지막으로 OpenAlex에 물어본다
       if (data.length > 0) {
-        const body: SearchResponse = { data, source: "crossref" };
+        const body: SearchResponse = {
+          data: await withOpenAlexAbstracts(data),
+          source: "crossref",
+        };
         return NextResponse.json(body, { headers: SUCCESS_HEADERS });
       }
     }

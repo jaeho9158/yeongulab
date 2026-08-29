@@ -106,6 +106,38 @@ export function mapCrossref(json: unknown): Paper[] {
     .filter((p): p is Paper => p !== null);
 }
 
+/**
+ * OpenAlex 응답에서 DOI → 초록 표를 만든다.
+ *
+ * Crossref는 순위(주제 적중)는 좋은데 초록을 절반쯤만 준다. 같은 논문의
+ * 초록을 DOI로 OpenAlex에서 찾아 채우면, 순위는 Crossref 것을 그대로 쓰면서
+ * 초록만 보강할 수 있다(실측: 10건 중 4→8, 2→4).
+ */
+export function buildAbstractsByDoi(json: unknown): Map<string, string> {
+  const results = (json as { results?: OpenAlexWork[] } | null)?.results;
+  const map = new Map<string, string>();
+  if (!Array.isArray(results)) return map;
+  for (const work of results) {
+    const doi = work?.doi?.replace(/^https?:\/\/doi\.org\//i, "").toLowerCase();
+    const abstract = reconstructAbstract(work?.abstract_inverted_index);
+    if (doi && abstract) map.set(doi, abstract);
+  }
+  return map;
+}
+
+/** 초록이 비어 있는 항목만 DOI로 찾아 채운다. 나머지는 그대로 둔다. */
+export function fillMissingAbstracts(
+  papers: Paper[],
+  byDoi: Map<string, string>,
+): Paper[] {
+  if (byDoi.size === 0) return papers;
+  return papers.map((p) =>
+    p.abstract
+      ? p
+      : { ...p, abstract: byDoi.get(p.paperId.toLowerCase()) ?? null },
+  );
+}
+
 type OpenAlexWork = {
   id?: string | null;
   doi?: string | null;
