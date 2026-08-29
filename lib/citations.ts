@@ -56,7 +56,7 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
-export const REFERENCES_STORAGE_KEY = "research-guide:references";
+const REFERENCES_STORAGE_KEY = "research-guide:references";
 
 export function readReferences(): Reference[] {
   try {

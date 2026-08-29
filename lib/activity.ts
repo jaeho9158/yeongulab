@@ -25,7 +25,7 @@ export function logActivity(entry: Omit<ActivityEntry, "occurredAt">): void {
   }
 }
 
-export function getActivityLog(): ActivityEntry[] {
+function getActivityLog(): ActivityEntry[] {
   try {
     const raw = window.localStorage.getItem(LOG_KEY);
     if (!raw) return [];

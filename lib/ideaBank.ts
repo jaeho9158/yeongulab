@@ -148,7 +148,7 @@ const LENSES = [
   (a: string, b: string, c: string) => `${a} 조건별 ${b} 비교 (${c})`,
 ];
 
-export function pickRandom<T>(arr: readonly T[]): T {
+function pickRandom<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 

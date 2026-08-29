@@ -13,7 +13,7 @@ export const CHECKLIST_EVENT = "research-guide:checklist-updated";
 
 type Kind = "checklist" | "ethics";
 
-export function checklistKey(slug: string, kind: Kind = "checklist"): string {
+function checklistKey(slug: string, kind: Kind = "checklist"): string {
   return `research-guide:${kind}:${slug}`;
 }
 

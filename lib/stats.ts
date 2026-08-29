@@ -229,7 +229,3 @@ export function parseNumberListDetailed(text: string): {
   const values = tokens.map(Number).filter((n) => Number.isFinite(n));
   return { values, droppedCount: tokens.length - values.length };
 }
-
-export function parseNumberList(text: string): number[] {
-  return parseNumberListDetailed(text).values;
-}
