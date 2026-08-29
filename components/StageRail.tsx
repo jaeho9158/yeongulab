@@ -72,7 +72,11 @@ export function StageRail({
   // 높이라 빠른 휠 스크롤이나 앵커 점프에서 관찰 밴드를 '건너뛰면' 교차
   // 이벤트가 아예 안 와서 표시가 옛 값에 머문다(실브라우저에서 확인).
   // "기준선(96px = scroll-mt-24)을 지난 마지막 제목"을 매 스크롤마다 계산하면
-  // 어떤 점프에서도 결정적으로 맞는다. rAF로 프레임당 1회로 묶는다.
+  // 어떤 점프에서도 결정적으로 맞는다.
+  //
+  // rAF 스로틀은 일부러 안 쓴다: 스크롤 이벤트는 어차피 프레임당 한 번이고
+  // 계산도 제목 십수 개 rect 조회뿐이라 싸다. 반면 rAF는 탭이 백그라운드면
+  // 대기 상태로 멈춰서, 그 사이 일어난 프로그램적 스크롤이 반영되지 않는다.
   const ids = useMemo(
     () => sections.map((s) => s.href.slice(1)),
     [sections],
@@ -81,10 +85,8 @@ export function StageRail({
 
   useEffect(() => {
     const order = idsKey.split("|");
-    let raf = 0;
 
     function update() {
-      raf = 0;
       let current: string | null = null;
       for (const id of order) {
         const el = document.getElementById(id);
@@ -98,17 +100,12 @@ export function StageRail({
       setActiveId(current ?? order[0] ?? null);
     }
 
-    function onScroll() {
-      if (raf === 0) raf = requestAnimationFrame(update);
-    }
-
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
   }, [idsKey]);
 
