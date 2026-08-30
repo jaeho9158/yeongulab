@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAllArticles } from "@/lib/articles";
 import { getAllStages } from "@/lib/guide";
 import { SITE_URL } from "@/lib/site";
 
@@ -10,6 +11,7 @@ const lastModified = new Date();
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const stages = getAllStages();
+  const articles = getAllArticles();
 
   return [
     { url: SITE_URL, lastModified, changeFrequency: "monthly", priority: 1 },
@@ -37,5 +39,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
+    {
+      url: `${SITE_URL}/articles`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
+    ...articles.map((article) => ({
+      url: `${SITE_URL}/articles/${article.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    {
+      url: `${SITE_URL}/about`,
+      lastModified,
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+    },
   ];
 }

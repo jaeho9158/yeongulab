@@ -4,6 +4,7 @@ import { ContinueCard } from "@/components/ContinueCard";
 import { StageStrip } from "@/components/StageStrip";
 import { getToolCount } from "@/lib/stageToolMeta";
 import { GLOSSARY } from "@/lib/site";
+import { getAllArticles } from "@/lib/articles";
 
 const STUCK_POINTS = [
   {
@@ -56,6 +57,7 @@ const STUCK_POINTS = [
 
 export default function Home() {
   const stages = getAllStages();
+  const articles = getAllArticles();
 
   return (
     <div>
@@ -222,6 +224,51 @@ export default function Home() {
               보기 →
             </span>
           </Link>
+        </div>
+      </section>
+
+      {/* 자료실 — 주제별 문서. 차례와 같은 괘선 리듬 */}
+      <section className="border-t border-line">
+        <div className="mx-auto max-w-3xl px-4 pt-12 pb-16">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-[22px] font-bold tracking-tight text-ink">
+              한 가지를 깊게 보고 싶다면
+            </h2>
+            <Link
+              href="/articles"
+              className="shrink-0 text-xs text-accent hover:underline"
+            >
+              자료실 전체 →
+            </Link>
+          </div>
+          <p className="mt-2 max-w-lg text-sm leading-[1.7] text-ink-soft">
+            6단계 가이드가 순서를 다룬다면, 자료실은 주제 하나를 끝까지
+            파고듭니다. 설문 문항을 어떻게 고쳐 쓰는지, p값을 어디까지 말해도
+            되는지처럼 가이드에서 한두 문단으로 지나간 것들입니다.
+          </p>
+
+          <ul className="mt-7 border-b border-line">
+            {articles.map((article) => (
+              <li key={article.slug} className="border-t border-line">
+                <Link
+                  href={`/articles/${article.slug}`}
+                  className="group grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-1 py-4"
+                >
+                  <span className="font-label text-lg leading-none font-semibold text-ink">
+                    {String(article.order).padStart(2, "0")}
+                  </span>
+                  <span className="block">
+                    <span className="block text-[16px] font-semibold text-ink transition group-hover:text-accent">
+                      {article.title}
+                    </span>
+                    <span className="mt-1 block text-sm leading-[1.6] text-ink-soft">
+                      {article.summary}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

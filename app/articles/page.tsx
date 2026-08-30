@@ -1,0 +1,72 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { getAllArticles } from "@/lib/articles";
+
+export const metadata: Metadata = {
+  title: "자료실 — 청소년 연구에 필요한 주제별 안내",
+  description:
+    "설문 문항 작성, 통계 해석, 연구 윤리, 영어 논문 읽기, 발표 준비까지. 6단계 가이드에서 짧게 지나간 주제를 하나씩 깊게 다룬 문서 모음입니다.",
+  keywords: [
+    "청소년 연구 자료",
+    "탐구보고서 쓰는 법",
+    "설문 문항 작성",
+    "연구 윤리",
+    "논문 읽는 법",
+  ],
+};
+
+export default function ArticlesPage() {
+  const articles = getAllArticles();
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-12">
+      <h1 className="text-3xl font-bold tracking-tight text-ink">자료실</h1>
+      <p className="mt-4 text-[17px] leading-[1.7] text-ink-soft">
+        6단계 가이드가 연구의 <strong className="text-ink">순서</strong>를
+        다룬다면, 자료실은 한 가지 주제를 깊게 파고듭니다. 설문 문항을 어떻게
+        고쳐 쓰는지, p값을 어디까지 말해도 되는지, 어디서부터가 표절인지처럼
+        가이드에서 한두 문단으로 지나간 것들을 따로 모았습니다.
+      </p>
+      <p className="mt-3 text-[17px] leading-[1.7] text-ink-soft">
+        순서대로 읽을 필요는 없습니다. 지금 막힌 것부터 펼쳐보세요.
+      </p>
+
+      <ol className="mt-9 border-b border-line">
+        {articles.map((article) => (
+          <li key={article.slug} className="border-t border-line">
+            <Link
+              href={`/articles/${article.slug}`}
+              className="group grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-1 py-5 sm:gap-5"
+            >
+              <span className="font-label text-xl leading-none font-semibold text-ink">
+                {String(article.order).padStart(2, "0")}
+              </span>
+              <span className="block">
+                <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
+                  {article.title}
+                </span>
+                <span className="mt-1.5 block text-sm leading-[1.65] text-ink-soft">
+                  {article.summary}
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-10 border-t border-ink pt-5">
+        <p className="text-sm leading-[1.7] text-ink-soft">
+          연구를 처음부터 순서대로 밟고 싶다면{" "}
+          <Link href="/guide" className="text-accent hover:underline">
+            6단계 가이드
+          </Link>
+          부터 보세요. 완성된 연구 한 편이 어떻게 생겼는지 궁금하다면{" "}
+          <Link href="/example" className="text-accent hover:underline">
+            예시 연구
+          </Link>
+          가 있습니다.
+        </p>
+      </div>
+    </div>
+  );
+}

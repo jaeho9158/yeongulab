@@ -10,7 +10,19 @@ export function SiteFooter() {
         </p>
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-soft">
           <span>© {new Date().getFullYear().toString()} 연구랩 가이드</span>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
+            <Link
+              href="/articles"
+              className="-my-3.5 flex items-center py-3.5 pr-3 hover:text-ink"
+            >
+              자료실
+            </Link>
+            <Link
+              href="/about"
+              className="-my-3.5 flex items-center py-3.5 pr-3 hover:text-ink"
+            >
+              소개
+            </Link>
             <Link
               href="/privacy"
               className="-my-3.5 flex items-center py-3.5 pr-3 hover:text-ink"
