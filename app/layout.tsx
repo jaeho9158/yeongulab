@@ -4,7 +4,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
@@ -34,6 +34,8 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: "./",
   },
+  authors: [{ name: OPERATOR.name }],
+  creator: OPERATOR.name,
   twitter: { card: "summary" },
   verification: {
     other: {
