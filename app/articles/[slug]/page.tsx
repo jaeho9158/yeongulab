@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
-import { getAllArticles, getArticleBySlug } from "@/lib/articles";
+import {
+  getAdjacentInCategory,
+  getAllArticles,
+  getArticleBySlug,
+} from "@/lib/articles";
 import { extractHeadings } from "@/lib/guide";
 import { getAllStages } from "@/lib/guide";
 import { articleJsonLd, breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
@@ -37,7 +41,16 @@ export default async function ArticlePage({
   const article = articles.find((a) => a.slug === slug);
   if (!article) notFound();
 
-  const others = articles.filter((a) => a.slug !== article.slug).slice(0, 3);
+  // 전체에서 앞 3편을 그대로 보여주면 모든 글이 같은 3편을 추천하게 된다.
+  // 같은 카테고리를 우선 채우고, 모자라면 다른 카테고리로 채운다.
+  const sameCategory = articles.filter(
+    (a) => a.slug !== article.slug && a.category === article.category && a.category,
+  );
+  const otherCategory = articles.filter(
+    (a) => a.slug !== article.slug && a.category !== article.category,
+  );
+  const others = [...sameCategory, ...otherCategory].slice(0, 3);
+  const { prev, next } = getAdjacentInCategory(article.slug);
   const stage = article.relatedStage
     ? getAllStages().find((s) => s.slug === article.relatedStage)
     : undefined;
@@ -72,7 +85,7 @@ export default async function ArticlePage({
         />
       ))}
       <Link
-        href="/articles"
+        href={article.category ? `/articles#${article.category}` : "/articles"}
         className="-my-3 -ml-1 flex w-fit items-center py-3 pr-2 pl-1 text-sm text-ink-soft hover:text-ink"
       >
         ← 자료실
@@ -168,6 +181,29 @@ export default async function ArticlePage({
           ))}
         </ul>
       </div>
+
+      {(prev || next) && (
+        <div className="mt-10 flex items-center justify-between gap-4 border-t border-line pt-8">
+          {prev ? (
+            <Link
+              href={`/articles/${prev.slug}`}
+              className="-my-3 -ml-1 flex items-center py-3 pr-2 pl-1 text-sm text-ink-soft hover:text-ink"
+            >
+              ← {prev.title}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next && (
+            <Link
+              href={`/articles/${next.slug}`}
+              className="rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition hover:opacity-85"
+            >
+              다음: {next.title} →
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -4,9 +4,11 @@ import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import {
   STAGE_TOOL_TITLES,
+  TOOL_IDS,
   isStageSlug,
   type ToolTitle,
 } from "@/lib/stageToolMeta";
+import { useSeededState } from "@/lib/useSeededState";
 
 // 도구는 모두 next/dynamic으로 싣는다 — 이 단계에서 실제로 그리는 도구의 청크만
 // 내려받고, 홈·가이드 목록처럼 '도구 N' 표기만 쓰는 곳은 lib/stageToolMeta만 본다.
@@ -121,8 +123,22 @@ const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
 
 /** 도구를 접이식 목록으로. 첫 번째만 펼쳐두고 나머지는 제목만 보인다. */
 export function ToolAccordion({ slug }: { slug: string }) {
+  // 서버 렌더·첫 클라이언트 렌더는 항상 null(=첫 항목 펼침)이고, 마운트 후에만
+  // location.hash를 읽어 시드한다 — 그래야 하이드레이션이 깨지지 않는다.
+  const [hashId] = useSeededState(
+    () => (typeof window === "undefined" ? null : window.location.hash),
+    [slug],
+  );
+
   if (!isStageSlug(slug)) return null;
   const titles = STAGE_TOOL_TITLES[slug];
+  // "#tool-xxx" → "xxx". 시드 전(null)이거나 매치가 없으면 첫 항목을 편다.
+  const targetToolId = hashId?.startsWith("#tool-")
+    ? hashId.slice("#tool-".length)
+    : null;
+  const openIndex = targetToolId
+    ? titles.findIndex((title) => TOOL_IDS[title] === targetToolId)
+    : -1;
 
   return (
     <section id="tools" className="mt-10 scroll-mt-24">
@@ -132,7 +148,12 @@ export function ToolAccordion({ slug }: { slug: string }) {
       </div>
       <div className="card mt-3 divide-y divide-line overflow-hidden">
         {titles.map((title, i) => (
-          <details key={title} open={i === 0} className="group">
+          <details
+            key={title}
+            id={`tool-${TOOL_IDS[title]}`}
+            open={openIndex === -1 ? i === 0 : i === openIndex}
+            className="group scroll-mt-24"
+          >
             {/* 카드가 overflow-hidden이라 포커스 링이 잘리지 않도록 안쪽으로 그린다 */}
             <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-3.5 text-ink hover:bg-surface focus-visible:outline-offset-[-2px] [&::-webkit-details-marker]:hidden">
               <svg

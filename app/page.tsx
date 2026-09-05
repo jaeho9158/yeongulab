@@ -4,7 +4,7 @@ import { ContinueCard } from "@/components/ContinueCard";
 import { StageStrip } from "@/components/StageStrip";
 import { getToolCount } from "@/lib/stageToolMeta";
 import { GLOSSARY } from "@/lib/site";
-import { getAllArticles } from "@/lib/articles";
+import { getFeaturedArticles } from "@/lib/articles";
 
 const STUCK_POINTS = [
   {
@@ -57,7 +57,7 @@ const STUCK_POINTS = [
 
 export default function Home() {
   const stages = getAllStages();
-  const articles = getAllArticles();
+  const articles = getFeaturedArticles(6);
 
   return (
     <div>
@@ -248,14 +248,15 @@ export default function Home() {
           </p>
 
           <ul className="mt-7 border-b border-line">
-            {articles.map((article) => (
+            {articles.map((article, i) => (
               <li key={article.slug} className="border-t border-line">
                 <Link
                   href={`/articles/${article.slug}`}
                   className="group grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-1 py-4"
                 >
+                  {/* order 값에 카테고리 간 빈틈이 있어 featured 목록의 배열 인덱스+1로 표시한다 */}
                   <span className="font-label text-lg leading-none font-semibold text-ink">
-                    {String(article.order).padStart(2, "0")}
+                    {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="block">
                     <span className="block text-[16px] font-semibold text-ink transition group-hover:text-accent">
