@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllStages } from "@/lib/guide";
 import {
+  getTotalUniqueToolCount,
   isStageSlug,
   STAGE_TOOL_TITLES,
   TOOL_DESCRIPTIONS,
 } from "@/lib/stageToolMeta";
+
+const TOOL_COUNT = getTotalUniqueToolCount();
 
 /**
  * 단계마다 "도구를 언제 꺼내 쓰는가"를 한 덩어리로 설명한다.
@@ -28,7 +31,7 @@ const STAGE_TOOL_INTROS: Record<string, string> = {
 };
 
 export const metadata: Metadata = {
-  title: "연구 도구 23개 — 계산기·체크리스트·생성기",
+  title: `연구 도구 ${TOOL_COUNT}개 — 계산기·체크리스트·생성기`,
   description:
     "표본 크기 계산, 통계 검정, 설문 편향 점검, 인용 형식 변환까지. 연구 단계마다 필요한 도구를 한 곳에 모았습니다. 설치도 로그인도 없이 바로 씁니다.",
   keywords: [
@@ -49,7 +52,7 @@ export default function ToolsPage() {
       <h1 className="text-3xl font-bold tracking-tight text-ink">연구 도구</h1>
       <p className="mt-4 text-[17px] leading-[1.7] text-ink-soft">
         표본 크기 계산기, 간이 통계 계산기, 설문 문항 편향 체크처럼 6단계
-        가이드 안에 접혀 있던 도구 23개를 한 페이지에 모았습니다. 입력한
+        가이드 안에 접혀 있던 도구 {TOOL_COUNT}개를 한 페이지에 모았습니다. 입력한
         값은 서버로 전송되지 않고 이 브라우저에만 저장되니, 다른 기기에서는
         다시 입력해야 합니다.
       </p>

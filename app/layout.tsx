@@ -36,7 +36,9 @@ export const metadata: Metadata = {
   },
   authors: [{ name: OPERATOR.name }],
   creator: OPERATOR.name,
-  twitter: { card: "summary" },
+  // opengraph-image 파일 규약으로 큰 썸네일을 만들었으니 트위터 카드도
+  // "summary"(작은 정사각 썸네일)에서 큰 이미지 카드로 올린다.
+  twitter: { card: "summary_large_image" },
   verification: {
     other: {
       "naver-site-verification": "65d6516f9b1748e2c9238a53c6d469a728445806",

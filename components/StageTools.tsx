@@ -85,6 +85,11 @@ const ResearchDesignQuiz = dynamic(() =>
 const AcademicPhrases = dynamic(() =>
   import("@/components/AcademicPhrases").then((m) => m.AcademicPhrases),
 );
+const ResearchShowcaseForm = dynamic(() =>
+  import("@/components/ResearchShowcaseForm").then(
+    (m) => m.ResearchShowcaseForm,
+  ),
+);
 
 /** 도구 제목 → 렌더러. 제목은 lib/stageToolMeta가 단일 출처이며, 빠지면 타입 오류. */
 const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
@@ -111,6 +116,7 @@ const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
   "예상 질문 뽑기": () => <PresentationQuestionBank />,
   "발표 시간 재보기": () => <SpeechTimer />,
   "마감일 트래커": () => <DeadlineTracker />,
+  "내 연구 사례 나누기": () => <ResearchShowcaseForm />,
 };
 
 /** 도구를 접이식 목록으로. 첫 번째만 펼쳐두고 나머지는 제목만 보인다. */

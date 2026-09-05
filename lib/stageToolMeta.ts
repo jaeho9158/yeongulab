@@ -46,6 +46,7 @@ export const STAGE_TOOL_TITLES = {
     "예상 질문 뽑기",
     "발표 시간 재보기",
     "마감일 트래커",
+    "내 연구 사례 나누기",
   ],
 } as const satisfies Record<StageSlug, readonly string[]>;
 
@@ -84,6 +85,8 @@ export const TOOL_DESCRIPTIONS = {
   "예상 질문 뽑기": "심사에서 나올 만한 질문을 미리 받아봅니다.",
   "발표 시간 재보기": "발표 연습 시간을 섹션별로 잽니다.",
   "마감일 트래커": "대회·저널 마감을 D-day로 관리합니다.",
+  "내 연구 사례 나누기":
+    "끝낸 연구를 짧게 정리해 다른 학생들이 볼 수 있게 보내줍니다.",
 } as const satisfies Record<ToolTitle, string>;
 
 export function isStageSlug(slug: string): slug is StageSlug {
@@ -92,4 +95,14 @@ export function isStageSlug(slug: string): slug is StageSlug {
 
 export function getToolCount(slug: string): number {
   return isStageSlug(slug) ? STAGE_TOOL_TITLES[slug].length : 0;
+}
+
+/**
+ * 사이트 전체 고유 도구 개수 — 같은 도구(예: "내 레퍼런스 목록")가 여러
+ * 단계에 중복 등장하므로 Set으로 중복 제거해야 실제 개수가 나온다.
+ * /tools 메타데이터·본문이 이 값을 쓰면 도구가 늘어도 하드코딩을 안 고쳐도 된다.
+ */
+export function getTotalUniqueToolCount(): number {
+  const titles = Object.values(STAGE_TOOL_TITLES).flat();
+  return new Set(titles).size;
 }

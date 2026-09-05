@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllArticles } from "@/lib/articles";
+import { getAllShowcases } from "@/lib/showcase";
 import { getAllStages } from "@/lib/guide";
 import { SITE_URL } from "@/lib/site";
 
@@ -12,6 +13,7 @@ const lastModified = new Date();
 export default function sitemap(): MetadataRoute.Sitemap {
   const stages = getAllStages();
   const articles = getAllArticles();
+  const showcases = getAllShowcases();
 
   return [
     { url: SITE_URL, lastModified, changeFrequency: "monthly", priority: 1 },
@@ -63,5 +65,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly" as const,
       priority: 0.5,
     },
+    // 사례가 없을 때는 /showcase가 notFound()를 반환하므로 sitemap에도 넣지 않는다
+    ...(showcases.length > 0
+      ? [
+          {
+            url: `${SITE_URL}/showcase`,
+            lastModified,
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+          },
+          ...showcases.map((showcase) => ({
+            url: `${SITE_URL}/showcase/${showcase.slug}`,
+            lastModified,
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+          })),
+        ]
+      : []),
   ];
 }
