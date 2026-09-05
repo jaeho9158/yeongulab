@@ -60,13 +60,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className="h-full antialiased"
       suppressHydrationWarning
     >
-      <head>
+      <body className="min-h-full flex flex-col">
+        {/* 이 두 스크립트를 <head>에 직접 쓰지 않는 이유 — React 19는 `<script
+            async src>`를 hoistable resource로 보고 head의 리소스 슬롯으로
+            끌어올리지만, dangerouslySetInnerHTML을 쓴 인라인 <script>는
+            호이스팅 대상이 아니라 작성 위치에 남는다. 우리가 <head>를 직접
+            작성하면 React가 그 head를 일반 host 엘리먼트로 보고 자식을 "위치
+            기준"으로 하이드레이트하는데, 실제 DOM 순서는 호이스팅 때문에
+            어긋나 있어서 모든 페이지에서 하이드레이션 mismatch가 났다.
+            (<html suppressHydrationWarning>은 그 엘리먼트 자신의 속성/텍스트만
+            억제하므로 head 자식 순서 불일치를 못 막는다.)
+            <head>를 아예 작성하지 않으면 React가 head를 전적으로 리소스
+            호이스팅 시스템으로 관리해 위치 매칭 자체가 일어나지 않는다. */}
+
         {/* 테마 선택을 hydration 전에 <html>에 반영 — 그렇지 않으면 라이트로
-            그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. 저장된 값이 없으면
-            data-theme을 아예 안 붙여서 시스템 설정(prefers-color-scheme)을
-            그대로 따른다. */}
+            그렸다가 다크로 바뀌는 깜빡임(FOUC)이 발생한다. body 첫 자식이라
+            본문 파싱 전에, 그리고 head의 스타일시트 뒤에 실행되므로 첫 페인트
+            전에 data-theme이 확정된다. 저장된 값이 없으면 data-theme을 아예 안
+            붙여서 시스템 설정(prefers-color-scheme)을 그대로 따른다. */}
         <script
           id="theme-init"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `try {
               var t = localStorage.getItem("research-guide:theme");
@@ -79,14 +93,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* AdSense 소유권 확인은 초기 HTML에 실제 <script> 태그가 있어야 크롤러가
             인식한다 — next/script의 beforeInteractive는 SSR 출력에 <link
             rel="preload">만 남기고 실제 태그는 클라이언트에서 주입하므로
-            여기서는 순수 HTML 태그로 직접 렌더링한다. */}
+            여기서는 순수 HTML 태그로 직접 렌더링한다. body에 써도 React 19가
+            SSR 시 head로 호이스팅하므로 초기 HTML의 <head> 안에 진짜 <script>
+            태그로 남는다. */}
         <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
           crossOrigin="anonymous"
         />
-      </head>
-      <body className="min-h-full flex flex-col">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { buildOnlyCache } from "./contentCache";
 
 const GUIDE_DIR = path.join(process.cwd(), "content", "guide");
 
@@ -32,10 +33,11 @@ function readStageFile(filename: string): GuideStage {
   };
 }
 
-export function getAllStages(): GuideStage[] {
+/** 프로덕션 빌드에서만 캐시 — 근거와 dev 함정은 lib/contentCache.ts 참고. */
+export const getAllStages = buildOnlyCache((): GuideStage[] => {
   const files = fs.readdirSync(GUIDE_DIR).filter((f) => f.endsWith(".mdx"));
   return files.map(readStageFile).sort((a, b) => a.order - b.order);
-}
+});
 
 export function getStageBySlug(slug: string): GuideStage | undefined {
   return getAllStages().find((s) => s.slug === slug);

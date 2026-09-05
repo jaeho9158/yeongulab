@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { buildOnlyCache } from "./contentCache";
 
 /**
  * 자료실 문서 — 6단계 가이드가 '순서'를 다룬다면, 여기는 한 가지 주제를
@@ -83,7 +84,11 @@ function readArticleFile(filename: string): Article {
   };
 }
 
-export function getAllArticles(): Article[] {
+/**
+ * 빌드 1회당 166번 호출되던 자리라 프로덕션 빌드에서만 결과를 캐시한다.
+ * 캐시 조건과 개발 모드 함정은 lib/contentCache.ts 주석 참고.
+ */
+export const getAllArticles = buildOnlyCache((): Article[] => {
   if (!fs.existsSync(ARTICLES_DIR)) return [];
   return fs
     .readdirSync(ARTICLES_DIR)
@@ -96,7 +101,7 @@ export function getAllArticles(): Article[] {
       if (ai !== bi) return ai - bi;
       return a.order - b.order;
     });
-}
+});
 
 export function getArticleBySlug(slug: string): Article | undefined {
   return getAllArticles().find((a) => a.slug === slug);
