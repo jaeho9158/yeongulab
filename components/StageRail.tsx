@@ -30,12 +30,14 @@ export function StageRail({
   headings,
   toolCount,
   selfCheckCount,
+  relatedArticleCount,
 }: {
   stages: StageInfo[];
   currentSlug: string;
   headings: Heading[];
   toolCount: number;
   selfCheckCount: number;
+  relatedArticleCount: number;
 }) {
   const [done, setDone] = useState<Record<string, number> | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -69,8 +71,24 @@ export function StageRail({
       ...(selfCheckCount > 0
         ? [{ href: "#self-check", label: "자가검증 질문", meta: null }]
         : []),
+      ...(relatedArticleCount > 0
+        ? [
+            {
+              href: "#related-articles",
+              label: "함께 읽기",
+              meta: String(relatedArticleCount),
+            },
+          ]
+        : []),
     ],
-    [headings, toolCount, selfCheckCount, current, currentDone],
+    [
+      headings,
+      toolCount,
+      selfCheckCount,
+      relatedArticleCount,
+      current,
+      currentDone,
+    ],
   );
 
   // 스크롤 위치에 따라 현재 섹션을 표시한다.

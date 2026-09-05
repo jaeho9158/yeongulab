@@ -4,12 +4,14 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { extractHeadings, getAllStages, getStageBySlug } from "@/lib/guide";
+import { getArticlesForStage } from "@/lib/articles";
 import { AdSlot } from "@/components/AdSlot";
 import { ChecklistCard } from "@/components/ChecklistCard";
 import { ReflectionBox } from "@/components/ReflectionBox";
 import { StageRail } from "@/components/StageRail";
 import { ToolAccordion } from "@/components/StageTools";
 import { getToolCount } from "@/lib/stageToolMeta";
+import { breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
 
 export function generateStaticParams() {
   return getAllStages().map((stage) => ({ stage: stage.slug }));
@@ -49,8 +51,23 @@ export default async function GuideStagePage({
   const headings = extractHeadings(stage.content);
   let renderedH2 = 0;
 
+  // 문서 → 단계 링크(relatedStage)는 이미 있으니, 반대 방향은 여기서 조회만
+  // 하면 된다 — 이 단계를 가리키는 문서가 없으면 섹션 자체를 렌더하지 않는다.
+  const relatedArticles = getArticlesForStage(stage.slug);
+
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "홈", url: "/" },
+    { name: "6단계 가이드", url: "/guide" },
+    { name: `${stage.order}단계: ${stage.title}`, url: `/guide/${stage.slug}` },
+  ]);
+
   return (
     <div className="mx-auto grid max-w-[60rem] items-start gap-12 px-4 py-10 lg:grid-cols-[13rem_minmax(0,1fr)] lg:py-12">
+      <script
+        type="application/ld+json"
+        // serializeJsonLd가 "<"를 이스케이프해 XSS를 막는다
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumb) }}
+      />
       <StageRail
         stages={stages.map((s) => ({
           order: s.order,
@@ -62,6 +79,7 @@ export default async function GuideStagePage({
         headings={headings}
         toolCount={getToolCount(stage.slug)}
         selfCheckCount={stage.selfCheck.length}
+        relatedArticleCount={relatedArticles.length}
       />
 
       <article className="min-w-0">
@@ -126,6 +144,8 @@ export default async function GuideStagePage({
           />
         </div>
 
+        {/* 앵커(id="tools")는 ToolAccordion 안에 이미 있다 — 여기서 또 감싸면
+            같은 id가 문서에 두 번 생겨 레일 목차 링크가 엉뚱한 곳으로 간다. */}
         <ToolAccordion slug={stage.slug} />
 
         <div id="checklist" className="scroll-mt-24">
@@ -140,6 +160,32 @@ export default async function GuideStagePage({
             questions={stage.selfCheck}
           />
         </div>
+
+        {relatedArticles.length > 0 && (
+          <div id="related-articles" className="mt-10 scroll-mt-24 border-t border-line pt-8">
+            {/* 레일 목차가 도구/체크리스트/자가검증과 같은 급으로 거는 섹션이다.
+                text-xs면 같은 페이지의 h3(도구 제목, text-[15px])보다도 작아져
+                시각적 계층이 의미 계층과 뒤집히므로 형제 h2와 크기를 맞춘다. */}
+            <h2 className="text-lg font-bold text-ink">이 단계와 함께 읽기</h2>
+            <ul className="mt-3 space-y-4">
+              {relatedArticles.map((article) => (
+                <li key={article.slug}>
+                  <Link
+                    href={`/articles/${article.slug}`}
+                    className="group block"
+                  >
+                    <span className="text-[15px] font-semibold text-ink transition group-hover:text-accent">
+                      {article.title}
+                    </span>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      {article.summary}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="2xl:hidden">
           <AdSlot label="본문 하단 광고" />

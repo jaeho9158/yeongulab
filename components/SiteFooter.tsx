@@ -12,6 +12,12 @@ export function SiteFooter() {
           <span>© {new Date().getFullYear().toString()} 연구랩 가이드</span>
           <div className="flex flex-wrap items-center gap-1">
             <Link
+              href="/tools"
+              className="-my-3.5 flex items-center py-3.5 pr-3 hover:text-ink"
+            >
+              도구
+            </Link>
+            <Link
               href="/articles"
               className="-my-3.5 flex items-center py-3.5 pr-3 hover:text-ink"
             >

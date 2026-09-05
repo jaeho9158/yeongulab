@@ -51,3 +51,12 @@ export function getAllArticles(): Article[] {
 export function getArticleBySlug(slug: string): Article | undefined {
   return getAllArticles().find((a) => a.slug === slug);
 }
+
+/**
+ * relatedStage → 문서 역인덱스. 문서 쪽엔 "이어지는 단계" 링크가 있지만
+ * 단계 쪽엔 반대 방향이 없어서, 단계 페이지에서 "함께 읽기"로 보여주려면
+ * 이 역방향 조회가 필요하다.
+ */
+export function getArticlesForStage(stageSlug: string): Article[] {
+  return getAllArticles().filter((a) => a.relatedStage === stageSlug);
+}

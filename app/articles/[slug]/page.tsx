@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { getAllArticles, getArticleBySlug } from "@/lib/articles";
 import { extractHeadings } from "@/lib/guide";
 import { getAllStages } from "@/lib/guide";
+import { articleJsonLd, breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
 
 export function generateStaticParams() {
   return getAllArticles().map((article) => ({ slug: article.slug }));
@@ -46,8 +47,30 @@ export default async function ArticlePage({
   const headings = extractHeadings(article.content);
   let renderedH2 = 0;
 
+  const jsonLd = [
+    articleJsonLd({
+      title: article.title,
+      description: article.description,
+      updated: article.updated,
+      path: `/articles/${article.slug}`,
+    }),
+    breadcrumbJsonLd([
+      { name: "홈", url: "/" },
+      { name: "자료실", url: "/articles" },
+      { name: article.title, url: `/articles/${article.slug}` },
+    ]),
+  ];
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 lg:py-12">
+      {jsonLd.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          // serializeJsonLd가 "<"를 이스케이프해 XSS를 막는다
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
+        />
+      ))}
       <Link
         href="/articles"
         className="-my-3 -ml-1 flex w-fit items-center py-3 pr-2 pl-1 text-sm text-ink-soft hover:text-ink"
