@@ -271,7 +271,7 @@ export function StatsCalculator() {
             }}
             placeholder="예: 12, 15, 14, 18, 13"
             rows={4}
-            className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
         <div>
@@ -288,7 +288,7 @@ export function StatsCalculator() {
             }}
             placeholder="예: 22, 19, 25, 21, 20"
             rows={4}
-            className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
       </div>
