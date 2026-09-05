@@ -7,7 +7,15 @@ describe("parsePairs", () => {
       labels: ["A", "B", "C"],
       values: [1, 2, 3],
       droppedCount: 0,
+      thousandsMergedCount: 0,
     });
+  });
+  it("값에 천 단위 쉼표가 있어도 라벨 정렬이 깨지지 않는다 (회귀)", () => {
+    const r = parsePairs("A\nB\nC", "1,200\n1,500\n1,350");
+    expect(r.labels).toEqual(["A", "B", "C"]);
+    expect(r.values).toEqual([1200, 1500, 1350]);
+    expect(r.droppedCount).toBe(0);
+    expect(r.thousandsMergedCount).toBe(3);
   });
   it("값 하나가 깨져도 뒤 항목명이 밀리지 않는다 (경계 — 정렬 붕괴 회귀 방지)", () => {
     const r = parsePairs("A, B, C", "1, x, 3");

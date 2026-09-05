@@ -33,10 +33,15 @@ export function SpeechTimer() {
         onChange={(e) => setText(e.target.value)}
         placeholder="발표 대본을 붙여넣어보세요."
         rows={8}
-        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />
 
-      <div className="mt-3 rounded-lg bg-surface px-4 py-3 text-sm">
+      {/* 입력에 따라 실시간으로 바뀌는 계산 결과 — 알리지 않으면 화면낭독기
+          사용자는 예상 시간을 확인할 방법이 없다(LengthChecker와 같은 처리). */}
+      <div
+        aria-live="polite"
+        className="mt-3 rounded-lg bg-surface px-4 py-3 text-sm"
+      >
         <p className="text-ink">
           공백 제외 {charCount.toLocaleString()}자 · 예상 발표 시간 약{" "}
           <strong>{formatted}</strong>

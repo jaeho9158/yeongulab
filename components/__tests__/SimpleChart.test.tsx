@@ -38,4 +38,24 @@ describe("SimpleChart", () => {
     );
     expect(bars).toHaveLength(3);
   });
+  it("값의 천 단위 쉼표를 합쳐 읽고 안내한다", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<SimpleChart />);
+    const values = container.querySelector("#chart-values") as HTMLTextAreaElement;
+    await user.clear(values);
+    await user.click(values);
+    await user.paste("1,200 1,500 1,350 1,100");
+    expect(
+      screen.getByText(/쉼표를 천 단위 구분으로 읽었습니다/),
+    ).toBeTruthy();
+    const bars = [...container.querySelectorAll("svg rect")].filter(
+      (r) => r.getAttribute("width") !== "640",
+    );
+    expect(bars).toHaveLength(4);
+  });
+
+  it("쉼표로 구분한 평범한 값에는 천 단위 안내가 없다 (거짓 양성 방지)", () => {
+    render(<SimpleChart />);
+    expect(screen.queryByText(/천 단위 구분으로 읽었습니다/)).toBeNull();
+  });
 });

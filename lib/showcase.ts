@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { buildOnlyCache } from "./contentCache";
 
 /**
  * 사례 공유 아카이브 — 학생이 직접 보내온 연구 사례를 검토 후 mdx로 얹는다.
@@ -40,14 +41,15 @@ function readShowcaseFile(filename: string): Showcase {
   };
 }
 
-export function getAllShowcases(): Showcase[] {
+/** 프로덕션 빌드에서만 캐시 — 근거와 dev 함정은 lib/contentCache.ts 참고. */
+export const getAllShowcases = buildOnlyCache((): Showcase[] => {
   if (!fs.existsSync(SHOWCASE_DIR)) return [];
   return fs
     .readdirSync(SHOWCASE_DIR)
     .filter((f) => f.endsWith(".mdx"))
     .map(readShowcaseFile)
     .sort((a, b) => (a.published < b.published ? 1 : -1));
-}
+});
 
 export function getShowcaseBySlug(slug: string): Showcase | undefined {
   return getAllShowcases().find((s) => s.slug === slug);

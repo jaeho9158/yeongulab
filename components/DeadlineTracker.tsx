@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSeededState } from "@/lib/useSeededState";
 
 type Deadline = { id: string; name: string; date: string };
@@ -41,6 +41,9 @@ export function DeadlineTracker() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // 추가·삭제는 화면상 목록만 바뀌어 무음이다. 화면낭독기에 알릴 문구를 따로 둔다.
+  const [notice, setNotice] = useState("");
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const hydrated = seeded !== null;
   const items = seeded ?? [];
 
@@ -70,12 +73,18 @@ export function DeadlineTracker() {
       { id: crypto.randomUUID(), name: name.trim(), date },
     ].sort((a, b) => a.date.localeCompare(b.date));
     persist(next);
+    setNotice(`${name.trim()} 항목을 추가했습니다.`);
     setName("");
     setDate("");
   }
 
   function remove(id: string) {
+    const target = items.find((i) => i.id === id);
     persist(items.filter((i) => i.id !== id));
+    setNotice(`${target?.name ?? ""} 항목을 삭제했습니다.`);
+    // 삭제 버튼이 사라지면 포커스가 <body>로 날아가 키보드 위치를 잃는다.
+    // 이 도구에서 이어서 할 일이 있는 곳(이름 입력)으로 옮긴다.
+    nameInputRef.current?.focus();
   }
 
   return (
@@ -86,27 +95,49 @@ export function DeadlineTracker() {
         보여줍니다. 이 기기의 브라우저에만 저장됩니다.
       </p>
 
-      <form onSubmit={add} className="mt-4 flex flex-wrap gap-2">
-        <input
-          aria-label="대회·저널 이름"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setError(null);
-          }}
-          placeholder="대회·저널 이름"
-          className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
-        />
-        <input
-          type="date"
-          value={date}
-          aria-label="마감일"
-          onChange={(e) => {
-            setDate(e.target.value);
-            setError(null);
-          }}
-          className="rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink focus:border-accent"
-        />
+      {/* 눈에 보이는 라벨을 단다 — placeholder만 있으면 타이핑을 시작하는
+          순간 그 칸이 무엇이었는지 단서가 사라지고, 날짜 칸은 애초에
+          placeholder도 없어 무슨 날짜인지 알 수 없었다. */}
+      <form onSubmit={add} className="mt-4 flex flex-wrap items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <label
+            htmlFor="deadline-name"
+            className="block text-xs font-medium text-ink-soft"
+          >
+            대회·저널 이름
+          </label>
+          <input
+            id="deadline-name"
+            ref={nameInputRef}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError(null);
+            }}
+            placeholder="대회·저널 이름"
+            // placeholder에 /70 알파를 쓰면 실효 대비가 라이트 2.80:1,
+            // 다크 3.75:1로 AA 미달이다. 알파를 빼면 4.99:1 / 6.50:1.
+            className="mt-1 w-full min-w-0 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="deadline-date"
+            className="block text-xs font-medium text-ink-soft"
+          >
+            마감일
+          </label>
+          <input
+            id="deadline-date"
+            type="date"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setError(null);
+            }}
+            className="mt-1 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink focus:border-accent"
+          />
+        </div>
         <button
           type="submit"
           className="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-bg transition hover:opacity-85"
@@ -116,10 +147,15 @@ export function DeadlineTracker() {
       </form>
 
       {error && (
-        <p role="alert" className="mt-2 text-xs text-red-600">
+        <p role="alert" className="mt-2 text-xs text-danger">
           {error}
         </p>
       )}
+
+      {/* 추가·삭제 결과를 알린다 — 목록만 바뀌면 화면낭독기에는 무음이다 */}
+      <p aria-live="polite" className="sr-only">
+        {notice}
+      </p>
 
       {hydrated && items.length > 0 && (
         <ul className="mt-4 space-y-2">

@@ -216,16 +216,88 @@ export function simpleLinearRegression(
   return { slope, intercept, r2, t, df, p };
 }
 
+/**
+ * 천 단위 쉼표가 붙은 하나의 수인지 판정하는 패턴.
+ * `1,200` `12,345` `-1,234.56` `1,234,567` 은 통과, `12,15` `1,2345` `0,123` 은 불통과.
+ * (선행 그룹은 1~3자리, 이후 그룹은 정확히 3자리여야 한다.)
+ */
+const THOUSANDS_GROUPED = /^[+-]?[1-9]\d{0,2}(?:,\d{3})+(?:\.\d+)?$/;
+
+export type Tokenized = {
+  tokens: string[];
+  /** 쉼표를 천 단위 구분자로 읽어 합친 토큰 수 (>0이면 사용자에게 알릴 가치가 있다). */
+  thousandsMergedCount: number;
+  /** 천 단위로도 읽힐 수 있었지만 구분자로 해석한 덩어리 수 (혼합 입력의 모호함 신호). */
+  ambiguousCommaCount: number;
+};
+
+/**
+ * 숫자 목록 토크나이저.
+ *
+ * 규칙 — **공백(줄바꿈·탭·전각공백 포함)이 1차 구분자**이고, 쉼표의 역할은
+ * 입력 전체를 보고 한 번에 정한다:
+ *   1. 공백으로 자른 덩어리 중 쉼표를 품은 것을 모은다.
+ *   2. 그 덩어리가 **전부** `THOUSANDS_GROUPED`에 맞으면 → 쉼표는 천 단위 구분자.
+ *      (`"1,200 1,500"` → 1200, 1500)
+ *   3. 하나라도 어긋나면 → 쉼표는 값 구분자. (`"12,15,14"` → 12, 15, 14.
+ *      `"12,15"`는 천 단위 형식이 아니므로 2번에서 탈락한다.)
+ *
+ * 근거: 천 단위 표기는 "쉼표 뒤 정확히 3자리"라는 강한 형식 제약을 갖지만
+ * 값 구분자로 쓴 쉼표는 그렇지 않다. 한 입력 안에서 두 용법을 섞을 이유는
+ * 거의 없으므로, 덩어리 하나라도 천 단위 형식을 어기면 입력 전체를 구분자
+ * 용법으로 본다 — 기존 `12,15,14` 사용법을 절대 깨지 않는 쪽이 안전하다.
+ *
+ * 남는 모호함: `"1,200"`이나 `"12,345"`는 두 해석이 모두 가능하다. 이때는
+ * 천 단위로 읽되 `thousandsMergedCount`로 신호를 남겨 UI가 사용자에게
+ * 되물을 수 있게 한다. 반대로 혼합 입력에서 구분자로 해석해버린 덩어리는
+ * `ambiguousCommaCount`로 센다.
+ */
+export function tokenizeNumberList(text: string): Tokenized {
+  // 한글 IME에서 나올 수 있는 전각 쉼표·모점을 반각으로 정규화한다.
+  // (전각 공백 U+3000·탭·줄바꿈은 정규식 \s가 이미 포함한다.)
+  const normalized = text.replace(/[，、]/g, ",");
+  const chunks = normalized.split(/\s+/).filter(Boolean);
+  const commaChunks = chunks.filter((c) => c.includes(","));
+  const useThousands =
+    commaChunks.length > 0 &&
+    commaChunks.every((c) => THOUSANDS_GROUPED.test(c));
+
+  const tokens: string[] = [];
+  let thousandsMergedCount = 0;
+  let ambiguousCommaCount = 0;
+  for (const chunk of chunks) {
+    if (!chunk.includes(",")) {
+      tokens.push(chunk);
+      continue;
+    }
+    if (useThousands) {
+      tokens.push(chunk.replace(/,/g, ""));
+      thousandsMergedCount++;
+      continue;
+    }
+    if (THOUSANDS_GROUPED.test(chunk)) ambiguousCommaCount++;
+    for (const t of chunk.split(",")) {
+      if (t) tokens.push(t);
+    }
+  }
+  return { tokens, thousandsMergedCount, ambiguousCommaCount };
+}
+
 /** 숫자 목록 파싱 — 숫자로 읽지 못해 제외한 토큰 수도 함께 돌려준다. */
 export function parseNumberListDetailed(text: string): {
   values: number[];
   droppedCount: number;
+  thousandsMergedCount: number;
+  ambiguousCommaCount: number;
 } {
-  const tokens = text
-    .split(/[\n,\s]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const { tokens, thousandsMergedCount, ambiguousCommaCount } =
+    tokenizeNumberList(text);
   // Infinity 같은 값도 통계 계산에는 쓸 수 없으므로 isFinite로 거른다
   const values = tokens.map(Number).filter((n) => Number.isFinite(n));
-  return { values, droppedCount: tokens.length - values.length };
+  return {
+    values,
+    droppedCount: tokens.length - values.length,
+    thousandsMergedCount,
+    ambiguousCommaCount,
+  };
 }

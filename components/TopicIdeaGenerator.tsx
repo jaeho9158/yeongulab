@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IDEA_CATEGORIES, generateIdea, type Category } from "@/lib/ideaBank";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 const CATEGORIES = Object.keys(IDEA_CATEGORIES) as Category[];
 
@@ -9,6 +10,7 @@ export function TopicIdeaGenerator() {
   const [category, setCategory] = useState<Category>(CATEGORIES[0]);
   const [ideas, setIdeas] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   function draw() {
     setIdeas((prev) => [generateIdea(category), ...prev].slice(0, 5));
@@ -17,10 +19,12 @@ export function TopicIdeaGenerator() {
   async function copy(idea: string, index: number) {
     try {
       await navigator.clipboard.writeText(idea);
+      setCopyFailed(false);
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex((cur) => (cur === index ? null : cur)), 1500);
     } catch {
-      // 클립보드 접근 불가 — 조용히 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -70,7 +74,10 @@ export function TopicIdeaGenerator() {
               <button
                 type="button"
                 onClick={() => copy(idea, i)}
-                className="shrink-0 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition hover:border-accent"
+                // 알약 크기가 약 24px이라 터치 타겟이 작다. 목록 행 안이라
+                // 패딩을 키우면 행 높이가 크게 달라지므로, 보이지 않는
+                // ::before로 히트 영역만 넓힌다(시각 크기는 그대로).
+                className="relative shrink-0 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition before:absolute before:-inset-2.5 before:content-[''] hover:border-accent"
               >
                 {copiedIndex === i ? "복사됨" : "복사"}
               </button>
@@ -78,6 +85,10 @@ export function TopicIdeaGenerator() {
           ))}
         </ul>
       )}
+
+      <p aria-live="polite" className="mt-2 text-xs text-ink-soft">
+        {copyFailed && COPY_FAILED_MESSAGE}
+      </p>
     </section>
   );
 }

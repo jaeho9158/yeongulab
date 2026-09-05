@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { QUESTION_BANK, type QuestionCategory } from "@/lib/questionBank";
 import { shuffle } from "@/lib/shuffle";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 const CATEGORIES = Object.keys(QUESTION_BANK) as QuestionCategory[];
 
@@ -10,6 +11,7 @@ export function PresentationQuestionBank() {
   const [category, setCategory] = useState<QuestionCategory>(CATEGORIES[0]);
   const [drawn, setDrawn] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   function draw() {
     const pool = QUESTION_BANK[category];
@@ -21,10 +23,12 @@ export function PresentationQuestionBank() {
     if (drawn.length === 0) return;
     try {
       await navigator.clipboard.writeText(drawn.join("\n"));
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // 클립보드 접근 불가 — 조용히 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -84,6 +88,9 @@ export function PresentationQuestionBank() {
           >
             {copied ? "복사됨" : "질문 복사"}
           </button>
+          <p aria-live="polite" className="mt-2 text-xs text-ink-soft">
+            {copyFailed && COPY_FAILED_MESSAGE}
+          </p>
         </>
       )}
     </section>

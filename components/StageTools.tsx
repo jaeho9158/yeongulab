@@ -1,12 +1,14 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import {
   STAGE_TOOL_TITLES,
+  TOOL_IDS,
   isStageSlug,
   type ToolTitle,
 } from "@/lib/stageToolMeta";
+import { useSeededState } from "@/lib/useSeededState";
 
 // 도구는 모두 next/dynamic으로 싣는다 — 이 단계에서 실제로 그리는 도구의 청크만
 // 내려받고, 홈·가이드 목록처럼 '도구 N' 표기만 쓰는 곳은 lib/stageToolMeta만 본다.
@@ -121,8 +123,27 @@ const TOOL_RENDERERS: Record<ToolTitle, (slug: string) => ReactNode> = {
 
 /** 도구를 접이식 목록으로. 첫 번째만 펼쳐두고 나머지는 제목만 보인다. */
 export function ToolAccordion({ slug }: { slug: string }) {
+  // 서버 렌더·첫 클라이언트 렌더는 항상 null(=첫 항목 펼침)이고, 마운트 후에만
+  // location.hash를 읽어 시드한다 — 그래야 하이드레이션이 깨지지 않는다.
+  const [hashId] = useSeededState(
+    () => (typeof window === "undefined" ? null : window.location.hash),
+    [slug],
+  );
+  // 한 번이라도 연 도구만 본문을 그린다 — 접힌 <details>도 자식을 SSR·하이드레이트
+  // 하므로, 게이팅하지 않으면 단계의 도구 전부가 초기 HTML과 preload에 실린다.
+  // 초기값 {0}은 서버 렌더와 동일해야 하므로 상수다(해시는 시드 후 아래에서 합친다).
+  // 한 번 들어간 인덱스는 빼지 않는다 — 접었다 펴도 재마운트가 없어 입력이 남는다.
+  const [opened, setOpened] = useState<ReadonlySet<number>>(() => new Set([0]));
+
   if (!isStageSlug(slug)) return null;
   const titles = STAGE_TOOL_TITLES[slug];
+  // "#tool-xxx" → "xxx". 시드 전(null)이거나 매치가 없으면 첫 항목을 편다.
+  const targetToolId = hashId?.startsWith("#tool-")
+    ? hashId.slice("#tool-".length)
+    : null;
+  const openIndex = targetToolId
+    ? titles.findIndex((title) => TOOL_IDS[title] === targetToolId)
+    : -1;
 
   return (
     <section id="tools" className="mt-10 scroll-mt-24">
@@ -132,7 +153,18 @@ export function ToolAccordion({ slug }: { slug: string }) {
       </div>
       <div className="card mt-3 divide-y divide-line overflow-hidden">
         {titles.map((title, i) => (
-          <details key={title} open={i === 0} className="group">
+          <details
+            key={title}
+            id={`tool-${TOOL_IDS[title]}`}
+            open={openIndex === -1 ? i === 0 : i === openIndex}
+            className="group scroll-mt-24"
+            onToggle={(e) => {
+              if (!e.currentTarget.open) return;
+              setOpened((prev) =>
+                prev.has(i) ? prev : new Set(prev).add(i),
+              );
+            }}
+          >
             {/* 카드가 overflow-hidden이라 포커스 링이 잘리지 않도록 안쪽으로 그린다 */}
             <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-3.5 text-ink hover:bg-surface focus-visible:outline-offset-[-2px] [&::-webkit-details-marker]:hidden">
               <svg
@@ -152,9 +184,14 @@ export function ToolAccordion({ slug }: { slug: string }) {
               {/* summary는 제목 콘텐츠를 허용하므로 문서 개요에 도구 제목이 남는다 */}
               <h3 className="inline text-[15px] font-semibold">{title}</h3>
             </summary>
-            <div className="tool-embed px-5 pb-5 pl-5 sm:pl-12">
-              {TOOL_RENDERERS[title](slug)}
-            </div>
+            {/* 앵커(<details id>)와 <summary>의 제목은 항상 남는다 — 딥링크와
+                색인에 필요한 건 그 둘이고, 본문은 연 뒤에 붙는다. openIndex는
+                해시가 가리키는 도구라 딥링크 진입 시 시드와 동시에 렌더된다. */}
+            {opened.has(i) || i === openIndex ? (
+              <div className="tool-embed px-5 pb-5 pl-5 sm:pl-12">
+                {TOOL_RENDERERS[title](slug)}
+              </div>
+            ) : null}
           </details>
         ))}
       </div>

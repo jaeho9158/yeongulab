@@ -89,6 +89,37 @@ export const TOOL_DESCRIPTIONS = {
     "끝낸 연구를 짧게 정리해 다른 학생들이 볼 수 있게 보내줍니다.",
 } as const satisfies Record<ToolTitle, string>;
 
+/**
+ * 도구 제목 → URL 앵커 id. 자료실 글이 도구 하나로 바로 링크하기 위한 앵커.
+ * 제목은 바뀔 수 있어도 id는 URL이라 바꾸지 않는다.
+ */
+export const TOOL_IDS = {
+  "연구주제 아이디어 뽑기": "idea",
+  "내 연구질문, 조사형일까 탐구형일까": "survey-or-inquiry",
+  "선행연구 검색해보기": "paper-search",
+  "내 레퍼런스 목록": "references",
+  "내 연구질문에 맞는 설계 유형 찾기": "design-type",
+  "목적 진술 만들어보기": "purpose",
+  "변수 정의표 만들기": "variables",
+  "표본 크기 계산기": "sample-size",
+  "설문 문항 편향 체크": "survey-bias",
+  "랜덤 표본 추첨기": "random-sample",
+  "간이 통계 계산기": "stats",
+  "간이 차트 그리기": "chart",
+  "그림·표 캡션 도우미": "caption",
+  "IMRaD 구조 점검": "imrad",
+  "논문에 쓰는 영어 표현": "phrases",
+  "분량 체크기": "length",
+  "인용 형식 만들어보기": "citation",
+  "연구윤리 · 재현가능성 체크리스트": "ethics",
+  "투고처 후보 모음": "venues",
+  "AI 활용 disclosure 문구 만들기": "ai-disclosure",
+  "예상 질문 뽑기": "questions",
+  "발표 시간 재보기": "timer",
+  "마감일 트래커": "deadlines",
+  "내 연구 사례 나누기": "showcase",
+} as const satisfies Record<ToolTitle, string>;
+
 export function isStageSlug(slug: string): slug is StageSlug {
   return (STAGE_SLUGS as readonly string[]).includes(slug);
 }

@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { describe, it, expect } from "vitest";
-import { getAllArticles } from "../articles";
-import { getAllStages } from "../guide";
+import { collectRenderedChars } from "../ogFontChars";
 
 /**
  * OG 이미지용 폰트는 용량 때문에 "지금 쓰이는 글자"만 담은 서브셋이다
@@ -14,11 +13,6 @@ import { getAllStages } from "../guide";
  */
 
 const FONT_DIR = path.join(process.cwd(), "assets", "fonts");
-const OG_SOURCES = [
-  "app/opengraph-image.tsx",
-  "app/articles/[slug]/opengraph-image.tsx",
-  "app/guide/[stage]/opengraph-image.tsx",
-];
 
 /** TrueType 폰트가 실제로 글리프를 가진 코드포인트 집합을 cmap에서 읽는다. */
 function coveredCodePoints(font: Buffer): Set<number> {
@@ -86,25 +80,6 @@ function coveredCodePoints(font: Buffer): Set<number> {
   return covered;
 }
 
-/** OG 컴포넌트 소스에 박힌 한글 — 문자열을 테스트에 복사해두면 컴포넌트를
- *  고쳤을 때 테스트가 옛 문자열을 검사하게 되므로 소스에서 직접 뽑는다.
- *
- *  주석의 한글은 화면에 그려지지 않으므로 반드시 먼저 걷어낸다. 안 그러면
- *  "왜" 주석을 한글로 쓰는 이 저장소의 관례 때문에 테스트가 늘 실패한다. */
-function hangulInSources(): string {
-  return OG_SOURCES.map((rel) => {
-    const file = path.join(process.cwd(), rel);
-    if (!fs.existsSync(file)) return "";
-    return fs
-      .readFileSync(file, "utf-8")
-      .replace(/\/\*[\s\S]*?\*\//g, " ") // 블록 주석
-      .replace(/(^|[^:])\/\/.*$/gm, "$1"); // 줄 주석 (URL의 // 는 남긴다)
-  })
-    .join("")
-    .match(/[가-힣]/g)
-    ?.join("") ?? "";
-}
-
 describe("OG 서브셋 폰트 커버리지", () => {
   const fonts = ["NotoSansKR-Bold.ttf", "NotoSansKR-Medium.ttf"];
 
@@ -130,14 +105,7 @@ describe("OG 서브셋 폰트 커버리지", () => {
   it.each(fonts)("%s 가 OG에 그려지는 모든 글자를 담고 있다", (name) => {
     const covered = coveredCodePoints(fs.readFileSync(path.join(FONT_DIR, name)));
 
-    const needed = new Set<string>();
-    const add = (s: string) => {
-      for (const ch of s) if (ch.trim()) needed.add(ch);
-    };
-
-    add(hangulInSources());
-    for (const a of getAllArticles()) add(a.title);
-    for (const s of getAllStages()) add(s.title);
+    const needed = collectRenderedChars();
 
     const missing = [...needed].filter(
       (ch) => !covered.has(ch.codePointAt(0)!),

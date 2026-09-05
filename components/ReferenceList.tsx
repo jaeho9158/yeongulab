@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSeededState } from "@/lib/useSeededState";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 import {
   type Reference,
   formatAPA,
@@ -13,6 +14,7 @@ import {
 export function ReferenceList() {
   const [seeded, setRefs] = useSeededState<Reference[]>(readReferences);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
   const refs = seeded ?? [];
 
   useEffect(() => {
@@ -35,10 +37,12 @@ export function ReferenceList() {
   async function copy(ref: Reference) {
     try {
       await navigator.clipboard.writeText(formatAPA(ref));
+      setCopyFailed(false);
       setCopiedId(ref.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 인용 형식은 실패를 모른 채 붙여넣으면 엉뚱한 출처가 보고서에 들어간다
+      setCopyFailed(true);
     }
   }
 
@@ -87,6 +91,10 @@ export function ReferenceList() {
           ))}
         </ul>
       )}
+
+      <p aria-live="polite" className="mt-3 text-xs text-ink-soft">
+        {copyFailed && COPY_FAILED_MESSAGE}
+      </p>
     </section>
   );
 }

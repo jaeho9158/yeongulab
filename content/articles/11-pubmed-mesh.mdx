@@ -1,0 +1,126 @@
+---
+order: 3
+category: search
+featured: false
+slug: pubmed-mesh
+title: "PubMed 5분 사용법 — MeSH로 검색 정확도 올리기"
+description: "생명과학·보건 주제라면 PubMed입니다. 키워드 검색과 MeSH 검색이 왜 다른 결과를 내는지, 검색식과 필터를 어떻게 쓰는지 5분 안에 쓸 수 있는 만큼만 정리했습니다."
+summary: "동의어 문제, MeSH로 검색식 만들기, 필터 세 개, 결과 화면에서 볼 것"
+keywords: ["PubMed 사용법", "MeSH 검색", "PubMed 검색 팁", "의학 논문 검색"]
+relatedStage: prior-research
+updated: "2026-09-05"
+---
+
+"청소년의 카페인 섭취와 수면"으로 검색을 시작한 학생은 대개 같은 벽에 부딪힙니다. 검색창에 `teenager caffeine sleep`을 넣으면 결과가 300건 나오는데, 열어보면 대학생 대상이거나 커피 산업 보고서이고, 정작 필요한 실험 논문은 안 보입니다. 키워드를 바꿔 `adolescent caffeine sleep`으로 넣으면 이번에는 전혀 다른 논문 200건이 나옵니다. **같은 주제인데 검색어 하나에 결과가 통째로 갈리는 것**이 문제입니다.
+
+이 문제를 해결하려고 만들어진 장치가 PubMed의 MeSH입니다. 여기서는 개념을 길게 설명하지 않고, 5분 안에 실제로 쓸 수 있는 만큼만 다룹니다. 어떤 논문을 고를지, 고른 논문을 어떻게 읽을지는 [2단계: 선행연구 조사](/guide/prior-research)와 [영어 논문, 처음부터 끝까지 읽지 않는 법](/articles/reading-english-papers)에 있습니다.
+
+## Google Scholar 대신 PubMed를 쓰는 경우
+
+PubMed는 미국 국립의학도서관(NLM)이 운영하는 생명과학·의학 문헌 검색 서비스입니다. 계정 없이 무료로 쓸 수 있고, 주소는 `pubmed.ncbi.nlm.nih.gov`입니다.
+
+둘 중 무엇을 쓸지는 주제로 정해집니다.
+
+| 내 주제 | 더 나은 곳 | 이유 |
+| --- | --- | --- |
+| 수면, 운동, 영양, 면역, 미생물, 질병 | PubMed | 사람이 주제어를 붙여 정리해둔 의학·생명과학 문헌만 모여 있습니다 |
+| 심리 실험, 교육, 사회 현상 | Google Scholar | PubMed 수록 범위 밖의 학술지가 많습니다 |
+| 재료, 회로, 알고리즘, 환경공학 | Google Scholar | 공학 학술지는 PubMed에 거의 없습니다 |
+| 주제가 애매하고 일단 넓게 보고 싶다 | Google Scholar | 넓게 잡는 것이 장점입니다 |
+
+PubMed의 장점은 **범위가 좁다는 것 자체**입니다. 블로그, 보도자료, 학회 발표 요약이 섞이지 않고, 수록된 논문에는 뒤에서 설명할 주제어가 붙어 있습니다. 반대로 내 주제가 생명·보건이 아니면 PubMed에서는 결과가 거의 안 나오는 것이 정상입니다.
+
+이 사이트의 [선행연구 검색해보기](/guide/prior-research#tool-paper-search) 도구는 PubMed가 아니라 Semantic Scholar와 Crossref를 사용합니다. 분야를 가리지 않고 잡히기 때문에 첫 탐색에는 그 도구가 빠르고, **생명·보건 주제로 좁혀졌다면 그다음에 PubMed에서 다시 검색**하는 순서가 좋습니다. 두 곳의 결과가 다른 것은 오류가 아니라 수록 범위가 다르기 때문입니다.
+
+## 그냥 검색하면 생기는 일 — 동의어 문제
+
+논문 저자들은 같은 것을 같은 단어로 부르지 않습니다. 내가 고른 단어 하나가 곧 "그 단어를 쓴 저자의 논문만 보겠다"는 선언이 됩니다.
+
+| 내가 쓴 말 | 논문에서 실제로 쓰이는 말들 |
+| --- | --- |
+| teenager | adolescent, youth, young people, high school student, minor |
+| 수면의 질 | sleep quality, sleep efficiency, sleep latency, insomnia |
+| 기억력 | memory, working memory, recall, cognitive performance |
+| 운동 | exercise, physical activity, aerobic training, exertion |
+| 스마트폰 | smartphone, mobile phone, screen time, media use |
+
+한 줄 요약하면 이렇습니다.
+
+> 검색 결과가 적은 이유는 대개 "연구가 없어서"가 아니라 "저자가 쓴 단어를 내가 안 썼기 때문"입니다.
+
+여기에 철자 문제(behavior / behaviour), 단수·복수, 축약어(BMI / body mass index)까지 겹칩니다. 이걸 학생이 손으로 다 나열해서 OR로 묶는 것은 현실적이지 않습니다.
+
+## MeSH는 왜 있는가
+
+MeSH(Medical Subject Headings)는 NLM이 관리하는 표준 주제어 목록입니다. 뜻풀이보다 **왜 만들었는지**가 중요합니다. PubMed에 논문이 들어오면 담당자가 그 논문을 읽고 "이 논문의 주제는 이것"이라고 표준 주제어를 달아 둡니다. 저자가 논문에서 teenager라고 썼든 youth라고 썼든, 붙는 주제어는 하나(Adolescent)입니다. 즉 MeSH는 **저자마다 다른 단어를 하나의 이름표로 모아 둔 장치**입니다. 그래서 MeSH 주제어로 검색하면 단어 선택 때문에 논문을 놓치는 일이 크게 줄어듭니다.
+
+PubMed는 이 작업을 어느 정도 자동으로도 해줍니다. 검색창에 그냥 단어를 넣으면 자동 용어 매핑(automatic term mapping)이 작동해서, 그 단어에 대응하는 MeSH 주제어를 찾아 함께 검색합니다. 다만 큰따옴표로 묶거나 필드 태그를 붙이면 이 자동 변환이 꺼집니다. 그러니 검색이 잘 안 될 때는 **자동 변환이 무엇으로 바뀌었는지 확인하고, 필요하면 내가 직접 주제어를 고르는 것**이 다음 단계입니다.
+
+## 5분 절차 — 주제어 찾기, 검색식, 필터
+
+1. **MeSH Database를 엽니다.** 주소는 `www.ncbi.nlm.nih.gov/mesh/`입니다. 여기에 내가 쓰던 일상어(teenager)를 넣으면 표준 주제어(Adolescent)로 안내됩니다.
+2. **설명(Scope Note)을 한 줄 읽습니다.** 그 주제어가 어떤 범위를 뜻하는지 적혀 있습니다. Adolescent가 몇 살부터 몇 살까지인지 같은 것이 여기서 갈립니다.
+3. **"Add to search builder"를 누릅니다.** 오른쪽 상자에 검색식이 만들어집니다. 두 번째 주제어도 같은 방식으로 추가하면서 AND / OR를 고릅니다.
+4. **"Search PubMed"를 눌러 검색합니다.** 이때 검색창에 만들어진 식을 그대로 복사해 두면, 나중에 검색 기록을 표로 남길 때 그대로 씁니다.
+5. **왼쪽 필터를 겁니다.** 결과가 수백 건이면 필터 세 개로 대부분 정리됩니다.
+
+| 필터 묶음 | 고르는 것 | 언제 |
+| --- | --- | --- |
+| Publication date | 5 years 또는 Custom range | 최신 연구 흐름만 볼 때 |
+| Text availability | Free full text | 전문을 지금 읽어야 할 때 |
+| Article type | Review, Systematic Review | 분야 전체를 먼저 훑을 때 |
+
+처음 검색이라면 Article type을 Review로 걸고 리뷰 논문 한두 편을 먼저 보는 편이 빠릅니다. 리뷰 한 편이 원저 논문 수십 편의 지도 역할을 합니다.
+
+## 검색식 읽고 쓰기
+
+PubMed의 검색식은 세 가지만 알면 읽을 수 있습니다. AND는 둘 다, OR는 둘 중 하나, 괄호는 묶음입니다. 대괄호 안의 것은 "이 필드에서만 찾아라"라는 표시이고, MeSH 주제어로 찾으라는 표시가 [MeSH Terms]입니다.
+
+**예시 1 — 주제어 둘을 AND로**
+
+> "Adolescent"[MeSH Terms] AND "Caffeine"[MeSH Terms]
+
+청소년이면서 카페인을 다룬 논문만 남습니다. 검색 결과가 확 줄어드는 것이 정상입니다.
+
+**예시 2 — 동의어를 OR로 묶고 괄호로 감싸기**
+
+> ("Sleep Quality"[MeSH Terms] OR "Sleep Initiation and Maintenance Disorders"[MeSH Terms]) AND "Adolescent"[MeSH Terms]
+
+괄호가 없으면 AND가 먼저 걸려서 의도와 다른 결과가 나옵니다. **OR로 묶은 덩어리는 반드시 괄호로 감쌉니다.**
+
+**예시 3 — 주제어와 일반 단어를 섞기**
+
+> "Adolescent"[MeSH Terms] AND (screen time[Title/Abstract] OR smartphone[Title/Abstract])
+
+아직 MeSH 주제어가 없는 새 개념(screen time 같은 말)은 제목·초록에서 직접 찾게 하고, 이미 주제어가 있는 개념은 [MeSH Terms]로 잡습니다. 실전에서 가장 많이 쓰는 형태입니다.
+
+결과가 0건이면 식이 너무 좁은 것입니다. AND 하나를 빼거나, 가장 좁은 조건을 OR 묶음으로 바꾸세요. 반대로 수천 건이면 조건을 하나 더 AND로 붙입니다.
+
+## 결과 화면에서 볼 것
+
+결과 목록에서 논문 하나를 열기 전에 다음 세 가지를 봅니다.
+
+- **Free in PMC 표시** — 전문이 PubMed Central에 무료로 올라와 있다는 뜻입니다. 초록 화면의 Full Text Links 아래에 아이콘으로 나옵니다. 이 표시가 있으면 바로 전문을 읽을 수 있습니다.
+- **PMID** — 논문마다 붙는 고유 번호입니다. 이 번호만 메모해두면 나중에 같은 논문을 1초 만에 다시 찾습니다. 인용할 때도 편합니다.
+- **논문 종류 표시** — Review인지 원저 연구인지, 사람 대상인지 동물 대상인지가 제목·초록에서 대개 드러납니다. 동물 실험 결과를 사람 이야기처럼 인용하는 실수가 여기서 갈립니다.
+
+Free in PMC 표시가 없는 논문이라도 포기하지 마세요. 저자 원고나 다른 공개 버전이 있는 경우가 많습니다. 합법적으로 전문을 구하는 경로는 [논문 전문에 무료로 접근하는 합법적 경로](/articles/free-full-text)에 순서대로 정리했습니다.
+
+{/* 사례 슬롯 */}
+
+## PubMed 5분 순서표
+
+검색할 때마다 이 순서를 따라가고, 마지막 줄은 기록으로 남기세요.
+
+| 순서 | 할 일 | 끝났다는 신호 |
+| --- | --- | --- |
+| 1 | 내 주제가 생명·보건인지 확인 | 아니면 PubMed를 닫고 다른 검색 도구로 |
+| 2 | 핵심 개념 2개를 뽑는다 (대상 / 변수) | 종이에 두 단어가 적혀 있다 |
+| 3 | MeSH Database에서 각각의 표준 주제어를 찾는다 | 일상어가 아닌 표준 주제어 2개를 얻었다 |
+| 4 | Scope Note로 범위를 확인한다 | 내 대상 연령·조건과 맞는다 |
+| 5 | search builder로 AND / OR 식을 만든다 | 괄호가 필요한 곳에 들어가 있다 |
+| 6 | 필터를 건다 (연도 · Free full text · Review) | 결과가 20~50건 수준이다 |
+| 7 | Free in PMC 논문부터 연다 | 지금 읽을 수 있는 논문 3편을 골랐다 |
+| 8 | 검색식·날짜·건수를 표에 한 줄로 남긴다 | 3주 뒤의 내가 같은 검색을 재현할 수 있다 |
+
+8번을 빼먹는 학생이 가장 많습니다. 검색식을 남겨두지 않으면 보고서 서론에 "선행연구를 어떻게 찾았는가"를 쓸 수 없고, 같은 검색을 처음부터 다시 하게 됩니다.

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 import { addReference, formatAPA, formatIEEE } from "@/lib/citations";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 type CitationForm = {
   authors: string;
@@ -33,6 +34,7 @@ export function CitationFormatter() {
   );
   const { authors, year, title, source, volume, issue, pages, url } = form;
   const [copied, setCopied] = useState<"apa" | "ieee" | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [saved, setSaved] = useState(false);
 
   function setField(field: keyof CitationForm, value: string) {
@@ -48,10 +50,12 @@ export function CitationFormatter() {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
+      setCopyFailed(false);
       setCopied(which);
       setTimeout(() => setCopied(null), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 인용 형식은 실패를 모른 채 붙여넣으면 엉뚱한 출처가 보고서에 들어간다
+      setCopyFailed(true);
     }
   }
 
@@ -178,6 +182,9 @@ export function CitationFormatter() {
             </div>
             <p className="mt-1 text-sm text-ink">{ieee}</p>
           </div>
+          <p aria-live="polite" className="text-xs text-ink-soft">
+            {copyFailed && COPY_FAILED_MESSAGE}
+          </p>
           <button
             type="button"
             onClick={saveToReferences}

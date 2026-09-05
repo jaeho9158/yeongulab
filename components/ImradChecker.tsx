@@ -97,7 +97,7 @@ function findOptionalSections(text: string): OptionalKey[] {
 }
 
 export function ImradChecker() {
-  const [text, setText] = usePersistentState("imrad-draft", "");
+  const [text, setText, saveError] = usePersistentState("imrad-draft", "");
   const [checked, setChecked] = useState(false);
 
   const sections = checked ? splitBySections(text) : {};
@@ -128,8 +128,11 @@ export function ImradChecker() {
         }}
         placeholder={"섹션 제목을 한 줄에 하나씩 쓴 초고를 붙여넣어보세요. 예)\n1. 서론\n…\n2. 연구 방법\n…\n3. 결과\n…\n4. 논의"}
         rows={8}
-        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />
+      <p aria-live="polite" className="mt-2 text-xs leading-relaxed text-danger">
+        {saveError}
+      </p>
 
       <button
         type="button"

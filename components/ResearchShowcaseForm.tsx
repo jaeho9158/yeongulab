@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 import { SITE_CONTACT_EMAIL } from "@/lib/site";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 /**
  * 연구 사례 공유 양식.
@@ -91,7 +92,7 @@ export function ResearchShowcaseForm() {
   )}&body=${encodeURIComponent(text)}`;
 
   const field =
-    "mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent";
+    "mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent";
   const labelClass = "block text-xs font-medium text-ink-soft";
 
   return (
@@ -220,7 +221,7 @@ export function ResearchShowcaseForm() {
               value={draft.nickname}
               onChange={(e) => update("nickname", e.target.value)}
               placeholder="닉네임"
-              className="w-40 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+              className="w-40 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
             />
           )}
         </div>
@@ -265,8 +266,7 @@ export function ResearchShowcaseForm() {
         )}
         <span aria-live="polite" className="text-xs text-ink-soft">
           {copied === "done" && "복사했습니다"}
-          {copied === "failed" &&
-            "복사하지 못했습니다. 위 내용을 직접 선택해 복사해주세요."}
+          {copied === "failed" && COPY_FAILED_MESSAGE}
         </span>
       </div>
 

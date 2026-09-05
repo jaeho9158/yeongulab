@@ -194,6 +194,12 @@ export function SimpleChart() {
             값을 읽지 못한 항목 {parsed.droppedCount}개는 제외했습니다.
           </p>
         )}
+        {parsed.thousandsMergedCount > 0 && (
+          <p className="mt-2 text-xs text-ink-soft">
+            값의 쉼표를 천 단위 구분으로 읽었습니다(1,200 → 1200). 값을 구분하려면
+            공백이나 줄바꿈을 쓰세요.
+          </p>
+        )}
         {negativeCount > 0 && (
           <p className="mt-2 text-xs text-ink-soft">
             음수 값 {negativeCount}개는 이 차트 유형에서 제외됩니다.

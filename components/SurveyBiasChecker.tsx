@@ -26,7 +26,7 @@ const UNCAUGHT_BIASES = [
 ];
 
 export function SurveyBiasChecker() {
-  const [text, setText] = usePersistentState("survey-bias", "");
+  const [text, setText, saveError] = usePersistentState("survey-bias", "");
   const [checked, setChecked] = useState(false);
 
   const lines = text
@@ -57,8 +57,11 @@ export function SurveyBiasChecker() {
         }}
         placeholder={"우리 학교 급식이 당연히 맛있다고 생각하지 않으세요?\n하루에 몇 시간 정도 스마트폰을 사용하나요?"}
         rows={6}
-        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />
+      <p aria-live="polite" className="mt-2 text-xs leading-relaxed text-danger">
+        {saveError}
+      </p>
 
       <button
         type="button"
