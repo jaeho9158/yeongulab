@@ -363,7 +363,7 @@ ER9~ER19(마크다운 `|`·합본 오탐·원형 8색 순환·어절수 등) · 
 
 ### 보통·낮음 (요약)
 
-SE2 SE3(title 40/51이 60자 초과, description 40/51이 160자 초과. **중복은 0건**) ·
+~~SE2 SE3~~ **정정(라운드 19): 바이트 측정 오류였다. 문자 기준 초과 0건.** 조치는 상한 테스트 2건으로 축소, 가이드 description 하한 미달 3편은 신규 관찰 ·
 SC5~SC8(레이트리밋 없는 공개 프록시가 사이트 S2 키를 태움 · URL 스킴 미검사 · 훅 타입검사 한 줄) ·
 NX2 NX3(OG 라우트 `dynamicParams` 누락 + `process.cwd()` 폰트 · `next.revalidate`가 무효, CDN 헤더만 동작) ·
 NX4~NX8(`PageProps` 헬퍼 · `typedRoutes` · 네 번째 사본 · `ViewTransition`이 vitest에서 깨짐) ·
@@ -388,3 +388,16 @@ KO1~KO5(조사 띄어쓰기 5건 · UI 어투 7/6/6 분할 · 복사 문구 15:1
 - **TQ3 + S8 → 묶음 9(I4)** · **TQ5 → O3** · **TQ14 + S2**
 - **NX2 + PF10** · **NX3 + L2 + L3**
 - **KO1 + KO5 + S9 + Y11 → `10-riss-kci` 한 커밋** · **KO2 → `docs/style-terms.md`**
+
+### 라운드 19 정정 (batch2b 검수)
+
+- **SE2·SE3 철회** — 제 라운드 18 실측이 Git Bash `${#var}`로 **바이트**를 셌다. 문자 기준으로는 60자·160자 초과가 0건이다. 남는 조치: 상한 잠금 테스트 2건 + 가이드 3편 description 하한 미달(신규)
+- **PF9 → 확인했고 문제 없음** (프레임당 강제 레이아웃 ≤1회)
+- **PF3 대상 4곳 → 3곳** (`ContinueCard`는 의도된 null)
+- **PF2의 `?tool=` 대안 기각** — 정적 프리렌더 상실 + MDX 링크 ~50개 재작성. 채택은 "첫 도구 유지 + 대상 추가 펼침"
+- **NX5(`typedRoutes`) 기각** — 캐스트 19곳. 대체는 정적 href 리터럴 테스트
+- **NX8 주의**: `dynamicParams`와 Cache Components가 상호 배타 — 두 결정이 서로 잠근다
+- **순서 제약 정정**: "AC3+G3+L4+PF3 한 커밋" → "batch3 C7 → PF3" · "SC5 + AB3 → E3" → "SC5 → AB3" · 추가 "BR4 → O5 → PF1 → E3", "S1 → NX4", "PF6/L7 → C4"
+- **batch7 §L7 전문은 batch2b §PF6으로 대체** · **batch06 커밋 13 → (L2, L3, NX3)**
+
+**교훈**: 셸 문자열 길이는 로케일에 따라 바이트다. 한국어 길이는 Python `len()`으로 잰다.
