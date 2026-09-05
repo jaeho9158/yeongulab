@@ -81,10 +81,76 @@ describe("getFeaturedArticles", () => {
   });
 });
 
+describe("카테고리별 문서 순서", () => {
+  const byCategory = getArticlesByCategory();
+
+  it("topic 순서", () => {
+    expect(byCategory.topic.map((a) => a.slug)).toEqual([
+      "topic-ideas",
+      "question-vs-researchable",
+      "from-curriculum",
+      "from-a-paper",
+      "why-topics-go-stale",
+      "right-sized-topic",
+      "replication-is-research",
+      "public-data-topics",
+    ]);
+  });
+
+  it("search 순서", () => {
+    expect(byCategory.search.map((a) => a.slug)).toEqual([
+      "start-with-reviews",
+      "riss-kci",
+      "pubmed-mesh",
+      "free-full-text",
+      "citation-chaining",
+      "reading-english-papers",
+      "figure-first",
+      "borrowing-methods",
+      "scholar-alerts",
+    ]);
+  });
+
+  it("method 순서", () => {
+    expect(byCategory.method.map((a) => a.slug)).toEqual([
+      "question-to-test",
+      "control-group-mistakes",
+      "small-sample",
+      "survey-questions",
+      "research-ethics",
+      "lab-notebook",
+      "archiving-by-semester",
+    ]);
+  });
+
+  it("writing 순서", () => {
+    expect(byCategory.writing.map((a) => a.slug)).toEqual([
+      "statistics",
+      "negative-results",
+      "limitations",
+      "abstract-and-title",
+      "presentation",
+      "finding-calls",
+    ]);
+  });
+});
+
 describe("getAdjacentInCategory", () => {
-  it("research-ethics는 prev=survey-questions, next=undefined", () => {
-    const { prev, next } = getAdjacentInCategory("research-ethics");
-    expect(prev?.slug).toBe("survey-questions");
+  it("카테고리 첫 글(question-to-test)은 prev가 없다", () => {
+    const { prev, next } = getAdjacentInCategory("question-to-test");
+    expect(prev).toBeUndefined();
+    expect(next?.slug).toBe("control-group-mistakes");
+  });
+
+  it("중간 글(abstract-and-title)은 앞뒤가 모두 있다", () => {
+    const { prev, next } = getAdjacentInCategory("abstract-and-title");
+    expect(prev?.slug).toBe("limitations");
+    expect(next?.slug).toBe("presentation");
+  });
+
+  it("카테고리 마지막 글(scholar-alerts)은 next가 없다", () => {
+    const { prev, next } = getAdjacentInCategory("scholar-alerts");
+    expect(prev?.slug).toBe("borrowing-methods");
     expect(next).toBeUndefined();
   });
 
@@ -92,28 +158,6 @@ describe("getAdjacentInCategory", () => {
     const { prev, next } = getAdjacentInCategory("faq");
     expect(prev).toBeUndefined();
     expect(next).toBeUndefined();
-  });
-
-  it("statistics는 next=abstract-and-title", () => {
-    const { next } = getAdjacentInCategory("statistics");
-    expect(next?.slug).toBe("abstract-and-title");
-  });
-
-  it("abstract-and-title는 prev=statistics, next=presentation", () => {
-    const { prev, next } = getAdjacentInCategory("abstract-and-title");
-    expect(prev?.slug).toBe("statistics");
-    expect(next?.slug).toBe("presentation");
-  });
-});
-
-describe("getAllArticles 순서 (writing)", () => {
-  it("writing 카테고리는 [statistics, abstract-and-title, presentation] 순이다", () => {
-    const writing = getAllArticles().filter((a) => a.category === "writing");
-    expect(writing.map((a) => a.slug)).toEqual([
-      "statistics",
-      "abstract-and-title",
-      "presentation",
-    ]);
   });
 });
 
