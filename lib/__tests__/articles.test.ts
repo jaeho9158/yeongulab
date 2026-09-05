@@ -8,6 +8,7 @@ import {
   getFeaturedArticles,
   isArticleCategory,
 } from "../articles";
+import { getAllShowcases } from "../showcase";
 import { extractInternalLinks } from "../articleLinks";
 import {
   STAGE_SLUGS,
@@ -221,6 +222,23 @@ describe("자료실 내부 링크", () => {
     expect(broken, `존재하지 않는 자료실 문서로 링크:\n${broken.join("\n")}`).toEqual([]);
   });
 
+  // 사례는 자료실과 달리 운영자가 파일을 직접 얹어야 생긴다. 사례를 지우거나
+  // slug를 바꾸면 자료실 본문의 역링크가 조용히 404가 되므로 같이 검사한다.
+  it("모든 /showcase/{slug} 링크가 실재하는 사례를 가리킨다", () => {
+    const showcaseSlugs = new Set(getAllShowcases().map((s) => s.slug));
+    const broken: string[] = [];
+    for (const article of articles) {
+      for (const link of linksOf(article)) {
+        if (!link.path.startsWith("/showcase/")) continue;
+        const target = link.path.slice("/showcase/".length);
+        if (!showcaseSlugs.has(target)) {
+          broken.push(`${article.slug}.mdx → /showcase/${target}`);
+        }
+      }
+    }
+    expect(broken, `존재하지 않는 사례로 링크:\n${broken.join("\n")}`).toEqual([]);
+  });
+
   it("모든 /guide/{stage} 링크가 유효한 단계 slug를 쓴다", () => {
     const broken: string[] = [];
     for (const article of articles) {
@@ -262,7 +280,12 @@ describe("자료실 내부 링크", () => {
     const unknown: string[] = [];
     for (const article of articles) {
       for (const link of linksOf(article)) {
-        if (link.path.startsWith("/articles/") || link.path.startsWith("/guide/")) {
+        // 이 셋은 위 테스트들이 slug·단계 실재까지 따로 검사한다
+        if (
+          link.path.startsWith("/articles/") ||
+          link.path.startsWith("/guide/") ||
+          link.path.startsWith("/showcase/")
+        ) {
           continue;
         }
         if (!ALLOWED_PATHS.has(link.path)) {

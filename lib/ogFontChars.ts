@@ -2,12 +2,14 @@ import fs from "fs";
 import path from "path";
 import { getAllArticles } from "./articles.ts";
 import { getAllStages } from "./guide.ts";
+import { getAllShowcases } from "./showcase.ts";
 
 /** OG 이미지 컴포넌트 소스 — 실제로 화면에 그려지는 한글을 여기서 뽑는다. */
 export const OG_SOURCES = [
   "app/opengraph-image.tsx",
   "app/articles/[slug]/opengraph-image.tsx",
   "app/guide/[stage]/opengraph-image.tsx",
+  "app/showcase/[slug]/opengraph-image.tsx",
 ];
 
 /** OG 컴포넌트 소스에 박힌 한글 — 문자열을 복사해두면 컴포넌트를 고쳤을 때
@@ -52,6 +54,9 @@ export function collectRenderedChars(): string {
   add(hangulInSources());
   for (const a of getAllArticles()) add(a.title);
   for (const s of getAllStages()) add(s.title);
+  // 사례 제목도 OG 카드에 그대로 그려진다. 사례 제목은 자료실 글과 어휘가
+  // 달라(실험 재료·기법 이름 등) 여기서 빠뜨리면 그 글자만 네모로 깨진다.
+  for (const s of getAllShowcases()) add(s.title);
 
   return [...needed].join("");
 }

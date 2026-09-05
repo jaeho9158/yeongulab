@@ -607,6 +607,7 @@ order에 빈 번호(search 1~5 등)가 있어도 정렬은 상대 순서라 문�
   4. 결과 크기를 출력. 50KB를 넘으면 경고(글자가 예상보다 많이 늘었다는 신호).
 - `package.json` scripts에 `"og-font": "node scripts/og-font-subset.ts"`.
 - 라운드 절차: 글 추가 → `npm test` 실패 확인 → `npm run og-font` → `npm test` 통과 → 커밋에 폰트 포함.
+- (구현 반영) google/fonts는 가변 폰트 `NotoSansKR[wght].ttf` 하나만 배포하므로, 정적 Bold/Medium이 없으면 스크립트가 fontTools `instantiateVariableFont`로 wght 700/500을 고정해 먼저 만든 뒤 서브셋한다. 안내 URL도 가변 폰트 raw 링크로 바꿨다.
 
 ### 6-4. 목록 번호 표시
 
