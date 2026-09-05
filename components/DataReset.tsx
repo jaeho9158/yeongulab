@@ -35,7 +35,7 @@ export function DataReset() {
       <button
         type="button"
         onClick={resetAll}
-        className="w-fit rounded-lg border border-line px-3.5 py-2 text-xs font-medium whitespace-nowrap text-red-600 transition hover:border-red-600"
+        className="w-fit rounded-lg border border-line px-3.5 py-2 text-xs font-medium whitespace-nowrap text-danger transition hover:border-danger"
       >
         전부 삭제하기
       </button>

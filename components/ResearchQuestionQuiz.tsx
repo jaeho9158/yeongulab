@@ -75,14 +75,18 @@ export function ResearchQuestionQuiz() {
         결과 보기
       </button>
 
-      {revealed && (
-        <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
-          <p className="font-medium text-ink">
-            {score} / {ITEMS.length} · {verdict().label}
-          </p>
-          <p className="mt-1.5 text-ink-soft">{verdict().detail}</p>
-        </div>
-      )}
+      {/* "결과 보기"를 눌러도 판정이 무음으로 나타나면 화면낭독기 사용자는
+          아무 일도 안 일어난 줄 안다 — ResearchDesignQuiz와 같은 처리다. */}
+      <div aria-live="polite">
+        {revealed && (
+          <div className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm">
+            <p className="font-medium text-ink">
+              {score} / {ITEMS.length} · {verdict().label}
+            </p>
+            <p className="mt-1.5 text-ink-soft">{verdict().detail}</p>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

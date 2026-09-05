@@ -149,7 +149,9 @@ export function StageRail({
               <Link
                 href={`/guide/${s.slug}`}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
+                // 레일이 overflow-y-auto라 좌우로도 클립돼, 바깥에 그리는 기본
+                // 포커스 링(+2px)의 왼쪽이 잘린다. SiteNav와 같은 처리다.
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition focus-visible:outline-offset-[-2px] ${
                   active
                     ? "bg-surface font-semibold text-ink"
                     : "text-ink-soft hover:bg-surface hover:text-ink"
@@ -204,7 +206,7 @@ export function StageRail({
                   // 때까지 기다리면 눌러도 반응이 없는 것처럼 보인다
                   onClick={() => setActiveId(sec.href.slice(1))}
                   aria-current={active ? "location" : undefined}
-                  className={`flex items-start gap-2 border-l-2 px-3 py-1.5 text-[13px] leading-snug transition ${
+                  className={`flex items-start gap-2 border-l-2 px-3 py-1.5 text-[13px] leading-snug transition focus-visible:outline-offset-[-2px] ${
                     active
                       ? "border-accent font-medium text-ink"
                       : "border-transparent text-ink-soft hover:border-accent hover:text-ink"

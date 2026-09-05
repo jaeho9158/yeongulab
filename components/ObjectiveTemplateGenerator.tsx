@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 import { josa } from "@/lib/korean";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 const METHODS = [
   { value: "실험적으로", label: "실험적으로" },
@@ -20,6 +21,7 @@ export function ObjectiveTemplateGenerator() {
   });
   const { what, condition, outcome, method } = form;
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   // 받침 유무에 맞춰 조사를 고른다 ("데이터가", "변화를", "집중력을")
   const subject = what ? `${what}${josa(what, ["이", "가"])}` : "[무엇]이";
@@ -35,10 +37,12 @@ export function ObjectiveTemplateGenerator() {
     if (!sentence) return;
     try {
       await navigator.clipboard.writeText(sentence);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시 — 사용자가 직접 드래그해서 복사 가능
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -64,7 +68,7 @@ export function ObjectiveTemplateGenerator() {
               setForm((prev) => ({ ...prev, what: e.target.value }))
             }
             placeholder="예: 특정 청각 자극"
-            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
         <div>
@@ -81,7 +85,7 @@ export function ObjectiveTemplateGenerator() {
               setForm((prev) => ({ ...prev, condition: e.target.value }))
             }
             placeholder="예: 20분간 청취했을 때"
-            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
         <div>
@@ -98,7 +102,7 @@ export function ObjectiveTemplateGenerator() {
               setForm((prev) => ({ ...prev, outcome: e.target.value }))
             }
             placeholder="예: 뇌파 동조와 집중력 향상"
-            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
         <div>
@@ -139,6 +143,9 @@ export function ObjectiveTemplateGenerator() {
       >
         {copied ? "복사됨" : "문장 복사하기"}
       </button>
+      <p aria-live="polite" className="mt-2 text-xs text-ink-soft">
+        {copyFailed && COPY_FAILED_MESSAGE}
+      </p>
     </section>
   );
 }

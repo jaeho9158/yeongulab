@@ -19,6 +19,57 @@ describe("parseNumberListDetailed", () => {
   it("빈 입력은 빈 배열", () => {
     expect(parseNumberListDetailed("  ").values).toEqual([]);
   });
+
+  // --- 천 단위 쉼표 회귀 (엑셀/구글시트 붙여넣기) ---
+  it("엑셀에서 붙여넣은 천 단위 쉼표를 하나의 수로 읽는다", () => {
+    const r = parseNumberListDetailed("1,200 1,500 1,350");
+    expect(r.values).toEqual([1200, 1500, 1350]);
+    expect(r.droppedCount).toBe(0);
+    expect(r.thousandsMergedCount).toBe(3);
+  });
+  it("쉼표를 값 구분자로 쓰던 기존 입력은 그대로 동작한다", () => {
+    const r = parseNumberListDetailed("12,15,14");
+    expect(r.values).toEqual([12, 15, 14]);
+    expect(r.thousandsMergedCount).toBe(0);
+    expect(r.ambiguousCommaCount).toBe(0);
+  });
+  it("쉼표+공백 구분자도 그대로 (1, 200 은 두 값)", () => {
+    expect(parseNumberListDetailed("1, 200, 3").values).toEqual([1, 200, 3]);
+  });
+  it("천 단위 형식을 어긴 덩어리가 하나라도 있으면 입력 전체를 구분자로 본다", () => {
+    const r = parseNumberListDetailed("1,200 12,15");
+    expect(r.values).toEqual([1, 200, 12, 15]);
+    expect(r.thousandsMergedCount).toBe(0);
+    // "1,200"은 천 단위로도 읽힐 수 있었다 → 모호함 신호를 남긴다
+    expect(r.ambiguousCommaCount).toBe(1);
+  });
+  it("모호한 단일 값은 천 단위로 읽되 신호를 남긴다", () => {
+    const r = parseNumberListDetailed("12,345");
+    expect(r.values).toEqual([12345]);
+    expect(r.thousandsMergedCount).toBe(1);
+  });
+  it("음수·소수·백만 단위도 천 단위 쉼표로 읽는다", () => {
+    expect(parseNumberListDetailed("-1,234.5 1,234,567").values).toEqual([
+      -1234.5, 1234567,
+    ]);
+  });
+  it("3자리가 아닌 그룹은 천 단위가 아니다 (경계)", () => {
+    expect(parseNumberListDetailed("1,2345").values).toEqual([1, 2345]);
+    expect(parseNumberListDetailed("0,123").values).toEqual([0, 123]);
+  });
+  it("탭·여러 줄바꿈·전각 공백·전각 쉼표 혼합", () => {
+    const r = parseNumberListDetailed("1,200\t1,500\n\n　1，350");
+    expect(r.values).toEqual([1200, 1500, 1350]);
+    expect(r.droppedCount).toBe(0);
+  });
+  it("전각 쉼표를 구분자로 쓴 경우도 그대로 (전각 정규화 확인)", () => {
+    expect(parseNumberListDetailed("12，15、14").values).toEqual([12, 15, 14]);
+  });
+  it("천 단위 모드에서도 숫자가 아닌 토큰은 dropped로 센다", () => {
+    const r = parseNumberListDetailed("1,200 abc 1,500");
+    expect(r.values).toEqual([1200, 1500]);
+    expect(r.droppedCount).toBe(1);
+  });
 });
 
 describe("tTestTwoTailedP", () => {

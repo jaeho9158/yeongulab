@@ -38,7 +38,10 @@ export function ChecklistCard({
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-ink">체크리스트</h2>
+        {/* 체크할 때마다 바뀌는 진행도 — 알리지 않으면 화면낭독기 사용자는
+            몇 개를 끝냈는지 알 수 없다(LengthChecker와 같은 처리). */}
         <span
+          aria-live="polite"
           className="text-xs text-ink-soft"
           suppressHydrationWarning
         >

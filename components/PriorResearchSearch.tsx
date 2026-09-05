@@ -113,7 +113,7 @@ export function PriorResearchSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="예: microplastic water treatment"
-          className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+          className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
         />
         <button
           type="submit"
@@ -142,7 +142,10 @@ export function PriorResearchSearch() {
               setQuery(example);
               void runSearch(example);
             }}
-            className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft transition hover:border-accent hover:text-ink disabled:opacity-50"
+            // ::before로 히트 영역만 세로로 넓혀 44px급을 만든다 — 칩 자체를
+            // 키우면 예시 줄의 시각 비중이 검색 폼보다 커진다. 가로로는
+            // 넓히지 않는다(칩 간격이 6px이라 옆 칩과 히트 영역이 겹친다).
+            className="relative rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft transition before:absolute before:inset-x-0 before:-inset-y-2 before:content-[''] hover:border-accent hover:text-ink disabled:opacity-50"
           >
             {example}
           </button>
@@ -154,6 +157,17 @@ export function PriorResearchSearch() {
           {ERROR_MESSAGES[errorKind]}
         </p>
       )}
+
+      {/* 네트워크 지연이 있는 유일한 도구라, 화면낭독기 사용자는 버튼을 누른 뒤
+          결과가 왔는지조차 알 수 없다. 검색 중·결과 개수·"결과 없음"을 한
+          영역에 모아 polite로 알린다. 오류는 위의 role="alert"가 따로 맡는다. */}
+      <div aria-live="polite" className="sr-only">
+        {status === "loading" && "검색 중입니다."}
+        {status === "done" &&
+          (results.length > 0
+            ? `검색 결과 ${results.length}건을 찾았습니다.`
+            : "검색 결과가 없습니다.")}
+      </div>
 
       {status === "done" && results.length === 0 && (
         <p className="mt-4 text-sm text-ink-soft">

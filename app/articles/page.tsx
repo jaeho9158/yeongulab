@@ -62,7 +62,11 @@ export default function ArticlesPage() {
           <a
             key={key}
             href={`#${key}`}
-            className="shrink-0 rounded-full border border-line px-3 py-1.5 text-sm whitespace-nowrap text-ink-soft hover:text-ink"
+            // outline-offset을 음수로: nav가 overflow-x-auto라 overflow-y까지
+            // auto로 계산돼 바깥에 그리는 기본 포커스 링(+2px)이 위아래로
+            // 잘린다. SiteNav의 항목과 같은 처리다.
+            // min-h-11: px-3 py-1.5는 약 24~34px이라 터치 타겟이 작다.
+            className="flex min-h-11 shrink-0 items-center rounded-full border border-line px-3 py-1.5 text-sm whitespace-nowrap text-ink-soft transition hover:text-ink focus-visible:outline-offset-[-2px]"
           >
             {ARTICLE_CATEGORIES[key].label}
           </a>

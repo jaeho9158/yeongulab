@@ -176,7 +176,11 @@ export default function ExamplePage() {
           변수 표 (&lsquo;변수 정의표 만들기&rsquo; 도구로 복사한 형식)
         </p>
         <div className="mt-2 overflow-x-auto">
-          <table className="w-full text-sm">
+          {/* w-full이면 표가 컨테이너보다 넓어질 수 없어 overflow-x-auto가 절대
+              발동하지 않고 칸만 눌린다(320px에서 3열 셀이 세로로 접힘).
+              min-w-max로 내용만큼 넓어지게 해야 좁은 화면에서 실제로 가로
+              스크롤된다 — app/guide/[stage]/page.tsx의 MDX 표와 같은 처리다. */}
+          <table className="min-w-max text-sm">
             <thead>
               <tr className="border-b border-line text-left text-ink">
                 <th className="py-2 pr-4 font-semibold">변수명</th>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 const CAPTION_FORMAT_RE = /^(Figure|Fig\.|Table|그림|표)\s*\d+[.:]/;
 
@@ -19,6 +20,7 @@ export function FigureCaptionHelper() {
   });
   const { kind, number, desc, checkText } = form;
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [checked, setChecked] = useState(false);
 
   const assembled = desc ? `${kind} ${number}. ${desc}` : "";
@@ -27,10 +29,12 @@ export function FigureCaptionHelper() {
     if (!assembled) return;
     try {
       await navigator.clipboard.writeText(assembled);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -87,7 +91,7 @@ export function FigureCaptionHelper() {
               setForm((prev) => ({ ...prev, desc: e.target.value }))
             }
             placeholder="설명 (예: 조건별 성장 속도 비교)"
-            className="mt-1 block w-full min-w-0 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="mt-1 block w-full min-w-0 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
         </div>
       </div>
@@ -102,6 +106,9 @@ export function FigureCaptionHelper() {
           >
             {copied ? "복사됨" : "복사"}
           </button>
+          <p aria-live="polite" className="text-xs text-ink-soft">
+            {copyFailed && COPY_FAILED_MESSAGE}
+          </p>
         </div>
       )}
 
@@ -118,7 +125,7 @@ export function FigureCaptionHelper() {
               setChecked(false);
             }}
             placeholder="예: 그림 1. 조건별 성장 속도 비교"
-            className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+            className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
           />
           <button
             type="button"

@@ -128,7 +128,7 @@ export function PlanBackup() {
           파일로 백업해두면 다른 기기·브라우저에서 불러와 이어갈 수 있습니다.
         </p>
         {status === "error" && (
-          <p className="mt-2 text-xs text-red-600" role="alert">
+          <p className="mt-2 text-xs text-danger" role="alert">
             {errorMessage}
           </p>
         )}

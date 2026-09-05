@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSeededState } from "@/lib/useSeededState";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 const STORAGE_KEY = "research-guide:disclosure";
 
@@ -60,6 +61,7 @@ export function DisclosureGenerator() {
     return { usage: {}, toolName: "" };
   });
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const hydrated = seeded !== null;
   const usage = seeded?.usage ?? {};
   const toolName = seeded?.toolName ?? "";
@@ -99,10 +101,12 @@ export function DisclosureGenerator() {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -165,6 +169,9 @@ export function DisclosureGenerator() {
           >
             {copied ? "복사됨" : "복사"}
           </button>
+          <p aria-live="polite" className="mt-2 text-xs text-ink-soft">
+            {copyFailed && COPY_FAILED_MESSAGE}
+          </p>
         </div>
       )}
     </section>

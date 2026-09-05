@@ -1,3 +1,5 @@
+import { tokenizeNumberList } from "./stats";
+
 /**
  * 간이 차트의 순수 로직 — SimpleChart(SVG 렌더링)에서 분리해 단위 테스트한다.
  */
@@ -9,7 +11,12 @@
  */
 export function parsePairs(labelsText: string, valuesText: string) {
   const labelTokens = labelsText.split(/[\n,]+/).map((s) => s.trim());
-  const valueTokens = valuesText.split(/[\n,]+/).map((s) => s.trim());
+  // 값 쪽은 숫자이므로 stats의 토크나이저를 그대로 쓴다 — 엑셀에서 붙여넣은
+  // `1,200`이 1과 200으로 쪼개져 뒤 항목명이 통째로 밀리는 문제를 막는다.
+  // (항목명 쪽은 쉼표가 이 도구의 기본 구분자이고 라벨은 숫자가 아니므로
+  //  천 단위 판정을 적용하지 않는다. 라벨 안의 쉼표는 여전히 구분자다.)
+  const { tokens: valueTokens, thousandsMergedCount } =
+    tokenizeNumberList(valuesText);
   const n = Math.max(labelTokens.length, valueTokens.length);
   const labels: string[] = [];
   const values: number[] = [];
@@ -28,7 +35,7 @@ export function parsePairs(labelsText: string, valuesText: string) {
       droppedCount++;
     }
   }
-  return { labels, values, droppedCount };
+  return { labels, values, droppedCount, thousandsMergedCount };
 }
 
 function polarToXY(cx: number, cy: number, r: number, angle: number) {

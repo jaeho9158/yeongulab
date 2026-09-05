@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 
 type Row = { name: string; role: "독립변수" | "종속변수" | "통제변수"; note: string };
 
@@ -12,6 +13,7 @@ export function VariableTableBuilder() {
     { name: "", role: "독립변수", note: "" },
   ]);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   function update(i: number, patch: Partial<Row>) {
     setRows(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
@@ -35,10 +37,12 @@ export function VariableTableBuilder() {
       .join("\n");
     try {
       await navigator.clipboard.writeText(`${header}\n${body}`);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -58,7 +62,7 @@ export function VariableTableBuilder() {
               onChange={(e) => update(i, { name: e.target.value })}
               placeholder="변수명 (예: 조명 세기)"
               aria-label={`${i + 1}번째 변수 이름`}
-              className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
             />
             <select
               value={row.role}
@@ -79,7 +83,7 @@ export function VariableTableBuilder() {
               onChange={(e) => update(i, { note: e.target.value })}
               placeholder="설명/측정 방법"
               aria-label={`${i + 1}번째 변수 설명/측정 방법`}
-              className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
             />
             <button
               type="button"
@@ -110,6 +114,9 @@ export function VariableTableBuilder() {
           {copied ? "복사됨" : "표로 복사하기"}
         </button>
       </div>
+      <p aria-live="polite" className="mt-2 text-xs text-ink-soft">
+        {copyFailed && COPY_FAILED_MESSAGE}
+      </p>
     </section>
   );
 }

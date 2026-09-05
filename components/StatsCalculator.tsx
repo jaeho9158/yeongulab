@@ -21,8 +21,17 @@ export function StatsCalculator() {
   }>("stats-calculator", { mode: "ttest", textA: "", textB: "" });
   const { mode, textA, textB } = inputs;
   const [error, setError] = useState<string | null>(null);
-  const [resultCopied, setResultCopied] = useState(false);
+  const [resultCopied, setResultCopied] = useState<"idle" | "done" | "failed">(
+    "idle",
+  );
   const [dropWarning, setDropWarning] = useState<string | null>(null);
+  // 쉼표를 어떻게 읽었는지 알려주는 두 층: 안내(천 단위로 합침)와 경고(해석이 갈림).
+  // 심각도가 다르므로 한 문자열로 합치지 않고 따로 둔다.
+  const [thousandsNotice, setThousandsNotice] = useState<string | null>(null);
+  const [ambiguityWarning, setAmbiguityWarning] = useState<string | null>(null);
+  // 입력을 고친 뒤 옛 결과가 남아 있으면 학생이 그걸 새 결과로 믿고 베낀다.
+  // 그래서 결과를 지우되, 그냥 사라지면 당황하므로 안내 문구로 자리를 채운다.
+  const [staleNotice, setStaleNotice] = useState(false);
   const [ttestResult, setTtestResult] = useState<{
     value: number;
     df: number;
@@ -52,11 +61,31 @@ export function StatsCalculator() {
     setRegressionResult(null);
     setError(null);
     setDropWarning(null);
+    setThousandsNotice(null);
+    setAmbiguityWarning(null);
+    setStaleNotice(false);
+  }
+
+  // 입력이 바뀌면 화면에 남은 결과는 더 이상 이 입력의 결과가 아니다.
+  function invalidateResult() {
+    // 여러 번 고쳐도 안내는 유지된다 — 다시 계산할 때까지 결과 자리를 지킨다
+    const hadResult = ttestResult !== null || regressionResult !== null;
+    setStaleNotice((prev) => prev || hadResult);
+    setTtestResult(null);
+    setRegressionResult(null);
+    setError(null);
+    setDropWarning(null);
+    setThousandsNotice(null);
+    setAmbiguityWarning(null);
+    setResultCopied("idle");
   }
 
   function compute() {
+    setStaleNotice(false);
     setError(null);
     setDropWarning(null);
+    setThousandsNotice(null);
+    setAmbiguityWarning(null);
     setTtestResult(null);
     setRegressionResult(null);
     const parsedA = parseNumberListDetailed(textA);
@@ -66,6 +95,26 @@ export function StatsCalculator() {
     const dropped = parsedA.droppedCount + parsedB.droppedCount;
     if (dropped > 0) {
       setDropWarning(`숫자로 읽지 못한 값 ${dropped}개는 제외했습니다.`);
+    }
+    // 쉼표는 천 단위 구분자로도, 값 구분자로도 읽힌다. 어느 쪽으로 읽었는지
+    // 보여줘야 학생이 잘못된 해석(예: 1,200이 1과 200으로 쪼개짐)을 알아챈다.
+    const nameA = mode === "ttest" ? "그룹 A" : "변수 X";
+    const nameB = mode === "ttest" ? "그룹 B" : "변수 Y";
+    const merged: string[] = [];
+    if (parsedA.thousandsMergedCount > 0) merged.push(nameA);
+    if (parsedB.thousandsMergedCount > 0) merged.push(nameB);
+    if (merged.length > 0) {
+      setThousandsNotice(
+        `${merged.join("·")}의 쉼표를 천 단위 구분으로 읽었습니다(1,200 → 1200). 값을 구분하려면 공백이나 줄바꿈을 쓰세요.`,
+      );
+    }
+    const ambiguous: string[] = [];
+    if (parsedA.ambiguousCommaCount > 0) ambiguous.push(nameA);
+    if (parsedB.ambiguousCommaCount > 0) ambiguous.push(nameB);
+    if (ambiguous.length > 0) {
+      setAmbiguityWarning(
+        `${ambiguous.join("·")}의 쉼표 사용이 일관되지 않아 값 구분자로 읽었습니다(1,200 → 1과 200). 천 단위 표기라면 쉼표를 지우고 다시 계산하세요.`,
+      );
     }
 
     if (mode === "ttest") {
@@ -129,6 +178,12 @@ export function StatsCalculator() {
 
   const ttestLabel = mode === "ttest" ? "t" : "r";
 
+  // p.toFixed(4)는 아주 작은 p를 "0.0000"으로 적어 존재할 수 없는 값을 만든다.
+  // APA 관례: .001 미만이면 부등호로, 그 외에는 소수 셋째 자리(앞 0 생략).
+  function formatP(p: number): string {
+    return p < 0.001 ? "p < .001" : `p = ${p.toFixed(3).replace(/^0/, "")}`;
+  }
+
   const groupSummary = ttestResult?.groups
     ? `그룹 A: M = ${ttestResult.groups.meanA.toFixed(2)}, SD = ${ttestResult.groups.sdA.toFixed(2)}, n = ${ttestResult.groups.nA}; 그룹 B: M = ${ttestResult.groups.meanB.toFixed(2)}, SD = ${ttestResult.groups.sdB.toFixed(2)}, n = ${ttestResult.groups.nB}; 평균 차이 = ${ttestResult.groups.meanDiff.toFixed(2)}, d = ${ttestResult.groups.cohenD.toFixed(2)}`
     : "";
@@ -136,18 +191,19 @@ export function StatsCalculator() {
   async function copyResult() {
     let summary = "";
     if (ttestResult) {
-      const testLine = `${ttestLabel} = ${ttestResult.value.toFixed(3)}, df = ${ttestResult.df.toFixed(1)}, p = ${ttestResult.p.toFixed(4)}`;
+      const testLine = `${ttestLabel} = ${ttestResult.value.toFixed(3)}, df = ${ttestResult.df.toFixed(1)}, ${formatP(ttestResult.p)}`;
       summary = groupSummary ? `${groupSummary}; ${testLine}` : testLine;
     } else if (regressionResult) {
-      summary = `Y = ${regressionResult.slope.toFixed(3)}X ${regressionResult.intercept >= 0 ? "+" : "-"} ${Math.abs(regressionResult.intercept).toFixed(3)}, R² = ${regressionResult.r2.toFixed(3)}, p = ${regressionResult.p.toFixed(4)}`;
+      summary = `Y = ${regressionResult.slope.toFixed(3)}X ${regressionResult.intercept >= 0 ? "+" : "-"} ${Math.abs(regressionResult.intercept).toFixed(3)}, R² = ${regressionResult.r2.toFixed(3)}, ${formatP(regressionResult.p)}`;
     }
     if (!summary) return;
     try {
       await navigator.clipboard.writeText(summary);
-      setResultCopied(true);
-      setTimeout(() => setResultCopied(false), 1500);
+      setResultCopied("done");
+      setTimeout(() => setResultCopied("idle"), 1500);
     } catch {
-      // 클립보드 접근 실패 시 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 엉뚱한 내용을 붙여넣는다
+      setResultCopied("failed");
     }
   }
 
@@ -208,9 +264,11 @@ export function StatsCalculator() {
           <textarea
             id="stats-values-a"
             value={textA}
-            onChange={(e) =>
-              setInputs((prev) => ({ ...prev, textA: e.target.value }))
-            }
+            onChange={(e) => {
+              const next = e.target.value;
+              setInputs((prev) => ({ ...prev, textA: next }));
+              invalidateResult();
+            }}
             placeholder="예: 12, 15, 14, 18, 13"
             rows={4}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
@@ -223,9 +281,11 @@ export function StatsCalculator() {
           <textarea
             id="stats-values-b"
             value={textB}
-            onChange={(e) =>
-              setInputs((prev) => ({ ...prev, textB: e.target.value }))
-            }
+            onChange={(e) => {
+              const next = e.target.value;
+              setInputs((prev) => ({ ...prev, textB: next }));
+              invalidateResult();
+            }}
             placeholder="예: 22, 19, 25, 21, 20"
             rows={4}
             className="mt-1 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
@@ -245,7 +305,23 @@ export function StatsCalculator() {
       </button>
 
       <div aria-live="polite">
+        {staleNotice && (
+          <p className="mt-3 text-sm text-ink-soft">
+            입력이 바뀌었습니다. 다시 계산하세요.
+          </p>
+        )}
+
         {error && <p className="mt-3 text-sm text-ink-soft">{error}</p>}
+
+        {ambiguityWarning && (
+          <p className="mt-2 text-xs font-medium text-danger">
+            {ambiguityWarning}
+          </p>
+        )}
+
+        {thousandsNotice && (
+          <p className="mt-2 text-xs text-ink-soft">{thousandsNotice}</p>
+        )}
 
         {dropWarning && (
           <p className="mt-2 text-xs text-ink-soft">{dropWarning}</p>
@@ -269,7 +345,7 @@ export function StatsCalculator() {
                 )}
                 <p>
                   {ttestLabel} = {ttestResult.value.toFixed(3)}, df ={" "}
-                  {ttestResult.df.toFixed(1)}, p = {ttestResult.p.toFixed(4)}
+                  {ttestResult.df.toFixed(1)}, {formatP(ttestResult.p)}
                 </p>
               </div>
               <button
@@ -277,10 +353,15 @@ export function StatsCalculator() {
                 onClick={copyResult}
                 className="-my-2 shrink-0 px-2 py-2 text-xs text-ink-soft hover:text-ink"
               >
-                {resultCopied ? "복사됨" : "결과 복사"}
+                {resultCopied === "done" ? "복사됨" : "결과 복사"}
               </button>
             </div>
             <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
+            {resultCopied === "failed" && (
+              <p className="mt-1 text-xs text-ink-soft">
+                복사하지 못했습니다. 위 내용을 직접 선택해 복사해주세요.
+              </p>
+            )}
             <CaveatBlock />
           </div>
         )}
@@ -292,19 +373,24 @@ export function StatsCalculator() {
                 Y = {regressionResult.slope.toFixed(3)}X{" "}
                 {regressionResult.intercept >= 0 ? "+" : "-"}{" "}
                 {Math.abs(regressionResult.intercept).toFixed(3)}, R² ={" "}
-                {regressionResult.r2.toFixed(3)}, p = {regressionResult.p.toFixed(4)}
+                {regressionResult.r2.toFixed(3)}, {formatP(regressionResult.p)}
               </p>
               <button
                 type="button"
                 onClick={copyResult}
                 className="-my-2 shrink-0 px-2 py-2 text-xs text-ink-soft hover:text-ink"
               >
-                {resultCopied ? "복사됨" : "결과 복사"}
+                {resultCopied === "done" ? "복사됨" : "결과 복사"}
               </button>
             </div>
             <p className="mt-1.5 text-ink-soft">
               {verdict(mode, regressionResult.p)}
             </p>
+            {resultCopied === "failed" && (
+              <p className="mt-1 text-xs text-ink-soft">
+                복사하지 못했습니다. 위 내용을 직접 선택해 복사해주세요.
+              </p>
+            )}
             <CaveatBlock />
           </div>
         )}

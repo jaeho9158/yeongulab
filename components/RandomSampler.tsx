@@ -11,14 +11,21 @@ export function RandomSampler() {
   });
   const { text, count } = form;
   const [picked, setPicked] = useState<string[] | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
 
   const items = text
     .split(/[\n,]+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
+  // 명단이든 인원 수든 입력이 바뀌면 화면의 결과는 더 이상 그 입력의 결과가 아니다.
+  function invalidatePicked() {
+    setPicked(null);
+    setCopied("idle");
+  }
+
   function draw() {
+    setCopied("idle");
     const n = Math.min(Number(count) || 0, items.length);
     if (n <= 0) {
       setPicked([]);
@@ -31,10 +38,11 @@ export function RandomSampler() {
     if (!picked || picked.length === 0) return;
     try {
       await navigator.clipboard.writeText(picked.join(", "));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setCopied("done");
+      setTimeout(() => setCopied("idle"), 1500);
     } catch {
-      // 클립보드 접근 불가 — 조용히 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 엉뚱한 내용을 붙여넣는다
+      setCopied("failed");
     }
   }
 
@@ -52,11 +60,11 @@ export function RandomSampler() {
         onChange={(e) => {
           const next = e.target.value;
           setForm((prev) => ({ ...prev, text: next }));
-          setPicked(null);
+          invalidatePicked();
         }}
         placeholder={"1반 1번\n1반 2번\n1반 3번\n..."}
         rows={5}
-        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />
 
       <div className="mt-3 flex items-center gap-2">
@@ -73,6 +81,7 @@ export function RandomSampler() {
           onChange={(e) => {
             const next = e.target.value;
             setForm((prev) => ({ ...prev, count: next }));
+            invalidatePicked();
           }}
           min={1}
           className="w-20 rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink focus:border-accent"
@@ -100,8 +109,13 @@ export function RandomSampler() {
                 onClick={copyPicked}
                 className="mt-2 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink-soft transition hover:border-accent"
               >
-                {copied ? "복사됨" : "결과 복사"}
+                {copied === "done" ? "복사됨" : "결과 복사"}
               </button>
+              {copied === "failed" && (
+                <p className="mt-1.5 text-xs text-ink-soft">
+                  복사하지 못했습니다. 위 내용을 직접 선택해 복사해주세요.
+                </p>
+              )}
             </>
           )}
         </div>

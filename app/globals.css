@@ -9,6 +9,10 @@
   --line: #e6e7e9;
   --accent: #2f6f4f; /* 차분한 그린 accent, 포인트로만 사용 */
   --accent-contrast: #ffffff;
+  /* 오류 문구 색 — 라이트/다크에서 각각 AA(4.5:1)를 넘겨야 해서 토큰으로 둔다.
+     text-xs로 쓰이므로 큰 글씨 예외(3:1)를 적용할 수 없다.
+     라이트 #dc2626 대 --bg #ffffff = 4.83:1 */
+  --danger: #dc2626;
 
   --font-display: system-ui, -apple-system, "Apple SD Gothic Neo",
     "Malgun Gothic", sans-serif;
@@ -26,6 +30,7 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-contrast: var(--accent-contrast);
+  --color-danger: var(--danger);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-label: var(--font-label);
@@ -41,6 +46,9 @@
     --line: #2a2c2f;
     --accent: #4fa377;
     --accent-contrast: #0a1410;
+    /* #dc2626은 어두운 --bg(#101113)에서 3.91:1로 AA 미달이라
+       다크에서는 밝은 빨강으로 올린다 — #f87171 대 #101113 = 6.83:1 */
+    --danger: #f87171;
   }
 }
 
@@ -53,6 +61,7 @@
   --line: #2a2c2f;
   --accent: #4fa377;
   --accent-contrast: #0a1410;
+  --danger: #f87171; /* 다크에서 AA를 넘기는 오류색 — 6.83:1 */
 }
 
 body {

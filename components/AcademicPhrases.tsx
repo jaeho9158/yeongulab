@@ -8,6 +8,7 @@ import {
   type Phrase,
   type PhraseSection,
 } from "@/lib/academicPhrases";
+import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
 import { usePersistentState } from "@/lib/usePersistentState";
 
 type Hit = Phrase & { section: PhraseSection };
@@ -25,6 +26,7 @@ export function AcademicPhrases() {
   });
   const { section, query } = form;
   const [copied, setCopied] = useState<string | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const trimmed = query.trim().toLowerCase();
   const searching = trimmed.length > 0;
@@ -42,10 +44,12 @@ export function AcademicPhrases() {
   async function copy(en: string) {
     try {
       await navigator.clipboard.writeText(en);
+      setCopyFailed(false);
       setCopied(en);
       setTimeout(() => setCopied(null), 1500);
     } catch {
-      // 클립보드 접근 불가 — 조용히 무시
+      // 조용히 넘기면 사용자가 복사된 줄 알고 이전 클립보드 내용을 붙여넣는다
+      setCopyFailed(true);
     }
   }
 
@@ -74,7 +78,7 @@ export function AcademicPhrases() {
             setForm((prev) => ({ ...prev, query: e.target.value }))
           }
           placeholder="예: 한계, limitation, 가설"
-          className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+          className="mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
         />
       </div>
 
@@ -142,6 +146,10 @@ export function AcademicPhrases() {
           ))}
         </ul>
       )}
+
+      <p aria-live="polite" className="mt-3 text-xs text-ink-soft">
+        {copyFailed && COPY_FAILED_MESSAGE}
+      </p>
     </section>
   );
 }

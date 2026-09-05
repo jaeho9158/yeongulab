@@ -3,7 +3,7 @@
 import { usePersistentState } from "@/lib/usePersistentState";
 
 export function LengthChecker() {
-  const [text, setText] = usePersistentState("length-checker", "");
+  const [text, setText, saveError] = usePersistentState("length-checker", "");
 
   const withSpaces = text.length;
   const withoutSpaces = text.replace(/\s/g, "").length;
@@ -27,8 +27,11 @@ export function LengthChecker() {
         onChange={(e) => setText(e.target.value)}
         placeholder="초록이나 본문을 붙여넣어보세요."
         rows={8}
-        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-accent"
+        className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />
+      <p aria-live="polite" className="mt-2 text-xs leading-relaxed text-danger">
+        {saveError}
+      </p>
 
       <div
         aria-live="polite"
