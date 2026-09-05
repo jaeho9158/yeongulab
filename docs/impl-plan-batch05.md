@@ -1643,9 +1643,17 @@ describe("가이드 체크리스트의 도구 인용", () => {
 
 2. **`StageTools`의 해시 재구독** — `/tools`에서 같은 단계의 다른 도구를 **연속으로** 클릭할 때 아코디언이 다시 펼쳐지는지 확인하지 않았다(`StageTools.tsx:140-142`는 마운트 시점 시드로 보인다). 안 되면 A1의 체감 가치가 절반이 된다. **구현 시 실제로 눌러 보고, 깨져 있으면 백로그 신규 항목으로 올려라 — A1 커밋에서 고치지 마라.**
 
-3. **`relatedStage`가 없는 자료실 글의 수** — 세지 않았다. O7의 커버리지가 이 수에 달려 있다. `grep -L "relatedStage" content/articles/*.mdx | wc -l`로 확인 후, 절반 이상이면 폴백(`/tools` 링크 한 줄)을 넣을지 재판단.
+3. **`relatedStage`가 없는 자료실 글의 수** — ~~세지 않았다~~ **[라운드 9 검수에서 실측: 0 / 31]** 31편 전부 `relatedStage`가 있다. **O7에 폴백이 필요 없다.** 이 항목은 닫힌다.
 
-4. **`usePersistentState` 키 15개 중 5개의 실제 리터럴** — 다인수/제네릭 호출이라 한 줄 grep으로 못 잡았다(CitationFormatter:31, FigureCaptionHelper:10, ResearchDesignQuiz:167, SimpleChart:37, StatsCalculator:17). **T8 구현 전 `grep -rn -A2 "usePersistentState[<(]" components/`로 확정하라.** 내가 `TOOL_STATE_KEYS`에 넣은 5개 이름은 **추측이다.**
+4. **`usePersistentState` 키** — ~~추측이다~~ **[라운드 9 검수에서 실측 완료]** `TOOL_STATE_KEYS`를 아래 12개로 확정한다:
+
+```
+academic-phrases · citation-form · design-quiz · imrad-draft · length-checker
+objective-template · random-sampler · sample-size · showcase-draft
+speech-timer · survey-bias · variable-table
+```
+
+   다만 다인수/제네릭 호출(CitationFormatter:31, FigureCaptionHelper:10, ResearchDesignQuiz:167, SimpleChart:37, StatsCalculator:17)이 이 grep에 안 잡혔을 수 있다. **T8 구현 첫 단계에서 호출부 15곳을 한 줄씩 눈으로 확인하라.** 자동 추출을 믿지 마라 — T8의 목적 자체가 "손으로 적은 목록과 코드의 불일치"를 막는 것이다.
 
 5. **S7의 NC 여부** — 운영자 결정이다. 나는 BY-NC-SA를 추천했으나, 교육기관 등재를 노린다면 BY-SA여야 한다. **NC는 나중에 풀 수 있지만 채울 수는 없다**는 것이 내 판단의 근거 전부다. 되돌릴 수 없는 선택이 아니라는 점이 중요하다.
 
