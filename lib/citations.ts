@@ -95,22 +95,26 @@ export function readReferences(): Reference[] {
   }
 }
 
-export function addReference(ref: Omit<Reference, "id">): Reference[] {
-  const next = [...readReferences(), { ...ref, id: generateId() }];
+/**
+ * 저장 결과. saved=false면 화면에는 반영됐지만 새로고침에 사라진다 —
+ * 호출부가 "저장됨"이라고 말하기 전에 반드시 확인해야 한다(K2).
+ */
+export type ReferenceWriteResult = { refs: Reference[]; saved: boolean };
+
+function writeReferences(next: Reference[]): ReferenceWriteResult {
   try {
     window.localStorage.setItem(REFERENCES_STORAGE_KEY, JSON.stringify(next));
+    return { refs: next, saved: true };
   } catch {
-    // 저장 실패해도 호출부에서 받은 next는 그대로 반환
+    // 화면 상태는 next로 진행하되, 저장 실패를 호출부에 그대로 넘긴다
+    return { refs: next, saved: false };
   }
-  return next;
 }
 
-export function removeReference(id: string): Reference[] {
-  const next = readReferences().filter((r) => r.id !== id);
-  try {
-    window.localStorage.setItem(REFERENCES_STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // 저장 실패해도 무시
-  }
-  return next;
+export function addReference(ref: Omit<Reference, "id">): ReferenceWriteResult {
+  return writeReferences([...readReferences(), { ...ref, id: generateId() }]);
+}
+
+export function removeReference(id: string): ReferenceWriteResult {
+  return writeReferences(readReferences().filter((r) => r.id !== id));
 }

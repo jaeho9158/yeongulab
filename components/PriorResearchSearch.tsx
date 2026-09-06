@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { addReference } from "@/lib/citations";
 import type { Paper, SearchSource } from "@/lib/paperSearch";
+import { PERSIST_ERROR_MESSAGE } from "@/lib/usePersistentState";
 
 const CLIENT_TIMEOUT_MS = 10000;
 
@@ -41,9 +42,10 @@ export function PriorResearchSearch() {
   const [results, setResults] = useState<Paper[]>([]);
   const [source, setSource] = useState<SearchSource | null>(null);
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
+  const [saveFailed, setSaveFailed] = useState(false);
 
   function save(paper: Paper) {
-    addReference({
+    const { saved: ok } = addReference({
       authors: paper.authors.map((a) => a.name).join(", "),
       year: paper.year ? String(paper.year) : "",
       title: paper.title,
@@ -51,6 +53,13 @@ export function PriorResearchSearch() {
       url: paper.url ?? "",
     });
     window.dispatchEvent(new Event("research-guide:references-updated"));
+    // 저장에 실패했으면 버튼을 "저장됨"으로 바꾸지 않는다 — 논문 10편을
+    // 저장하고 새로고침하면 전부 없어지는 게 이 버튼의 거짓말이었다(K2)
+    if (!ok) {
+      setSaveFailed(true);
+      return;
+    }
+    setSaveFailed(false);
     setSavedIds((prev) => ({ ...prev, [paper.paperId]: true }));
   }
 
@@ -161,6 +170,12 @@ export function PriorResearchSearch() {
       {/* 네트워크 지연이 있는 유일한 도구라, 화면낭독기 사용자는 버튼을 누른 뒤
           결과가 왔는지조차 알 수 없다. 검색 중·결과 개수·"결과 없음"을 한
           영역에 모아 polite로 알린다. 오류는 위의 role="alert"가 따로 맡는다. */}
+      {saveFailed && (
+        <p className="mt-3 text-xs text-danger" role="alert">
+          {PERSIST_ERROR_MESSAGE}
+        </p>
+      )}
+
       <div aria-live="polite" className="sr-only">
         {status === "loading" && "검색 중입니다."}
         {status === "done" &&

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePersistentState } from "@/lib/usePersistentState";
 import { addReference, formatAPA, formatIEEE } from "@/lib/citations";
 import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
+import { PERSIST_ERROR_MESSAGE } from "@/lib/usePersistentState";
 
 type CitationForm = {
   authors: string;
@@ -36,6 +37,7 @@ export function CitationFormatter() {
   const [copied, setCopied] = useState<"apa" | "ieee" | null>(null);
   const [copyFailed, setCopyFailed] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   function setField(field: keyof CitationForm, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -61,8 +63,14 @@ export function CitationFormatter() {
 
   function saveToReferences() {
     if (!hasInput) return;
-    addReference(ref);
+    const { saved: ok } = addReference(ref);
     window.dispatchEvent(new Event("research-guide:references-updated"));
+    // 저장에 실패했으면 "저장됨"으로 바꾸지 않는다(K2)
+    if (!ok) {
+      setSaveFailed(true);
+      return;
+    }
+    setSaveFailed(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -184,6 +192,9 @@ export function CitationFormatter() {
           </div>
           <p aria-live="polite" className="text-xs text-ink-soft">
             {copyFailed && COPY_FAILED_MESSAGE}
+          </p>
+          <p aria-live="polite" className="text-xs text-danger">
+            {saveFailed && PERSIST_ERROR_MESSAGE}
           </p>
           <button
             type="button"

@@ -102,5 +102,27 @@ describe("저장 실패 (S2)", () => {
     expect(readReferences()).toEqual([]);
   });
 
-  it.todo("저장 실패를 호출부가 알 수 있다 — K2");
+  it("addReference는 저장에 성공하면 saved=true와 새 목록을 준다", async () => {
+    installMockStorage();
+    const { addReference } = await import("../citations");
+    const r = addReference({ authors: "Kim", year: "2020", title: "T", source: "J" });
+    expect(r.saved).toBe(true);
+    expect(r.refs).toHaveLength(1);
+    expect(typeof r.refs[0].id).toBe("string");
+  });
+
+  it("addReference는 setItem이 throw하면 saved=false를 준다 (K2 회귀)", async () => {
+    installMockStorage({ failSetFrom: 1 });
+    const { addReference } = await import("../citations");
+    const r = addReference({ authors: "Kim", year: "2020", title: "T", source: "J" });
+    expect(r.saved).toBe(false);
+    // 화면용 목록은 살아 있어야 한다 — 입력이 사라지면 안 된다
+    expect(r.refs).toHaveLength(1);
+  });
+
+  it("removeReference도 저장 실패를 saved=false로 알린다", async () => {
+    installMockStorage({ failSetFrom: 1 });
+    const { removeReference } = await import("../citations");
+    expect(removeReference("nope").saved).toBe(false);
+  });
 });

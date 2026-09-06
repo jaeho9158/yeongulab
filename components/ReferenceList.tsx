@@ -15,6 +15,7 @@ export function ReferenceList() {
   const [seeded, setRefs] = useSeededState<Reference[]>(readReferences);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copyFailed, setCopyFailed] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
   const refs = seeded ?? [];
 
   useEffect(() => {
@@ -31,7 +32,11 @@ export function ReferenceList() {
   }, [setRefs]);
 
   function remove(id: string) {
-    setRefs(removeReference(id));
+    const { refs: next, saved } = removeReference(id);
+    // 화면은 먼저 지운다. 저장이 실패하면 아래 문구가 그 불일치를 서술한다 —
+    // 조용히 되돌리면 "지운 게 안 지워졌다"가 되어 더 혼란스럽다(K2)
+    setRefs(next);
+    setDeleteFailed(!saved);
   }
 
   async function copy(ref: Reference) {
@@ -94,6 +99,8 @@ export function ReferenceList() {
 
       <p aria-live="polite" className="mt-3 text-xs text-ink-soft">
         {copyFailed && COPY_FAILED_MESSAGE}
+        {deleteFailed &&
+          "삭제 상태를 저장하지 못했습니다. 새로고침하면 항목이 되돌아옵니다."}
       </p>
     </section>
   );
