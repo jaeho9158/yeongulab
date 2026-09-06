@@ -1,5 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
 import { formatAPA, formatIEEE } from "../citations";
+import { installMockStorage, restoreStorage } from "./_storage";
+
+afterEach(restoreStorage);
 
 const base = {
   authors: "Kim, J.",
@@ -62,14 +65,7 @@ describe("formatIEEE", () => {
 
 describe("readReferences 손상 데이터 필터 (#9)", () => {
   it("배열 아님·필드 누락·타입 불일치 항목을 거른다", async () => {
-    const { vi } = await import("vitest");
-    const store = new Map<string, string>();
-    vi.stubGlobal("window", {
-      localStorage: {
-        getItem: (k: string) => store.get(k) ?? null,
-        setItem: (k: string, v: string) => void store.set(k, v),
-      },
-    });
+    const { store } = installMockStorage();
     const { readReferences } = await import("../citations");
     const good = { id: "1", authors: "Kim", year: "2020", title: "T", source: "J" };
     store.set(
@@ -79,6 +75,32 @@ describe("readReferences 손상 데이터 필터 (#9)", () => {
     expect(readReferences()).toEqual([good]);
     store.set("research-guide:references", JSON.stringify({ not: "array" }));
     expect(readReferences()).toEqual([]);
-    vi.unstubAllGlobals();
   });
+});
+
+// § K1·K2가 202개 테스트를 통과한 이유는 "저장 실패를 거는 테스트가 경로마다
+// 필요한데 아무도 안 썼다"는 것이다. 아래는 그 방지선의 첫 조각 —
+// 예외가 밖으로 나가지 않는지만 본다. 실패를 호출부에 **알리는가**는 K2의 몫.
+describe("저장 실패 (S2)", () => {
+  it("addReference는 setItem이 throw해도 예외를 밖으로 내지 않는다", async () => {
+    installMockStorage({ failSetFrom: 1 });
+    const { addReference } = await import("../citations");
+    expect(() =>
+      addReference({ authors: "Kim", year: "2020", title: "T", source: "J" }),
+    ).not.toThrow();
+  });
+
+  it("removeReference는 setItem이 throw해도 예외를 밖으로 내지 않는다", async () => {
+    installMockStorage({ failSetFrom: 1 });
+    const { removeReference } = await import("../citations");
+    expect(() => removeReference("nope")).not.toThrow();
+  });
+
+  it("readReferences는 getItem이 throw해도 빈 배열을 준다", async () => {
+    installMockStorage({ failGet: true });
+    const { readReferences } = await import("../citations");
+    expect(readReferences()).toEqual([]);
+  });
+
+  it.todo("저장 실패를 호출부가 알 수 있다 — K2");
 });

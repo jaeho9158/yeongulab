@@ -68,3 +68,16 @@ describe("writeChecklist / countDone", () => {
     expect(countDone("topic", ITEMS, "ethics")).toBe(1);
   });
 });
+
+// § S2 — writeChecklist의 시그니처가 void라 실패를 알릴 통로가 없다(C4의 범위).
+describe("저장 실패 (S2)", () => {
+  it("writeChecklist는 setItem이 throw해도 예외를 밖으로 내지 않는다", async () => {
+    const { installMockStorage, restoreStorage } = await import("./_storage");
+    installMockStorage({ failSetFrom: 1 });
+    const { writeChecklist } = await import("../checklist");
+    expect(() => writeChecklist("topic", ["a", "b"], [true, false])).not.toThrow();
+    restoreStorage();
+  });
+
+  it.todo("저장 실패를 화면에 알린다 — C4");
+});
