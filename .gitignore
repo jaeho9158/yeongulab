@@ -46,3 +46,4 @@ devserver.log
 
 # OG 서브셋 폰트 원본(각 ~5MB) — scripts/og-font-subset.mts 참고
 assets/fonts/src/
+tsconfig.tsbuildinfo
