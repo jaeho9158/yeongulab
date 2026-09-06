@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSeededState } from "@/lib/useSeededState";
 import { COPY_FAILED_MESSAGE } from "@/lib/clipboard";
+import Link from "next/link";
 
 const STORAGE_KEY = "research-guide:disclosure";
 
@@ -16,6 +17,19 @@ const OPTIONS = [
   { key: "citations", label: "참고문헌 형식 정리" },
   { key: "slides", label: "발표자료/슬라이드 구성 제안" },
 ] as const;
+
+/**
+ * 04-research-ethics가 "해서는 안 되는 사용"으로 명시한 항목.
+ * 막지는 않는다(사이트 기조가 게이트를 두지 않는 쪽이다) — 대신
+ * 면책 문장에서 해당 조항을 빼고, 선택지 옆에 경고를 붙인다(U3).
+ *
+ * OPTIONS 바로 아래에 두는 이유: 새 선택지를 추가하는 사람이 이 표를
+ * 잊으면 조용히 예전 동작(고정 면책 문장)으로 돌아간다.
+ */
+const CAUTION_KEYS: Record<string, string> = {
+  brainstorm: "핵심 아이디어",
+  statInterpret: "분석 결과 해석",
+};
 
 type UsageLevel = "none" | "light" | "heavy";
 
@@ -85,10 +99,28 @@ export function DisclosureGenerator() {
 
   const today = hydrated ? new Date().toLocaleDateString("ko-KR") : "";
 
+  function usedAtLevel(key: string): boolean {
+    const lv = usage[key];
+    return lv === "light" || lv === "heavy";
+  }
+
+  // 면책 문장을 선택 내용에 맞춰 조립한다. 예전에는 무엇을 고르든
+  // "핵심 아이디어, 분석 결과 해석, 최종 결론은 저자가 직접 작성하였다"를
+  // 고정으로 붙여서, 브레인스토밍·결과 해석을 체크한 학생의 문장이 한 문장
+  // 안에서 앞뒤로 자기를 부정했다(U3).
+  //
+  // 항상 "…, 최종 결론은"으로 끝나므로 조사 처리가 필요 없다 — 순서를 바꾸지 마라.
+  const claimedParts = [
+    !usedAtLevel("brainstorm") && "연구의 핵심 아이디어",
+    !usedAtLevel("statInterpret") && "분석 결과 해석",
+    "최종 결론",
+  ].filter((v): v is string => typeof v === "string");
+  const disclaimer = `${claimedParts.join(", ")}은 저자가 직접 검토하고 작성하였다.`;
+
   const text =
     !hydrated || selected.length === 0
       ? ""
-      : `본 연구는 작성 과정에서 AI 도구${toolName ? `(${toolName})` : ""}를 다음 범위에서 활용하였다: ${selected.join(", ")}. 연구의 핵심 아이디어, 분석 결과 해석, 최종 결론은 저자가 직접 검토하고 작성하였다. (작성일: ${today})`;
+      : `본 연구는 작성 과정에서 AI 도구${toolName ? `(${toolName})` : ""}를 다음 범위에서 활용하였다: ${selected.join(", ")}. ${disclaimer} (작성일: ${today})`;
 
   function setLevel(key: string, level: UsageLevel) {
     setSeeded((prev) => ({
@@ -155,6 +187,21 @@ export function DisclosureGenerator() {
                 ))}
               </select>
             </div>
+            {CAUTION_KEYS[opt.key] && usedAtLevel(opt.key) && (
+              <p className="mt-1.5 text-xs leading-relaxed text-danger">
+                이 항목은{" "}
+                <Link
+                  href="/articles/research-ethics"
+                  className="underline underline-offset-2"
+                >
+                  연구윤리와 AI 활용
+                </Link>
+                에서 &lsquo;해서는 안 되는 사용&rsquo;으로 정리한 것입니다.
+                체크해도 문구는 만들어지지만, 아래 문장에서 &lsquo;
+                {CAUTION_KEYS[opt.key]}은 저자가 직접 작성하였다&rsquo;는 부분이
+                빠집니다.
+              </p>
+            )}
           </li>
         ))}
       </ul>

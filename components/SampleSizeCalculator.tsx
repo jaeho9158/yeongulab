@@ -14,6 +14,11 @@ const Z_TABLE: Record<string, number> = {
 // 오차범위를 퍼센트가 아닌 소수로 잘못 넣었다는 신호로 보는 편이 안전하다.
 const UNREALISTIC_N = 100_000;
 
+// 오차범위 상한. 근거: 여론조사 관행에서 ±10%는 이미 "참고용" 수준이고,
+// ±20%를 넘으면 "몇 명한테 물어야 하나"에 한 자릿수를 답하게 된다.
+// 위 UNREALISTIC_N과 대칭을 이루는 위쪽 방어선이다(L6).
+const MAX_MARGIN_PERCENT = 20;
+
 export function SampleSizeCalculator() {
   const [form, setForm] = usePersistentState("sample-size", {
     confidence: "95",
@@ -24,8 +29,14 @@ export function SampleSizeCalculator() {
   const { confidence, marginError, population, proportion } = form;
 
   const z = Z_TABLE[confidence] ?? 1.96;
-  const e = Number(marginError) / 100;
+  const marginPercent = Number(marginError);
+  const e = marginPercent / 100;
   const p = Number(proportion) / 100;
+
+  // e가 너무 '작을' 때는 UNREALISTIC_N이 잡지만 너무 '클' 때는 방어가 없었다.
+  // 500을 넣으면 "1명에게 물으면 됩니다"가 정답처럼 화면에 떴다(L6).
+  const marginTooLarge =
+    Number.isFinite(marginPercent) && marginPercent > MAX_MARGIN_PERCENT;
 
   // 모집단 칸은 "비워둠"(무한모집단으로 계산)과 "잘못 입력"을 구분해야 한다.
   // 예전에는 -100이나 "300명"이 조용히 무한모집단 공식으로 넘어가서,
@@ -43,7 +54,7 @@ export function SampleSizeCalculator() {
   }
 
   let result: number | null = null;
-  if (e > 0 && p > 0 && p < 1 && !populationInvalid) {
+  if (e > 0 && p > 0 && p < 1 && !populationInvalid && !marginTooLarge) {
     result = sampleSize(e);
   }
   // 오차범위를 소수로 착각한 경우에 대비해, 5%로 잡았을 때의 현실적인 대안을 함께 보여준다
@@ -142,6 +153,12 @@ export function SampleSizeCalculator() {
         {populationInvalid ? (
           <p className="text-ink-soft">
             모집단 크기를 숫자로 입력해주세요. 모르면 비워두시면 됩니다.
+          </p>
+        ) : marginTooLarge ? (
+          <p className="text-ink-soft">
+            허용 오차범위가 {marginPercent}%입니다. 퍼센트(%)로 입력했는지
+            확인해주세요 — {MAX_MARGIN_PERCENT}%를 넘는 오차범위는 조사
+            결과에서 읽어낼 수 있는 것이 거의 없습니다. 보통 3~5%를 씁니다.
           </p>
         ) : result !== null ? (
           <>

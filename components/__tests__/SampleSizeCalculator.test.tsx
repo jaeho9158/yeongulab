@@ -130,3 +130,39 @@ describe("SampleSizeCalculator", () => {
     expect(screen.getByText("오차범위와 예상 비율을 확인해주세요.")).toBeTruthy();
   });
 });
+
+// § L6 — 오차범위가 너무 '클' 때 방어가 없어 "1명"이 정답처럼 나왔다.
+describe("오차범위 상한 (L6)", () => {
+  async function setMargin(
+    user: ReturnType<typeof userEvent.setup>,
+    value: string,
+  ) {
+    const margin = screen.getByLabelText(/오차범위/);
+    await user.clear(margin);
+    await user.type(margin, value);
+  }
+
+  it("오차범위 500%에 '1명'이라고 답하지 않는다 (L6 회귀)", async () => {
+    const user = userEvent.setup();
+    render(<SampleSizeCalculator />);
+    await setMargin(user, "500");
+    expect(
+      await screen.findByText(/퍼센트\(%\)로 입력했는지/),
+    ).toBeTruthy();
+    expect(screen.queryByText(/1명/)).toBeNull();
+  });
+
+  it("오차범위 50%도 거부한다", async () => {
+    const user = userEvent.setup();
+    render(<SampleSizeCalculator />);
+    await setMargin(user, "50");
+    expect(await screen.findByText(/20%를 넘는/)).toBeTruthy();
+  });
+
+  it("오차범위 20%는 그대로 계산한다 (경계)", async () => {
+    const user = userEvent.setup();
+    render(<SampleSizeCalculator />);
+    await setMargin(user, "20");
+    expect(await screen.findByText(/응답을 받으면/)).toBeTruthy();
+  });
+});
