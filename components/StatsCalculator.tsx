@@ -7,6 +7,7 @@ import { CaveatBlock } from "./stats/CaveatBlock";
 import { GuideBlock } from "./stats/GuideBlock";
 import {
   parseNumberListDetailed,
+  parsePairedLists,
   pearsonCorrelation,
   simpleLinearRegression,
   welchTTest,
@@ -80,6 +81,34 @@ export function StatsCalculator() {
     setResultCopied("idle");
   }
 
+  function reportCommaReading(
+    nameA: string,
+    nameB: string,
+    mergedA: number,
+    mergedB: number,
+    ambigA: number,
+    ambigB: number,
+  ) {
+    // 쉼표는 천 단위 구분자로도, 값 구분자로도 읽힌다. 어느 쪽으로 읽었는지
+    // 보여줘야 학생이 잘못된 해석(예: 1,200이 1과 200으로 쪼개짐)을 알아챈다.
+    const merged: string[] = [];
+    if (mergedA > 0) merged.push(nameA);
+    if (mergedB > 0) merged.push(nameB);
+    if (merged.length > 0) {
+      setThousandsNotice(
+        `${merged.join("·")}의 쉼표를 천 단위 구분으로 읽었습니다(1,200 → 1200). 값을 구분하려면 공백이나 줄바꿈을 쓰세요.`,
+      );
+    }
+    const ambiguous: string[] = [];
+    if (ambigA > 0) ambiguous.push(nameA);
+    if (ambigB > 0) ambiguous.push(nameB);
+    if (ambiguous.length > 0) {
+      setAmbiguityWarning(
+        `${ambiguous.join("·")}의 쉼표 사용이 일관되지 않아 값 구분자로 읽었습니다(1,200 → 1과 200). 천 단위 표기라면 쉼표를 지우고 다시 계산하세요.`,
+      );
+    }
+  }
+
   function compute() {
     setStaleNotice(false);
     setError(null);
@@ -88,36 +117,26 @@ export function StatsCalculator() {
     setAmbiguityWarning(null);
     setTtestResult(null);
     setRegressionResult(null);
-    const parsedA = parseNumberListDetailed(textA);
-    const parsedB = parseNumberListDetailed(textB);
-    const a = parsedA.values;
-    const b = parsedB.values;
-    const dropped = parsedA.droppedCount + parsedB.droppedCount;
-    if (dropped > 0) {
-      setDropWarning(`숫자로 읽지 못한 값 ${dropped}개는 제외했습니다.`);
-    }
-    // 쉼표는 천 단위 구분자로도, 값 구분자로도 읽힌다. 어느 쪽으로 읽었는지
-    // 보여줘야 학생이 잘못된 해석(예: 1,200이 1과 200으로 쪼개짐)을 알아챈다.
-    const nameA = mode === "ttest" ? "그룹 A" : "변수 X";
-    const nameB = mode === "ttest" ? "그룹 B" : "변수 Y";
-    const merged: string[] = [];
-    if (parsedA.thousandsMergedCount > 0) merged.push(nameA);
-    if (parsedB.thousandsMergedCount > 0) merged.push(nameB);
-    if (merged.length > 0) {
-      setThousandsNotice(
-        `${merged.join("·")}의 쉼표를 천 단위 구분으로 읽었습니다(1,200 → 1200). 값을 구분하려면 공백이나 줄바꿈을 쓰세요.`,
-      );
-    }
-    const ambiguous: string[] = [];
-    if (parsedA.ambiguousCommaCount > 0) ambiguous.push(nameA);
-    if (parsedB.ambiguousCommaCount > 0) ambiguous.push(nameB);
-    if (ambiguous.length > 0) {
-      setAmbiguityWarning(
-        `${ambiguous.join("·")}의 쉼표 사용이 일관되지 않아 값 구분자로 읽었습니다(1,200 → 1과 200). 천 단위 표기라면 쉼표를 지우고 다시 계산하세요.`,
-      );
-    }
 
     if (mode === "ttest") {
+      // t-검정은 두 집단의 n이 달라도 되는 검정이라 쌍 개념이 없다.
+      // 기존 파싱 경로를 그대로 쓴다.
+      const parsedA = parseNumberListDetailed(textA);
+      const parsedB = parseNumberListDetailed(textB);
+      reportCommaReading(
+        "그룹 A",
+        "그룹 B",
+        parsedA.thousandsMergedCount,
+        parsedB.thousandsMergedCount,
+        parsedA.ambiguousCommaCount,
+        parsedB.ambiguousCommaCount,
+      );
+      const dropped = parsedA.droppedCount + parsedB.droppedCount;
+      if (dropped > 0) {
+        setDropWarning(`숫자로 읽지 못한 값 ${dropped}개는 제외했습니다.`);
+      }
+      const a = parsedA.values;
+      const b = parsedB.values;
       if (a.length < 2 || b.length < 2) {
         setError("각 그룹에 숫자가 2개 이상 필요합니다.");
         return;
@@ -142,27 +161,51 @@ export function StatsCalculator() {
           cohenD: r.cohenD,
         },
       });
-    } else if (mode === "correlation") {
-      if (a.length !== b.length || a.length < 3) {
-        setError(
-          "두 변수의 값 개수가 같아야 하고, 최소 3쌍 이상 필요합니다.",
-        );
-        return;
-      }
-      const r = pearsonCorrelation(a, b);
+      return;
+    }
+
+    // 상관·회귀는 X의 i번째와 Y의 i번째가 같은 관측이어야 한다.
+    // 개수만 세면 양쪽에 빈 칸이 하나씩 있을 때 검사를 통과한 채
+    // 그 아래 전부가 한 칸씩 밀린 쌍으로 계산된다(K3).
+    const paired = parsePairedLists(textA, textB);
+    reportCommaReading(
+      "변수 X",
+      "변수 Y",
+      paired.thousandsMergedCount,
+      0,
+      paired.ambiguousCommaCount,
+      0,
+    );
+
+    if (paired.lengths.x !== paired.lengths.y) {
+      setError(
+        `변수 X는 ${paired.lengths.x}개, 변수 Y는 ${paired.lengths.y}개입니다. 상관·회귀는 X와 Y가 같은 대상에서 나온 짝이어야 하므로 개수가 같아야 합니다.`,
+      );
+      return;
+    }
+    if (paired.issues.length > 0) {
+      const rowSet = new Set(paired.issues.map((i) => i.row));
+      const rows = [...rowSet].sort((a, b) => a - b).slice(0, 5);
+      const more = rowSet.size - rows.length;
+      setError(
+        `${rows.join(", ")}번째 행${more > 0 ? ` 외 ${more}개 행` : ""}에 비어 있거나 숫자가 아닌 값이 있습니다. 그 행을 지우거나 값을 채운 뒤 다시 계산하세요 — 빈 칸을 그냥 건너뛰면 그 아래 쌍이 전부 한 칸씩 밀립니다.`,
+      );
+      return;
+    }
+    if (paired.x.length < 3) {
+      setError("최소 3쌍 이상 필요합니다.");
+      return;
+    }
+
+    if (mode === "correlation") {
+      const r = pearsonCorrelation(paired.x, paired.y);
       if ("error" in r) {
         setError(r.error);
         return;
       }
       setTtestResult({ value: r.r, df: r.df, p: r.p });
     } else {
-      if (a.length !== b.length || a.length < 3) {
-        setError(
-          "두 변수의 값 개수가 같아야 하고, 최소 3쌍 이상 필요합니다.",
-        );
-        return;
-      }
-      const r = simpleLinearRegression(a, b);
+      const r = simpleLinearRegression(paired.x, paired.y);
       if ("error" in r) {
         setError(r.error);
         return;

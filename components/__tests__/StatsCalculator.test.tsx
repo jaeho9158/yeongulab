@@ -128,3 +128,57 @@ describe("StatsCalculator", () => {
     expect(screen.queryByText(/일관되지 않아/)).toBeNull();
   });
 });
+
+// § S5 — 상관·회귀 모드를 계산까지 돌리는 테스트가 하나도 없었다.
+// K3(빈 셀 하나에 그 아래 쌍이 전부 밀림)가 통과한 이유가 정확히 이것이다.
+describe("상관·회귀 (S5, K3)", () => {
+  async function switchTo(
+    user: ReturnType<typeof userEvent.setup>,
+    name: RegExp,
+  ) {
+    await user.click(screen.getByRole("button", { name }));
+  }
+
+  it("상관분석이 실제로 계산된다", async () => {
+    const user = userEvent.setup();
+    render(<StatsCalculator />);
+    await switchTo(user, /상관분석/);
+    await fill(user, "1\n2\n3\n4\n5", "2\n4\n6\n8\n10");
+    await user.click(screen.getByRole("button", { name: /계산하기/ }));
+    // 완전한 양의 선형관계 → r = 1.00
+    expect(await screen.findByText(/r = 1\.00/)).toBeTruthy();
+  });
+
+  it("중간에 빈 칸이 있으면 계산하지 않고 몇 번째 행인지 알린다 (K3 회귀)", async () => {
+    const user = userEvent.setup();
+    render(<StatsCalculator />);
+    await switchTo(user, /상관분석/);
+    // 예전에는 양쪽 길이가 4로 같아져 검사를 통과하고
+    // (1,10) (3,20) (4,40)처럼 어긋난 쌍이 조용히 계산됐다
+    await fill(user, "1\n\n3\n4", "10\n20\n\n40");
+    await user.click(screen.getByRole("button", { name: /계산하기/ }));
+    expect(await screen.findByText(/2, 3번째 행/)).toBeTruthy();
+    expect(screen.queryByText(/r = /)).toBeNull();
+  });
+
+  it("행 수가 다르면 각각 몇 개인지 알린다", async () => {
+    const user = userEvent.setup();
+    render(<StatsCalculator />);
+    await switchTo(user, /상관분석/);
+    await fill(user, "1\n2\n3", "10\n20");
+    await user.click(screen.getByRole("button", { name: /계산하기/ }));
+    expect(
+      await screen.findByText(/변수 X는 3개, 변수 Y는 2개/),
+    ).toBeTruthy();
+  });
+
+  it("회귀도 계산된다", async () => {
+    const user = userEvent.setup();
+    render(<StatsCalculator />);
+    await switchTo(user, /회귀/);
+    await fill(user, "1\n2\n3\n4\n5", "3\n5\n7\n9\n11");
+    await user.click(screen.getByRole("button", { name: /계산하기/ }));
+    // y = 2x + 1
+    expect(await screen.findByText(/기울기/)).toBeTruthy();
+  });
+});

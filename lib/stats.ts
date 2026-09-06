@@ -301,3 +301,91 @@ export function parseNumberListDetailed(text: string): {
     ambiguousCommaCount,
   };
 }
+
+/** 쌍 파싱에서 한 행이 어떤 상태였는지. */
+export type PairIssue = { row: number; side: "x" | "y"; raw: string };
+
+export type PairedParse = {
+  x: number[];
+  y: number[];
+  /** 숫자로 읽지 못했거나 비어 있던 칸 (1-based 행 번호) */
+  issues: PairIssue[];
+  /** 두 열의 행 수 */
+  lengths: { x: number; y: number };
+  thousandsMergedCount: number;
+  ambiguousCommaCount: number;
+};
+
+/**
+ * 한 열의 텍스트를 **행 단위**로 자른다.
+ *
+ * 왜 행 단위인가 — 엑셀에서 열을 복사해 붙여넣으면 빈 셀이 빈 줄로 온다.
+ * 그런데 `tokenizeNumberList`는 `\s+`로 잘라 빈 줄을 통째로 흡수하므로
+ * 그 행이 있었다는 사실 자체가 사라진다(K3). 상관·회귀는 X의 i번째와 Y의
+ * i번째가 같은 관측이라는 전제 위에 서므로, 행이 사라지면 그 뒤 전부가
+ * 한 칸씩 밀린 채 조용히 계산된다.
+ *
+ * 줄바꿈이 없는 입력("12, 15, 14")은 기존 사용법이므로 종전 토크나이저에
+ * 그대로 맡긴다 — 이 경우 빈 칸을 표현할 방법 자체가 없다.
+ */
+function splitColumn(text: string): {
+  cells: string[];
+  thousandsMergedCount: number;
+  ambiguousCommaCount: number;
+} {
+  const normalized = text.replace(/\r\n?/g, "\n");
+  if (!normalized.includes("\n")) {
+    const t = tokenizeNumberList(normalized);
+    return {
+      cells: t.tokens,
+      thousandsMergedCount: t.thousandsMergedCount,
+      ambiguousCommaCount: t.ambiguousCommaCount,
+    };
+  }
+  // 앞뒤의 빈 줄만 떼고 가운데 빈 줄은 '빈 셀'로 보존한다
+  const lines = normalized.split("\n");
+  while (lines.length > 0 && lines[0].trim() === "") lines.shift();
+  while (lines.length > 0 && lines[lines.length - 1].trim() === "") lines.pop();
+  // 행 안의 쉼표 해석은 열 전체를 한 번에 보고 정한다(기존 규칙과 동일)
+  const joined = tokenizeNumberList(lines.join("\n"));
+  const cells = lines.map((line) => tokenizeNumberList(line).tokens[0] ?? "");
+  return {
+    cells,
+    thousandsMergedCount: joined.thousandsMergedCount,
+    ambiguousCommaCount: joined.ambiguousCommaCount,
+  };
+}
+
+/** X·Y 두 열을 인덱스를 맞춰 파싱한다. 못 읽은 칸의 행 번호를 함께 돌려준다. */
+export function parsePairedLists(textX: string, textY: string): PairedParse {
+  const cx = splitColumn(textX);
+  const cy = splitColumn(textY);
+  const n = Math.max(cx.cells.length, cy.cells.length);
+  const x: number[] = [];
+  const y: number[] = [];
+  const issues: PairIssue[] = [];
+  for (let i = 0; i < n; i++) {
+    const rawX = cx.cells[i] ?? "";
+    const rawY = cy.cells[i] ?? "";
+    // Number("")===0 이라 빈 칸이 유령 0이 되는 것을 막는다
+    const vx = rawX === "" ? NaN : Number(rawX);
+    const vy = rawY === "" ? NaN : Number(rawY);
+    const okX = Number.isFinite(vx);
+    const okY = Number.isFinite(vy);
+    if (!okX) issues.push({ row: i + 1, side: "x", raw: rawX });
+    if (!okY) issues.push({ row: i + 1, side: "y", raw: rawY });
+    // 한쪽이라도 못 읽으면 그 행 전체를 버린다 — 쌍이 아니면 쓸 수 없다
+    if (okX && okY) {
+      x.push(vx);
+      y.push(vy);
+    }
+  }
+  return {
+    x,
+    y,
+    issues,
+    lengths: { x: cx.cells.length, y: cy.cells.length },
+    thousandsMergedCount: cx.thousandsMergedCount + cy.thousandsMergedCount,
+    ambiguousCommaCount: cx.ambiguousCommaCount + cy.ambiguousCommaCount,
+  };
+}

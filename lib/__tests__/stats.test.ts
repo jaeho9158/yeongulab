@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   parseNumberListDetailed,
+  parsePairedLists,
   pearsonCorrelation,
   simpleLinearRegression,
   tTestTwoTailedP,
@@ -136,5 +137,53 @@ describe("simpleLinearRegression", () => {
   it("X가 모두 같으면 error", () => {
     const r = simpleLinearRegression([2, 2, 2], [1, 2, 3]);
     expect("error" in r).toBe(true);
+  });
+});
+
+// § K3 — 상관·회귀는 X의 i번째와 Y의 i번째가 같은 관측이라는 전제 위에 선다.
+// 개수만 세면 양쪽에 빈 칸이 하나씩 있을 때 검사를 통과한 채 그 아래 전부가
+// 한 칸씩 밀린 쌍으로 조용히 계산됐다.
+describe("parsePairedLists (K3)", () => {
+  it("정상 두 열은 그대로 쌍이 된다", () => {
+    const r = parsePairedLists("1\n2\n3", "10\n20\n30");
+    expect(r.x).toEqual([1, 2, 3]);
+    expect(r.y).toEqual([10, 20, 30]);
+    expect(r.issues).toEqual([]);
+  });
+
+  it("중간 빈 줄을 흡수하지 않고 그 행을 issue로 남긴다", () => {
+    const r = parsePairedLists("1\n\n3", "10\n20\n30");
+    expect(r.issues.map((i) => [i.row, i.side])).toEqual([[2, "x"]]);
+    // 한쪽이라도 못 읽으면 그 행 전체를 버린다 — 밀리지 않는다
+    expect(r.x).toEqual([1, 3]);
+    expect(r.y).toEqual([10, 30]);
+  });
+
+  it("양쪽에 빈 칸이 하나씩 있어도 쌍이 밀리지 않는다 (K3 회귀)", () => {
+    // 예전에는 X도 Y도 길이 3이 되어 검사를 통과하고
+    // (1,10) (3,20) (4,40)처럼 어긋난 쌍이 계산됐다
+    const r = parsePairedLists("1\n\n3\n4", "10\n20\n\n40");
+    expect(r.lengths).toEqual({ x: 4, y: 4 });
+    expect(r.x).toEqual([1, 4]);
+    expect(r.y).toEqual([10, 40]);
+    expect(new Set(r.issues.map((i) => i.row))).toEqual(new Set([2, 3]));
+  });
+
+  it("빈 칸이 유령 0이 되지 않는다", () => {
+    const r = parsePairedLists("1\n\n3", "10\n\n30");
+    expect(r.x).not.toContain(0);
+    expect(r.y).not.toContain(0);
+  });
+
+  it("행 수가 다르면 lengths로 알린다", () => {
+    const r = parsePairedLists("1\n2\n3", "10\n20");
+    expect(r.lengths).toEqual({ x: 3, y: 2 });
+  });
+
+  it("줄바꿈 없는 기존 입력은 종전대로 읽는다", () => {
+    const r = parsePairedLists("1, 2, 3", "10 20 30");
+    expect(r.x).toEqual([1, 2, 3]);
+    expect(r.y).toEqual([10, 20, 30]);
+    expect(r.issues).toEqual([]);
   });
 });
