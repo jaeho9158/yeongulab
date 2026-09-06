@@ -71,8 +71,8 @@ export default function PrivacyPage() {
         <p>
           &quot;선행연구 검색해보기&quot; 도구를 사용하면 입력한 검색어가 이
           사이트의 서버를 거쳐 외부 학술 검색 API인 Semantic Scholar로
-          전달되고, 요청이 몰려 응답을 받지 못하면 OpenAlex로 대신
-          전달됩니다. 검색어 외의 개인정보는 전달되지 않으며, 검색 기록을
+          전달되고, 응답을 받지 못하면 Crossref, 그래도 실패하면 OpenAlex
+          순으로 전달됩니다. 검색어 외의 개인정보는 전달되지 않으며, 검색 기록을
           서버에 별도로 저장하지 않습니다. 같은 검색어의 결과는 최대 10분간
           서버에 임시 보관(캐시)됩니다.
         </p>
@@ -110,7 +110,10 @@ export default function PrivacyPage() {
             Google(미국) — 방문 통계(GA4)와 광고(AdSense)에 쓰이는 쿠키·접속
             정보
           </li>
-          <li>Semantic Scholar / OpenAlex(미국) — 선행연구 검색어</li>
+          <li>
+            Semantic Scholar(미국) / Crossref(영국) / OpenAlex(미국) — 선행연구
+            검색어
+          </li>
           <li>Vercel(미국) — 사이트 호스팅, 서버 로그</li>
         </ul>
 
