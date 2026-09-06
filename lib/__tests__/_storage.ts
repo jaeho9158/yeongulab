@@ -9,6 +9,11 @@ export type MockStorage = {
 type Options = {
   /** n번째(1-based) setItem부터 throw한다. 0이면 항상 성공 */
   failSetFrom?: number;
+  /**
+   * 이 호출 번호(1-based)에서만 throw한다. `failSetFrom`과 달리 그 뒤 쓰기는
+   * 성공하므로 "복원은 실패하되 롤백은 성공한다"를 표현할 수 있다(K1).
+   */
+  failSetOn?: number[];
   /** getItem이 무조건 throw (프라이빗 모드 시뮬레이션) */
   failGet?: boolean;
   /** 초기 내용 */
@@ -29,7 +34,7 @@ type Options = {
  * defineProperty로 덮은 것은 unstubAllGlobals가 되돌리지 못한다.
  */
 export function installMockStorage(options: Options = {}): MockStorage {
-  const { failSetFrom = 0, failGet = false, seed = {} } = options;
+  const { failSetFrom = 0, failSetOn = [], failGet = false, seed = {} } = options;
   const store = new Map<string, string>(Object.entries(seed));
   const state: MockStorage = { store, setCalls: 0 };
 
@@ -46,7 +51,10 @@ export function installMockStorage(options: Options = {}): MockStorage {
     },
     setItem(k: string, v: string) {
       state.setCalls += 1;
-      if (failSetFrom > 0 && state.setCalls >= failSetFrom) {
+      const hit =
+        (failSetFrom > 0 && state.setCalls >= failSetFrom) ||
+        failSetOn.includes(state.setCalls);
+      if (hit) {
         throw new DOMException("quota", "QuotaExceededError");
       }
       store.set(k, v);
