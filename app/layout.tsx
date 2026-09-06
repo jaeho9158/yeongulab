@@ -25,12 +25,15 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   // "./"는 현재 경로 기준으로 풀린다 — 페이지마다 자기 URL이 canonical이 된다
   alternates: { canonical: "./" },
+  // title·description을 여기에 쓰지 마라(NX1). 하위 세그먼트가 openGraph를
+  // 정의하지 않으면 이 객체가 통째로 상속되고, 런타임의 자동 폴백도
+  // "openGraph에 이미 값이 있으면 페이지 title로 덮어쓰지 않는다"라
+  // 51개 페이지의 og:title이 전부 사이트 제목으로 고정된다.
+  // 비워 두면 각 페이지의 title·description이 그대로 채워진다.
   openGraph: {
     type: "website",
     locale: "ko_KR",
     siteName: SITE_NAME,
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
     url: "./",
   },
   authors: [{ name: OPERATOR.name }],
