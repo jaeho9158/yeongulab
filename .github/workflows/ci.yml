@@ -16,5 +16,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      # LayoutProps·PageProps는 Next이 .next/types에 생성하는 타입이고 그
+      # 디렉터리는 gitignore 대상이다. typecheck 스크립트가 next typegen을
+      # 먼저 돌리므로 CI에서도 타입이 만들어진다 — 로컬은 dev가 남긴 것이
+      # 있어 통과하지만 CI는 npm ci 직후라 없다.
       - run: npm run typecheck
       - run: npm test
