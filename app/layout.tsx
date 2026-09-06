@@ -4,10 +4,9 @@ import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
-import { OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
+import { ADSENSE_CLIENT_ID, OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
-const ADSENSE_CLIENT_ID = "ca-pub-7710727724213886";
 
 // "청소년 연구 6단계 가이드"를 앞에 두는 이유 — "연구랩"은 흔한 일반명사라
 // 그 단어만으로는 검색에 안 걸린다. 실제로 사람들이 찾을 법한 구절(청소년
