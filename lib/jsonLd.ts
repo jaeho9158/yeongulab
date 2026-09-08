@@ -36,7 +36,7 @@ export function articleJsonLd(input: ArticleJsonLdInput): object {
     datePublished: input.updated,
     dateModified: input.updated,
     author: {
-      "@type": "Person",
+      "@type": "Organization",
       name: OPERATOR.name,
     },
     publisher: {

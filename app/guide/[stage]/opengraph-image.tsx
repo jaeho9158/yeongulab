@@ -9,7 +9,7 @@ export function generateStaticParams() {
 import { getStageBySlug } from "@/lib/guide";
 import { loadOgFonts } from "@/lib/ogFont";
 
-export const alt = "연구랩 6단계 가이드";
+export const alt = "연구할Lab 6단계 가이드";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -67,7 +67,7 @@ export default async function Image({
             display: "flex",
           }}
         >
-          {stage ? `${stage.order}단계 · ${stage.title}` : "연구랩 가이드"}
+          {stage ? `${stage.order}단계 · ${stage.title}` : "연구할Lab"}
         </div>
 
         <div
@@ -81,7 +81,7 @@ export default async function Image({
             color: "#6b7076",
           }}
         >
-          연구랩 · 6단계 가이드
+          연구할Lab · 6단계 가이드
         </div>
       </div>
     ),

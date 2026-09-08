@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { buildOnlyCache } from "./contentCache";
+import { buildOnlyCache } from "./contentCache.ts";
 
 /**
  * 자료실 문서 — 6단계 가이드가 '순서'를 다룬다면, 여기는 한 가지 주제를

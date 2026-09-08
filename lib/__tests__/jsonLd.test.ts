@@ -30,14 +30,19 @@ describe("articleJsonLd", () => {
     expect(schema.dateModified).toBe("2026-01-05");
   });
 
-  it("author/publisher가 각각 Person/Organization이다 (경계)", () => {
+  // 운영 주체가 개인이 아니라 단체라, author도 Person이 아니라 Organization이다.
+  // 이 둘이 어긋나면 구조화 데이터가 실제 운영 주체를 잘못 신고한다.
+  it("author/publisher가 모두 Organization이다 (경계)", () => {
     const schema = articleJsonLd({
       title: "t",
       description: "d",
       updated: "2026-01-05",
       path: "/articles/x",
     }) as Record<string, unknown>;
-    expect((schema.author as { "@type": string })["@type"]).toBe("Person");
+    expect((schema.author as { "@type": string })["@type"]).toBe(
+      "Organization",
+    );
+    expect((schema.author as { name: string }).name).toBe("지니어스 클럽");
     expect((schema.publisher as { "@type": string })["@type"]).toBe(
       "Organization",
     );

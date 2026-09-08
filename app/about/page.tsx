@@ -3,10 +3,10 @@ import Link from "next/link";
 import { OPERATOR, SITE_CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "연구랩 소개 — 누가, 왜 만들었나",
+  title: "연구할Lab 소개 — 누가, 왜 만들었나",
   description:
-    "연구랩은 청소년 연구자를 위한 무료 가이드입니다. 지니어스 클럽 회장 황재호가 만들었습니다. 콘텐츠를 어떤 원칙으로 쓰는지, 여러분의 기록을 어떻게 다루는지 밝힙니다.",
-  keywords: ["연구랩 소개", "청소년 연구 가이드", "운영자", "문의", "황재호"],
+    "연구할Lab은 청소년 연구자를 위한 무료 가이드입니다. 지니어스 클럽이 만들고 운영합니다. 콘텐츠를 어떤 원칙으로 쓰는지, 여러분의 기록을 어떻게 다루는지 밝힙니다.",
+  keywords: ["연구할Lab 소개", "청소년 연구 가이드", "운영자", "문의", "지니어스 클럽"],
   authors: [{ name: OPERATOR.name }],
 };
 
@@ -15,7 +15,7 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight text-ink">소개</h1>
       <p className="mt-4 text-[17px] leading-[1.7] text-ink-soft">
-        연구랩은 청소년 연구자가 연구를 처음부터 끝까지 해낼 수 있도록 만든
+        연구할Lab은 청소년 연구자가 연구를 처음부터 끝까지 해낼 수 있도록 만든
         무료 가이드입니다. 로그인도, 결제도, 앱 설치도 필요 없습니다.
       </p>
 
@@ -43,8 +43,8 @@ export default function AboutPage() {
           누가 만들었나
         </h2>
         <p className="mt-3 text-[15px] leading-[1.8] text-ink-soft">
-          {OPERATOR.role} {OPERATOR.name}가 직접 기획하고 만들었습니다.
-          기관이나 회사가 운영하는 사이트가 아니라 개인이 만든 사이트입니다.
+          {OPERATOR.name}이 기획하고 만들었으며, 지금도 {OPERATOR.name}이
+          직접 운영하고 관리합니다.
         </p>
         <p className="mt-3 text-[15px] leading-[1.8] text-ink-soft">
           연구를 직접 해본 경험에서 출발했기 때문에, 교과서적인 설명보다
@@ -104,7 +104,7 @@ export default function AboutPage() {
           운영 비용과 광고
         </h2>
         <p className="mt-3 text-[15px] leading-[1.8] text-ink-soft">
-          연구랩은 무료이며 앞으로도 그럴 예정입니다. 서버 비용을 감당하기
+          연구할Lab은 무료이며 앞으로도 그럴 예정입니다. 서버 비용을 감당하기
           위해 광고를 넣을 수 있고, 그 경우 본문을 가리지 않는 위치에만
           배치합니다. 광고 때문에 내용을 바꾸거나 특정 상품을 권하지
           않습니다.

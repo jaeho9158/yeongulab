@@ -52,7 +52,7 @@ export function SiteNav() {
         );
       })}
 
-      {/* 논문용어사전 — 연구랩 밖의 별도 사이트라 새 창으로 연다 */}
+      {/* 논문용어사전 — 연구할Lab 밖의 별도 사이트라 새 창으로 연다 */}
       <a
         href={GLOSSARY.url}
         target="_blank"

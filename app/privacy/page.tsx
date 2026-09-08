@@ -4,7 +4,7 @@ import { SITE_CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침",
-  description: "연구랩 가이드의 개인정보 처리방침입니다.",
+  description: "연구할Lab의 개인정보 처리방침입니다.",
 };
 
 export default function PrivacyPage() {
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
 
       <div className="prose prose-neutral mt-10 max-w-none prose-headings:font-bold prose-headings:text-ink prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:text-ink prose-a:text-accent prose-a:no-underline hover:prose-a:underline">
         <p>
-          연구랩 가이드(이하 &quot;이 사이트&quot;)는 회원가입이나 로그인
+          연구할Lab(이하 &quot;이 사이트&quot;)는 회원가입이나 로그인
           없이 누구나 이용할 수 있는 무료 서비스입니다. 이 방침은 이 사이트가
           어떤 정보를 어떻게 다루는지 설명합니다.
         </p>

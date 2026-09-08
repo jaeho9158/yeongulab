@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { buildOnlyCache } from "./contentCache";
+import { buildOnlyCache } from "./contentCache.ts";
 
 /**
  * 사례 공유 아카이브 — 학생이 직접 보내온 연구 사례를 검토 후 mdx로 얹는다.

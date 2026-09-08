@@ -49,7 +49,7 @@ const MAILTO_SAFE_LENGTH = 1500;
 function buildText(d: Draft): string {
   const byline = d.anonymous || !d.nickname.trim() ? "익명" : d.nickname.trim();
   const lines = [
-    "[연구랩 사례 공유]",
+    "[연구할Lab 사례 공유]",
     "",
     `표기 이름: ${byline}`,
     `학교급: ${d.schoolLevel}`,
@@ -88,7 +88,7 @@ export function ResearchShowcaseForm() {
   }
 
   const mailHref = `mailto:${SITE_CONTACT_EMAIL}?subject=${encodeURIComponent(
-    "연구랩 사례 공유",
+    "연구할Lab 사례 공유",
   )}&body=${encodeURIComponent(text)}`;
 
   const field =

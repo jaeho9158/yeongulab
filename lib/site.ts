@@ -12,10 +12,10 @@ const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
 
 export const SITE_URL = (
   fromEnv ||
-  (fromVercel ? `https://${fromVercel}` : "https://yeongulab.vercel.app")
+  (fromVercel ? `https://${fromVercel}` : "https://yeonguhallab.kr")
 ).replace(/\/+$/, "");
 
-export const SITE_NAME = "연구랩 가이드";
+export const SITE_NAME = "연구할Lab";
 
 /** 운영자 연락처 — 개인정보처리방침, 외부 API(OpenAlex polite pool) 식별용 */
 export const SITE_CONTACT_EMAIL = "jaeho9158@gmail.com";
@@ -40,14 +40,18 @@ export function adSlotsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_ADSENSE_SLOTS === "on";
 }
 
-/** 운영자 — 소개 페이지와 메타데이터가 같은 값을 쓰도록 한 곳에 둔다. */
+/**
+ * 운영 주체 — 소개 페이지·메타데이터·JSON-LD가 같은 값을 쓰도록 한 곳에 둔다.
+ *
+ * 개인이 아니라 단체다. JSON-LD의 author를 Person이 아니라 Organization으로
+ * 내보내야 하므로(lib/jsonLd.ts) 이름만 바꾸면 안 되고 타입도 함께 봐야 한다.
+ */
 export const OPERATOR = {
-  name: "황재호",
-  role: "지니어스 클럽 회장",
+  name: "지니어스 클럽",
 } as const;
 
 /**
- * 논문용어사전 — 연구랩과 함께 쓰는 별도 사이트.
+ * 논문용어사전 — 연구할Lab과 함께 쓰는 별도 사이트.
  * 헤더 메뉴와 홈 섹션이 같은 값을 쓰도록 주소·문구를 여기 한 곳에 둔다.
  * 좁은 헤더에는 navLabel(짧은 이름)을, 본문에는 name(정식 이름)을 쓴다.
  */

@@ -95,9 +95,9 @@ describe("OG 서브셋 폰트 커버리지", () => {
     const covered = coveredCodePoints(
       fs.readFileSync(path.join(FONT_DIR, "NotoSansKR-Bold.ttf")),
     );
-    // "연구랩"은 모든 OG 이미지에 들어가므로 반드시 있어야 한다.
+    // "연구할Lab"은 모든 OG 이미지에 들어가므로 반드시 있어야 한다.
     // 이게 실패하면 커버리지 부족이 아니라 파서가 잘못된 것이다.
-    for (const ch of "연구랩") {
+    for (const ch of "연구할Lab") {
       expect(covered.has(ch.codePointAt(0)!)).toBe(true);
     }
   });

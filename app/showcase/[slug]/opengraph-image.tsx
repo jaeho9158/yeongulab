@@ -9,7 +9,7 @@ export function generateStaticParams() {
   return getAllShowcases().map((s) => ({ slug: s.slug }));
 }
 
-export const alt = "연구랩 연구 사례";
+export const alt = "연구할Lab 연구 사례";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,7 @@ export default async function Image({
 }) {
   const { slug } = await params;
   const showcase = getShowcaseBySlug(slug);
-  const title = showcase?.title ?? "연구랩 연구 사례";
+  const title = showcase?.title ?? "연구할Lab 연구 사례";
   const { bold, medium } = await loadOgFonts();
 
   // 사례 제목은 자료실 글보다 훨씬 길다(em dash로 앞뒤 절을 잇는 형태라
@@ -78,7 +78,7 @@ export default async function Image({
             color: "#6b7076",
           }}
         >
-          연구랩 · 연구 사례
+          연구할Lab · 연구 사례
         </div>
       </div>
     ),

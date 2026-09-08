@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { buildOnlyCache } from "./contentCache";
+import { buildOnlyCache } from "./contentCache.ts";
 
 const GUIDE_DIR = path.join(process.cwd(), "content", "guide");
 

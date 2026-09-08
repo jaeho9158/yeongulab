@@ -9,7 +9,7 @@ export function generateStaticParams() {
   return getAllArticles().map((a) => ({ slug: a.slug }));
 }
 
-export const alt = "연구랩 자료실";
+export const alt = "연구할Lab 자료실";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,7 @@ export default async function Image({
 }) {
   const { slug } = await params;
   const article = getArticleBySlug(slug);
-  const title = article?.title ?? "연구랩 자료실";
+  const title = article?.title ?? "연구할Lab 자료실";
   const { bold, medium } = await loadOgFonts();
 
   // 제목이 길면(예: "발표와 포스터: 심사장에서 실제로 통하는 것") 기본
@@ -76,7 +76,7 @@ export default async function Image({
             color: "#6b7076",
           }}
         >
-          연구랩 · 자료실
+          연구할Lab · 자료실
         </div>
       </div>
     ),

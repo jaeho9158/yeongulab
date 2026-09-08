@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { loadOgFonts } from "@/lib/ogFont";
 
 // 사이트 기본 OG 이미지 — 문서/단계별 og 파일이 없는 페이지가 이걸 쓴다.
-export const alt = "연구랩 — 청소년 연구 6단계 가이드";
+export const alt = "연구할Lab — 청소년 연구 6단계 가이드";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -47,7 +47,7 @@ export default async function Image() {
             display: "flex",
           }}
         >
-          연구랩
+          연구할Lab
         </div>
 
         <div

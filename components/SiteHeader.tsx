@@ -26,8 +26,8 @@ export function SiteHeader() {
             <path d="M7 7h6M7 10h6M7 13h4" />
           </svg>
           {/* 좁은 폭에서는 워드마크를 감춰 메뉴 폭을 확보한다.
-              sr-only로 남겨 링크의 접근성 이름은 항상 "연구랩"이다. */}
-          <span className="sr-only sm:not-sr-only">연구랩</span>
+              sr-only로 남겨 링크의 접근성 이름은 항상 "연구할Lab"이다. */}
+          <span className="sr-only sm:not-sr-only">연구할Lab</span>
         </Link>
         {/* 메뉴가 화면을 넘치면(아주 좁은 폭) 가로로 밀어 볼 수 있게 둔다.
             테마 토글은 내비게이션이 아니고 항상 눌러야 하므로 밖에 뺀다. */}
