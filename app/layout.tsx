@@ -6,11 +6,14 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_CLIENT_ID, OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
 
-// 연구할Lab 전용 GA4 속성의 웹 스트림(www.yeonguhallab.kr, 스트림 15744491182).
-// 이 값은 GA4 관리 > 데이터 스트림에 적힌 "측정 ID"와 반드시 같아야 한다 —
-// 예전 값(G-DLLMF7BYPR)은 어느 스트림에도 없는 ID였고, 그동안의 방문 기록이
-// 어디에도 쌓이지 않았다. 바꿀 일이 생기면 눈으로 대조하고 바꿔라.
-const GA_MEASUREMENT_ID = "G-TLT7TPCHBG";
+// 이 사이트 전용 GA4 속성(p551091695)의 웹 스트림 15480326634.
+//
+// 이 값을 다른 것으로 바꾸지 마라. 계정에는 사이트가 여럿 섞인 "논문용어사전"
+// 속성이 따로 있어서, 그쪽 스트림 목록만 보면 이 ID가 없는 것처럼 보인다.
+// 실제로는 전용 속성에 2026-08월부터 방문 이력이 쌓여 있고, ID를 갈아끼우면
+// 그 이력과 끊긴다. 확인하려면 속성 선택기에서 "논문용어사전"이 아니라
+// yeongulab 속성을 골라야 한다.
+const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
 
 // "청소년 연구 6단계 가이드"를 앞에 두는 이유 — "연구할Lab"은 아무도 모르는
 // 신규 브랜드라 그 이름만으로는 검색되지 않는다(이전 이름 "연구랩"은 흔한
