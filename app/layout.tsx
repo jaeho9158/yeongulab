@@ -6,7 +6,11 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
 import { ADSENSE_CLIENT_ID, OPERATOR, SITE_NAME, SITE_URL } from "@/lib/site";
 
-const GA_MEASUREMENT_ID = "G-DLLMF7BYPR";
+// 연구할Lab 전용 GA4 속성의 웹 스트림(www.yeonguhallab.kr, 스트림 15744491182).
+// 이 값은 GA4 관리 > 데이터 스트림에 적힌 "측정 ID"와 반드시 같아야 한다 —
+// 예전 값(G-DLLMF7BYPR)은 어느 스트림에도 없는 ID였고, 그동안의 방문 기록이
+// 어디에도 쌓이지 않았다. 바꿀 일이 생기면 눈으로 대조하고 바꿔라.
+const GA_MEASUREMENT_ID = "G-TLT7TPCHBG";
 
 // "청소년 연구 6단계 가이드"를 앞에 두는 이유 — "연구할Lab"은 아무도 모르는
 // 신규 브랜드라 그 이름만으로는 검색되지 않는다(이전 이름 "연구랩"은 흔한
