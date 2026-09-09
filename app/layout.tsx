@@ -45,7 +45,14 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   verification: {
     other: {
-      "naver-site-verification": "65d6516f9b1748e2c9238a53c6d469a728445806",
+      // 두 값을 함께 내보낸다(배열이면 같은 name의 meta가 두 개 렌더된다).
+      // 네이버 소유확인 코드는 등록한 사이트 주소마다 다르게 발급되는데,
+      // 옛 주소(yeongulab.vercel.app)는 애드센스 심사가 진행 중이라 아직
+      // 닫을 수 없다. 하나만 남기면 다른 쪽 등록이 소유확인에서 풀린다.
+      "naver-site-verification": [
+        "c7f1e3c35aa472608a8c9e9f53cf0dd987bed1fc", // www.yeonguhallab.kr
+        "65d6516f9b1748e2c9238a53c6d469a728445806", // yeongulab.vercel.app
+      ],
     },
   },
 };
