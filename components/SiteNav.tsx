@@ -11,6 +11,7 @@ import { GLOSSARY } from "@/lib/site";
  */
 const LINKS = [
   { href: "/guide", prefix: "연구 ", label: "가이드" },
+  { href: "/articles", prefix: "", label: "자료실" },
   { href: "/example", prefix: "", label: "예시" },
   { href: "/activity", prefix: "활동 ", label: "기록" },
 ] as const;
