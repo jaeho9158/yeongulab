@@ -46,8 +46,8 @@ export function PrintableChecklist({ stages }: { stages: StageForPrint[] }) {
         <div>
           <h1 className="text-2xl font-bold text-ink">인쇄용 진행 노트</h1>
           <p className="mt-1 text-sm text-ink-soft">
-            체크리스트 완료 여부와 자가검증 메모를 한 장으로 모았습니다. 아래
-            버튼으로 인쇄하거나 PDF로 저장하세요.
+            체크리스트 완료 여부와 자가검증 메모를 한 장에 모았습니다. 아래
+            버튼을 누르면 인쇄하거나 PDF로 저장할 수 있습니다.
           </p>
         </div>
         <button

@@ -79,8 +79,8 @@ export function PlanExport({ stages }: { stages: ExportableStage[] }) {
           지금까지 기록 내보내기
         </h3>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-          각 단계에서 체크한 항목과 적어둔 생각을 파일 하나로 모아
-          내려받습니다.
+          단계마다 체크한 항목과 적어둔 생각을 파일 하나로 모아
+          내려받아드립니다.
         </p>
       </div>
       <button

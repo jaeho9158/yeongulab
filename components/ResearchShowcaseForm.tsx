@@ -99,10 +99,10 @@ export function ResearchShowcaseForm() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">내 연구 사례 나누기</h2>
       <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-        끝냈든 중간에 멈췄든, 해본 사람의 기록은 다음 사람에게 가장 쓸모가
-        큽니다. 아래를 채우면 보내기 좋은 형태로 정리해 드립니다. 이 도구는
-        아무것도 자동으로 전송하지 않습니다 — 직접 복사하거나 메일 앱을 열어
-        보내야 합니다.
+        끝냈든 중간에 멈췄든, 해본 사람의 기록이 다음 사람에겐 제일 도움이
+        됩니다. 아래를 채우면 보내기 좋게 정리해드려요. 다만 이 도구가
+        알아서 전송하지는 않으니, 직접 복사하거나 메일 앱을 열어 보내야
+        합니다.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

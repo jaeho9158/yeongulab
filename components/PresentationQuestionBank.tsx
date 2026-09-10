@@ -36,8 +36,8 @@ export function PresentationQuestionBank() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">예상 질문 뽑기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        실제 대회 기출이 아니라, 발표·심사에서 자주 나오는 일반적인 질문
-        유형입니다. 답을 미리 생각해보는 연습용으로 쓰세요.
+        실제 대회 기출은 아니고, 발표·심사에서 흔히 나오는 질문 유형을 모아둔
+        것입니다. 답을 미리 정리해두는 연습용으로 쓰면 됩니다.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">

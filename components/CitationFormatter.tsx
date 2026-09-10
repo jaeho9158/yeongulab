@@ -79,8 +79,9 @@ export function CitationFormatter() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">인용 형식 만들어보기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        논문 정보를 입력하면 APA·IEEE 형식으로 조립해줍니다. 저자명 표기
-        방식은 자동 변환하지 않으니, 각 스타일 규칙대로 입력해주세요.
+        논문 정보를 입력하면 APA·IEEE 형식으로 맞춰줍니다. 다만 저자명
+        표기 방식까지 자동으로 바꿔주지는 않으니, 각 스타일 규칙에 맞게
+        직접 입력해주세요.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">

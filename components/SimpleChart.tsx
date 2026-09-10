@@ -103,8 +103,8 @@ export function SimpleChart() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">간이 차트 그리기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        항목명과 값만 넣으면 논문에 바로 붙일 수 있는 SVG 그래프를 만들어
-        줍니다.
+        항목명과 값만 넣으면 논문에 바로 붙일 수 있는 SVG 그래프가
+        나옵니다.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -390,7 +390,7 @@ export function SimpleChart() {
         </div>
       ) : (
         <p className="mt-4 text-sm text-ink-soft">
-          항목 2개 이상, 값도 같은 개수로 입력해주세요.
+          항목은 2개 이상, 값도 그 개수만큼 채워주세요.
         </p>
       )}
     </section>

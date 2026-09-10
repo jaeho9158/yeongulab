@@ -6,7 +6,7 @@ import { StageDurations } from "@/components/StageDurations";
 
 export const metadata: Metadata = {
   title: "내 활동 기록",
-  description: "내 연구 이력을 스스로 돌아보기 위한 활동 기록 페이지입니다.",
+  description: "이 기기에만 저장되는, 내 연구 이력을 스스로 돌아보는 기록 페이지입니다.",
   // 개인 기록 화면 — 검색 색인 제외
   robots: { index: false },
 };

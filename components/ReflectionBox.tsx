@@ -80,7 +80,7 @@ export function ReflectionBox({
         id="reflection-text"
         value={text}
         onChange={(e) => handleChange(e.target.value)}
-        placeholder="여기에 답을 적어보면 다음 단계로 넘어갈 준비가 됐는지 스스로 확인할 수 있습니다."
+        placeholder="여기에 적어보면 다음 단계로 넘어갈 준비가 됐는지 가늠이 됩니다."
         rows={4}
         className="mt-2 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />

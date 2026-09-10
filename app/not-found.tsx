@@ -13,8 +13,8 @@ export default function NotFound() {
         페이지를 찾을 수 없습니다
       </h1>
       <p className="mt-3 max-w-xl text-[15px] leading-[1.7] text-ink-soft">
-        주소가 바뀌었거나 잘못 입력되었을 수 있습니다. 아래에서 원하는 곳으로
-        이동해보세요.
+        주소가 바뀌었거나 잘못 입력되었을 수 있습니다. 아래 링크로 이동해
+        주세요.
       </p>
       <div className="mt-8 flex flex-wrap gap-2">
         <Link

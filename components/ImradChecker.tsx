@@ -113,10 +113,9 @@ export function ImradChecker() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">IMRaD 구조 점검</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        초록이나 전체 초고를 붙여넣으면 섹션 구조를 규칙 기반으로
-        훑어봅니다. AI가 읽고 판단하는 게 아니라 키워드 패턴만 보는
-        참고용 체크입니다 — 정답이 아니라 놓친 게 있는지 확인용으로
-        쓰세요.
+        초록이나 전체 초고를 붙여넣으면 섹션 구조를 훑어봅니다. AI가 읽고
+        판단하는 게 아니라 정해진 키워드 패턴만 찾는 방식이라 정답은
+        아니고, 뭔가 빠뜨린 게 없는지 확인하는 용도로만 써주세요.
       </p>
 
       <textarea

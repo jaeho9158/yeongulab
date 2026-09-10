@@ -146,7 +146,7 @@ export function DisclosureGenerator() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">AI 활용 disclosure 문구 만들기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        어느 범위에서, 어느 정도로 AI를 썼는지 선택하면 투고용 문구를 조립해줍니다.
+        AI를 어디에, 얼마나 썼는지 선택하면 투고용 문구를 만들어줍니다.
       </p>
 
       <div className="mt-4">

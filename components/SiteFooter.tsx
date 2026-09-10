@@ -5,8 +5,8 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-ink">
       <div className="mx-auto max-w-3xl px-4 py-8">
         <p className="text-sm text-ink-soft">
-          연구할Lab은 청소년 연구자를 위한 무료 로드맵입니다. 언제든
-          막힌 단계로 바로 돌아와 다시 봐도 괜찮습니다.
+          연구할Lab은 청소년 연구자를 위한 무료 로드맵입니다. 막히는
+          단계가 있으면 언제든 다시 돌아와서 봐도 괜찮습니다.
         </p>
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-soft">
           <span>© {new Date().getFullYear().toString()} 연구할Lab</span>

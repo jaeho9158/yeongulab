@@ -57,10 +57,11 @@ export function AcademicPhrases() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">논문에 쓰는 영어 표현</h2>
       <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-        영문 초록이나 영문 원고를 쓸 때 반복적으로 쓰이는 문형입니다.{" "}
+        영문 초록이나 원고를 쓸 때 자주 쓰이는 문형을 모아뒀습니다.{" "}
         <code className="rounded bg-surface px-1 text-xs">___</code> 자리에 내
-        연구 내용을 넣으세요. 이런 관용 문형은 그대로 써도 표절이 아니지만,
-        내용이 담긴 문장을 남의 논문에서 통째로 가져오면 표절입니다.
+        연구 내용을 채워 넣으면 됩니다. 이런 관용 문형 자체는 그대로 써도
+        표절이 아니지만, 내용이 담긴 문장을 남의 논문에서 통째로 가져오면
+        표절이 됩니다.
       </p>
 
       <div className="mt-4">

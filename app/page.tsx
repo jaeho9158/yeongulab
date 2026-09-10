@@ -163,9 +163,8 @@ export default function Home() {
             </span>
           </div>
           <p className="mt-2 max-w-lg text-sm leading-[1.7] text-ink-soft">
-            각 단계는 체크리스트와 자가검증 질문으로 끝납니다. 단계를
-            건너뛰거나 보류해도 괜찮습니다 — 이건 진도표가 아니라 참고용
-            가이드입니다.
+            각 단계는 체크리스트와 자가검증 질문으로 끝납니다. 이건 진도표가
+            아니라 참고용 가이드라서, 단계를 건너뛰거나 보류해도 괜찮습니다.
           </p>
 
           <ol className="mt-7 border-b border-line">

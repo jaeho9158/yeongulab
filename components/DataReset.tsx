@@ -28,8 +28,8 @@ export function DataReset() {
       <div>
         <h3 className="text-[15px] font-semibold text-ink">내 기록 전부 삭제</h3>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-          체크리스트, 메모, 레퍼런스, 활동 기록 등 이 브라우저에 저장된 모든
-          기록을 삭제합니다.
+          체크리스트, 메모, 레퍼런스, 활동 기록까지 — 이 브라우저에 저장된
+          기록을 통째로 지웁니다.
         </p>
       </div>
       <button

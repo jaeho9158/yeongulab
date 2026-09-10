@@ -254,8 +254,8 @@ export function StatsCalculator() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">간이 통계 계산기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        숫자만 있으면 바로 계산됩니다. 정밀한 통계 소프트웨어를 대체하진
-        않지만, 방향을 가늠하기엔 충분합니다.
+        숫자만 넣으면 바로 계산됩니다. SPSS나 R 같은 전문 도구를 대신하긴
+        어렵지만, 대략적인 방향 정도는 잡을 수 있어요.
       </p>
 
       <GuideBlock onPick={switchMode} />
@@ -336,7 +336,7 @@ export function StatsCalculator() {
         </div>
       </div>
       <p className="mt-1.5 text-xs text-ink-soft">
-        쉼표, 공백, 줄바꿈 아무거나로 값을 구분하면 됩니다.
+        쉼표든 공백이든 줄바꿈이든, 편한 대로 구분해서 넣으면 됩니다.
       </p>
 
       <button
@@ -350,7 +350,7 @@ export function StatsCalculator() {
       <div aria-live="polite">
         {staleNotice && (
           <p className="mt-3 text-sm text-ink-soft">
-            입력이 바뀌었습니다. 다시 계산하세요.
+            값이 바뀌었으니 다시 계산해주세요.
           </p>
         )}
 
@@ -402,7 +402,7 @@ export function StatsCalculator() {
             <p className="mt-1.5 text-ink-soft">{verdict(mode, ttestResult.p)}</p>
             {resultCopied === "failed" && (
               <p className="mt-1 text-xs text-ink-soft">
-                복사하지 못했습니다. 위 내용을 직접 선택해 복사해주세요.
+                복사가 안 됐네요. 위 내용을 직접 선택해서 복사해주세요.
               </p>
             )}
             <CaveatBlock />

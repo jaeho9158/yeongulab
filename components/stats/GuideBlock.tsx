@@ -39,7 +39,7 @@ export function GuideBlock({ onPick }: { onPick: (mode: Mode) => void }) {
         <div className="mt-3 space-y-3 text-sm">
           <div>
             <p className="text-ink-soft">
-              비교하려는 게 무엇인가요?
+              비교하고 싶은 게 뭔가요?
             </p>
             <div className="mt-1.5 flex flex-wrap gap-3">
               <label className="flex items-center gap-1.5 text-ink">

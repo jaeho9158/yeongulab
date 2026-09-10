@@ -22,16 +22,16 @@ export function SpeechTimer() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">발표 시간 재보기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        발표 대본을 붙여넣으면 평균 말하기 속도(분당 약 {CHARS_PER_MINUTE}자)
-        기준으로 예상 시간을 계산합니다. 실제 발표 속도는 사람마다 달라서
-        참고용입니다.
+        발표 대본을 붙여넣으면 평균 말하기 속도(분당 약 {CHARS_PER_MINUTE}자) 기준으로
+        예상 시간이 나옵니다. 사람마다 말하는 속도가 다르니 참고 정도로만
+        보세요.
       </p>
 
       <textarea
         aria-label="발표 대본 입력"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="발표 대본을 붙여넣어보세요."
+        placeholder="발표 대본을 여기에 붙여넣으세요."
         rows={8}
         className="mt-4 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-accent"
       />

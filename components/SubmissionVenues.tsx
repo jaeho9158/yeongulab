@@ -122,9 +122,9 @@ export function SubmissionVenues() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">투고처 후보 모음</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        청소년 저자를 받는 곳 위주로 모았습니다. 마감월은 대략적인 참고용
-        정보이며, 접수 기간·비용·요건은 자주 바뀌니 투고 전 반드시 공식
-        사이트에서 최신 공고를 확인하세요.
+        청소년 저자도 받아주는 곳들 위주로 모았습니다. 마감월은 대략적인
+        참고치일 뿐이고, 접수 기간이나 비용, 요건은 수시로 바뀌니 투고 전에는
+        꼭 공식 사이트에서 최신 공고부터 확인하세요.
       </p>
       <p className="mt-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs leading-relaxed text-ink-soft">
         <strong className="text-ink">학술지 공통 주의:</strong> 해외 학술지는

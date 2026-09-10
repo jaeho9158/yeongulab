@@ -91,8 +91,8 @@ export function DeadlineTracker() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">마감일 트래커</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        지원하려는 대회·저널의 이름과 마감일을 직접 추가해두면 D-day로
-        보여줍니다. 이 기기의 브라우저에만 저장됩니다.
+        지원하려는 대회나 저널의 이름과 마감일을 넣어두면 D-day로 보여줍니다.
+        저장은 이 기기의 브라우저에만 됩니다.
       </p>
 
       {/* 눈에 보이는 라벨을 단다 — placeholder만 있으면 타이핑을 시작하는

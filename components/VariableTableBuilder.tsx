@@ -50,7 +50,7 @@ export function VariableTableBuilder() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">변수 정의표 만들기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        독립변수·종속변수·통제변수를 정리하면 표 형태(마크다운)로 복사할 수
+        독립변수·종속변수·통제변수를 채워 넣으면 마크다운 표로 복사해갈 수
         있습니다.
       </p>
 

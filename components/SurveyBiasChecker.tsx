@@ -43,9 +43,9 @@ export function SurveyBiasChecker() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">설문 문항 편향 체크</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        설문 문항을 한 줄에 하나씩 붙여넣으면 유도성 표현이 있는지 규칙
-        기반으로 훑어봅니다. 걸리지 않았다고 문제가 없다는 뜻은 아니니
-        참고용으로만 쓰세요.
+        문항을 한 줄에 하나씩 붙여넣으면 유도성 표현이 있는지 몇 가지 규칙으로
+        훑어봐 드립니다. 여기 안 걸렸다고 문제가 없는 건 아니니, 참고 정도로만
+        봐주세요.
       </p>
 
       <textarea

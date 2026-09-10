@@ -6,7 +6,7 @@ import { getAllShowcases } from "@/lib/showcase";
 export const metadata: Metadata = {
   title: "다른 학생들의 연구 사례",
   description:
-    "실제로 연구를 해본 청소년들이 보내온 사례입니다. 어떤 질문을 세웠고, 어떻게 확인했고, 어디서 막혔는지를 그대로 싣습니다.",
+    "실제로 연구를 해본 청소년들이 보내온 사례입니다. 어떤 질문을 세웠는지, 어떻게 확인했는지, 어디서 막혔는지를 그대로 싣습니다.",
   keywords: ["청소년 연구 사례", "탐구보고서 사례", "학생 연구 예시"],
 };
 
@@ -21,9 +21,9 @@ export default function ShowcasePage() {
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight text-ink">연구 사례</h1>
       <p className="mt-4 text-[17px] leading-[1.7] text-ink-soft">
-        직접 해본 사람의 기록입니다. 완성된 연구만 있는 것이 아니라 중간에
-        막힌 이야기도 함께 싣습니다. 잘된 사례보다 막힌 지점이 다음 사람에게
-        더 도움이 되기 때문입니다.
+        직접 해본 사람의 기록입니다. 완성된 연구만 싣지 않고 중간에 막힌
+        이야기도 그대로 남깁니다. 다음 사람에게는 잘된 사례보다 막힌 지점이
+        더 쓸모 있을 때가 많아서입니다.
       </p>
 
       <ol className="mt-9 border-b border-line">

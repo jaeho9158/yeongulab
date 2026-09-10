@@ -162,7 +162,7 @@ export function PlanBackup() {
       <div>
         <h3 className="text-[15px] font-semibold text-ink">다른 기기로 옮기기</h3>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-          파일로 백업해두면 다른 기기·브라우저에서 불러와 이어갈 수 있습니다.
+          파일로 백업해두면 다른 기기나 브라우저에서 불러와 이어서 쓸 수 있습니다.
         </p>
         {status === "error" && (
           <p className="mt-2 text-xs text-danger" role="alert">

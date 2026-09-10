@@ -65,8 +65,8 @@ export function SampleSizeCalculator() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">표본 크기 계산기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        설문·조사를 몇 명한테 돌려야 할지 감이 안 잡힐 때 참고용으로
-        씁니다.
+        설문이나 조사를 몇 명한테 돌려야 할지 감이 안 잡힐 때 참고 삼아
+        쓰는 계산기입니다.
       </p>
       <p className="mt-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs leading-relaxed text-ink-soft">
         이 계산기는 설문·비율 조사용입니다(Cochran 공식). 두 집단 평균
@@ -156,9 +156,9 @@ export function SampleSizeCalculator() {
           </p>
         ) : marginTooLarge ? (
           <p className="text-ink-soft">
-            허용 오차범위가 {marginPercent}%입니다. 퍼센트(%)로 입력했는지
-            확인해주세요 — {MAX_MARGIN_PERCENT}%를 넘는 오차범위는 조사
-            결과에서 읽어낼 수 있는 것이 거의 없습니다. 보통 3~5%를 씁니다.
+            허용 오차범위가 {marginPercent}%인데, 혹시 퍼센트(%)가 아니라
+            소수로 입력하신 건 아닌가요? {MAX_MARGIN_PERCENT}%가 넘으면
+            조사 결과로 뭘 말할 수가 없어집니다. 보통 3~5% 정도를 씁니다.
           </p>
         ) : result !== null ? (
           <>
@@ -168,16 +168,16 @@ export function SampleSizeCalculator() {
             </p>
             {realisticAlternative !== null ? (
               <p className="mt-2 rounded-lg border border-line bg-bg px-3 py-2 text-xs leading-relaxed text-ink">
-                현실적으로 모으기 어려운 인원입니다. 허용 오차범위를
-                퍼센트(%)로 입력했는지 확인해주세요. 예를 들어 0.001은
-                0.001%를 뜻하며 사실상 전수조사에 가깝습니다. 오차범위를 5%로
-                잡으면 약 {realisticAlternative.toLocaleString("ko-KR")}명입니다.
+                이 정도면 사실상 모으기 힘든 인원이에요. 오차범위를
+                퍼센트(%)가 아니라 소수로 넣진 않으셨나요? 0.001은 0.001%라서
+                사실상 전수조사와 다를 게 없습니다. 오차범위를 5%로 잡으면
+                약 {realisticAlternative.toLocaleString("ko-KR")}명이면 됩니다.
               </p>
             ) : null}
             <p className="mt-2 text-xs leading-relaxed text-ink-soft">
-              무작위 표집일 때만 의미가 있고, 편의 표집(내 반 친구들)에는
-              적용되지 않습니다. 오차범위를 10%로 넓히면 약 97명(95% 신뢰수준,
-              예상 비율 50% 기준)입니다.
+              다만 무작위로 뽑았을 때 얘기고, 그냥 아는 친구들에게 돌린
+              편의 표집이라면 이 계산은 의미가 없습니다. 오차범위를 10%까지
+              넓히면 약 97명(95% 신뢰수준, 예상 비율 50% 기준)이면 됩니다.
             </p>
           </>
         ) : (

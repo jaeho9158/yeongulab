@@ -10,14 +10,14 @@ const CLIENT_TIMEOUT_MS = 10000;
 type ErrorKind = "input" | "rate-limit" | "upstream" | "timeout" | "network";
 
 const ERROR_MESSAGES: Record<ErrorKind, string> = {
-  input: "검색어를 확인해주세요. 너무 길거나 비어 있으면 검색할 수 없습니다.",
+  input: "검색어를 확인해주세요. 너무 길거나 비어 있으면 검색이 안 됩니다.",
   "rate-limit":
-    "지금은 검색 요청이 많이 몰려 있습니다. 잠시 후 다시 시도해보세요.",
+    "지금 검색 요청이 많이 몰려 있어요. 잠깐 있다가 다시 눌러주세요.",
   upstream:
-    "외부 학술 검색 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해보세요.",
+    "외부 학술 검색 서비스에 일시적인 문제가 생긴 것 같습니다. 잠시 후 다시 시도해주세요.",
   timeout:
-    "응답이 너무 오래 걸려 검색을 중단했습니다. 키워드를 줄이거나 잠시 후 다시 시도해보세요.",
-  network: "검색 서비스에 연결하지 못했습니다. 인터넷 연결을 확인해주세요.",
+    "응답이 너무 오래 걸려서 검색을 멈췄습니다. 키워드를 줄여보거나 조금 뒤에 다시 해보세요.",
+  network: "검색 서비스에 연결이 안 됩니다. 인터넷 연결을 확인해주세요.",
 };
 
 /** 예시 검색 칩 — 세 소스 모두에서 관련 결과가 잘 나오는 것을 확인한 키워드. */
@@ -110,8 +110,8 @@ export function PriorResearchSearch() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">선행연구 검색해보기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Semantic Scholar 학술 검색 API로 키워드를 검색합니다(요청이 몰리면
-        Crossref로 대신 검색). 계정 없이 바로 써볼 수 있습니다.
+        Semantic Scholar 학술 검색 API로 키워드를 찾아줍니다(요청이 몰릴 때는
+        Crossref로 대신 검색해요). 계정 없이 바로 쓸 수 있습니다.
       </p>
       <form onSubmit={search} className="mt-4 flex flex-wrap gap-2">
         <input
@@ -186,7 +186,7 @@ export function PriorResearchSearch() {
 
       {status === "done" && results.length === 0 && (
         <p className="mt-4 text-sm text-ink-soft">
-          검색 결과가 없습니다. 다른 키워드로 시도해보세요.
+          검색 결과가 없습니다. 다른 키워드로 한번 바꿔보세요.
         </p>
       )}
 

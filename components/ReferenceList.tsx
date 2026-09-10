@@ -64,7 +64,7 @@ export function ReferenceList() {
       {refs.length === 0 ? (
         <p className="mt-4 text-sm text-ink-soft">
           아직 저장된 레퍼런스가 없습니다. 위 검색 결과나 인용 형식 도구에서
-          &quot;저장&quot;을 눌러보세요.
+          &quot;저장&quot;을 눌러두면 여기 쌓입니다.
         </p>
       ) : (
         <ul className="mt-4 space-y-3">

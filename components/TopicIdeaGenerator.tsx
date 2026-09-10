@@ -32,9 +32,9 @@ export function TopicIdeaGenerator() {
     <section className="card mt-10 px-5 py-5 sm:px-6 sm:py-6">
       <h2 className="text-lg font-bold text-ink">연구주제 아이디어 뽑기</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        관심 분야를 고르고 뽑아보면 조합을 무작위로 던져줍니다. 실제
-        정답이 아니라 생각을 틔우기 위한 브레인스토밍용 프롬프트입니다 —
-        나온 조합을 그대로 쓰기보다 힌트로 삼아 다듬어보세요.
+        관심 분야를 고르고 뽑기 버튼을 누르면 조합을 무작위로 던져줍니다.
+        정답이 아니라 생각을 틔우려는 용도라서, 나온 조합을 그대로 쓰기보단
+        힌트 삼아 다듬는 편이 좋습니다.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
