@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { getAllShowcases, getShowcaseBySlug } from "@/lib/showcase";
 import { getAllStages } from "@/lib/guide";
 import { articleJsonLd, breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
 
 // 사례가 0편이면 생성할 경로도 없다. dynamicParams를 꺼서 없는 slug 요청이
 // 서버 렌더로 새지 않고 정적으로 404가 되게 한다.
@@ -89,11 +90,7 @@ export default async function ShowcaseDetailPage({
             mdxOptions: { remarkPlugins: [[remarkGfm, { singleTilde: false }]] },
           }}
           components={{
-            table: (props) => (
-              <div className="overflow-x-auto">
-                <table {...props} className="min-w-max" />
-              </div>
-            ),
+            table: ResponsiveTable,
           }}
         />
       </div>

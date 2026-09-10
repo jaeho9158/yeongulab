@@ -107,13 +107,13 @@ describe("SampleSizeCalculator", () => {
     render(<SampleSizeCalculator />);
     await fillMargin(user, "0.001");
     expectAnswer("9,604,000,000명");
-    expect(screen.getByText(/현실적으로 모으기 어려운 인원입니다/)).toBeTruthy();
+    expect(screen.getByText(/사실상 모으기 힘든 인원이에요/)).toBeTruthy();
     expect(screen.getByText(/오차범위를 5%로\s*잡으면 약 385명/)).toBeTruthy();
   });
 
   it("현실적인 규모에는 경고를 띄우지 않는다 (경계)", () => {
     render(<SampleSizeCalculator />);
-    expect(screen.queryByText(/현실적으로 모으기 어려운 인원입니다/)).toBeNull();
+    expect(screen.queryByText(/사실상 모으기 힘든 인원이에요/)).toBeNull();
   });
 
   it("큰 결과에 천 단위 구분이 적용된다", async () => {
@@ -147,7 +147,7 @@ describe("오차범위 상한 (L6)", () => {
     render(<SampleSizeCalculator />);
     await setMargin(user, "500");
     expect(
-      await screen.findByText(/퍼센트\(%\)로 입력했는지/),
+      await screen.findByText(/퍼센트\(%\)가 아니라\s*소수로 입력하신 건 아닌가요/),
     ).toBeTruthy();
     expect(screen.queryByText(/1명/)).toBeNull();
   });
@@ -156,7 +156,7 @@ describe("오차범위 상한 (L6)", () => {
     const user = userEvent.setup();
     render(<SampleSizeCalculator />);
     await setMargin(user, "50");
-    expect(await screen.findByText(/20%를 넘는/)).toBeTruthy();
+    expect(await screen.findByText(/20%가 넘으면/)).toBeTruthy();
   });
 
   it("오차범위 20%는 그대로 계산한다 (경계)", async () => {

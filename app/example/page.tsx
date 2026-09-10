@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
 
 export const metadata: Metadata = {
   title: "연구 과정 한눈에 보기 — 예시로 따라가는 6단계",
@@ -175,12 +176,10 @@ export default function ExamplePage() {
         <p className="mt-5 text-sm font-semibold text-ink">
           변수 표 (&lsquo;변수 정의표 만들기&rsquo; 도구로 복사한 형식)
         </p>
-        <div className="mt-2 overflow-x-auto">
-          {/* w-full이면 표가 컨테이너보다 넓어질 수 없어 overflow-x-auto가 절대
-              발동하지 않고 칸만 눌린다(320px에서 3열 셀이 세로로 접힘).
-              min-w-max로 내용만큼 넓어지게 해야 좁은 화면에서 실제로 가로
-              스크롤된다 — app/guide/[stage]/page.tsx의 MDX 표와 같은 처리다. */}
-          <table className="min-w-max text-sm">
+        {/* 좁은 화면에서는 ResponsiveTable이 행을 세로 카드로 쌓아
+            가로 스크롤 없이 보여준다 — MDX 표와 같은 처리(components/ResponsiveTable.tsx) */}
+        <div className="mt-2">
+          <ResponsiveTable className="text-sm">
             <thead>
               <tr className="border-b border-line text-left text-ink">
                 <th className="py-2 pr-4 font-semibold">변수명</th>
@@ -215,7 +214,7 @@ export default function ExamplePage() {
                 <td className="py-2">2분 고정 (타이머)</td>
               </tr>
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>
         <p className="mt-5 text-sm text-ink-soft">
           <strong className="text-ink">연구윤리:</strong> 사람을 대상으로 하는

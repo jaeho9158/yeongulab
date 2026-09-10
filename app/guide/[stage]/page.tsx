@@ -10,6 +10,7 @@ import { ChecklistCard } from "@/components/ChecklistCard";
 import { ReflectionBox } from "@/components/ReflectionBox";
 import { StageRail } from "@/components/StageRail";
 import { ToolAccordion } from "@/components/StageTools";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { getToolCount } from "@/lib/stageToolMeta";
 import { breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
 
@@ -131,15 +132,7 @@ export default async function GuideStagePage({
                   {...props}
                 />
               ),
-              table: (props) => (
-                <div className="overflow-x-auto">
-                  {/* prose의 기본 table 스타일이 width:100%라 화면보다 넓어질 일이
-                      없어 overflow-x-auto가 절대 발동하지 않고 칸만 눌린다.
-                      min-w-max로 표가 내용만큼 넓어지게 해야 좁은 화면에서
-                      실제로 가로 스크롤된다. */}
-                  <table {...props} className="min-w-max" />
-                </div>
-              ),
+              table: ResponsiveTable,
             }}
           />
         </div>

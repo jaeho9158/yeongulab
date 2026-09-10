@@ -14,12 +14,13 @@ beforeEach(() => {
 });
 
 describe("SiteNav", () => {
-  it("내부 3개 + 논문용어사전 = 4개 항목을 보여준다 (정상)", () => {
+  it("내부 4개 + 논문용어사전 = 5개 항목을 보여준다 (정상)", () => {
     render(<SiteNav />);
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(5);
     // 좁은 화면 축약형이 항상 남는 부분이라 이 글자로 찾는다
     expect(screen.getByText(/가이드/)).toBeTruthy();
+    expect(screen.getByText(/자료실/)).toBeTruthy();
     expect(screen.getByText(/예시/)).toBeTruthy();
     expect(screen.getByText(/기록/)).toBeTruthy();
     expect(screen.getByText(/용어사전/)).toBeTruthy();

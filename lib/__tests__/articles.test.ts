@@ -95,6 +95,10 @@ describe("카테고리별 문서 순서", () => {
       "right-sized-topic",
       "replication-is-research",
       "public-data-topics",
+      "research-concepts",
+      "student-friendly-research-types",
+      "claims-and-evidence",
+      "staying-in-research",
     ]);
   });
 
@@ -109,6 +113,9 @@ describe("카테고리별 문서 순서", () => {
       "figure-first",
       "borrowing-methods",
       "scholar-alerts",
+      "research-gap",
+      "research-tools",
+      "academic-vocabulary",
     ]);
   });
 
@@ -121,6 +128,9 @@ describe("카테고리별 문서 순서", () => {
       "research-ethics",
       "lab-notebook",
       "archiving-by-semester",
+      "quant-vs-qual",
+      "research-plan-and-contact",
+      "theory-and-method-design",
     ]);
   });
 
@@ -132,6 +142,9 @@ describe("카테고리별 문서 순서", () => {
       "abstract-and-title",
       "presentation",
       "finding-calls",
+      "building-the-argument",
+      "revision-and-feedback",
+      "research-portfolio",
     ]);
   });
 });
@@ -149,9 +162,15 @@ describe("getAdjacentInCategory", () => {
     expect(next?.slug).toBe("presentation");
   });
 
-  it("카테고리 마지막 글(scholar-alerts)은 next가 없다", () => {
+  it("scholar-alerts는 이제 마지막이 아니라 research-gap으로 이어진다", () => {
     const { prev, next } = getAdjacentInCategory("scholar-alerts");
     expect(prev?.slug).toBe("borrowing-methods");
+    expect(next?.slug).toBe("research-gap");
+  });
+
+  it("카테고리 마지막 글(academic-vocabulary)은 next가 없다", () => {
+    const { prev, next } = getAdjacentInCategory("academic-vocabulary");
+    expect(prev?.slug).toBe("research-tools");
     expect(next).toBeUndefined();
   });
 

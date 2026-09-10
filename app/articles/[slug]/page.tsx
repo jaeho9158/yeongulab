@@ -11,6 +11,7 @@ import {
 import { extractHeadings } from "@/lib/guide";
 import { getAllStages } from "@/lib/guide";
 import { articleJsonLd, breadcrumbJsonLd, serializeJsonLd } from "@/lib/jsonLd";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
 
 export function generateStaticParams() {
   return getAllArticles().map((article) => ({ slug: article.slug }));
@@ -140,11 +141,7 @@ export default async function ArticlePage({
                 className="scroll-mt-24"
               />
             ),
-            table: (props) => (
-              <div className="overflow-x-auto">
-                <table {...props} className="min-w-max" />
-              </div>
-            ),
+            table: ResponsiveTable,
           }}
         />
       </div>

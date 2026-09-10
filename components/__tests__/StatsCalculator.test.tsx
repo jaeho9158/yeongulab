@@ -67,7 +67,7 @@ describe("StatsCalculator", () => {
     await fill(user, "12 15 14", "13 14 15");
     expect(screen.queryByText(/t = -4\.287/)).toBeNull();
     expect(screen.queryByRole("button", { name: "결과 복사" })).toBeNull();
-    expect(screen.getByText("입력이 바뀌었습니다. 다시 계산하세요.")).toBeTruthy();
+    expect(screen.getByText("값이 바뀌었으니 다시 계산해주세요.")).toBeTruthy();
   });
 
   it("아주 작은 p는 .0000이 아니라 p < .001로 나온다", async () => {

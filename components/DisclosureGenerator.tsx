@@ -8,14 +8,42 @@ import Link from "next/link";
 const STORAGE_KEY = "research-guide:disclosure";
 
 const OPTIONS = [
-  { key: "draft", label: "초안 작성 보조 (문장 구조·표현 제안)" },
-  { key: "translate", label: "번역 (외국어 자료 번역·요약)" },
-  { key: "grammar", label: "문법·맞춤법 교정" },
-  { key: "analysis", label: "데이터 분석 코드 작성·디버깅" },
-  { key: "brainstorm", label: "아이디어 브레인스토밍 보조" },
-  { key: "statInterpret", label: "통계 분석 결과 해석 보조" },
-  { key: "citations", label: "참고문헌 형식 정리" },
-  { key: "slides", label: "발표자료/슬라이드 구성 제안" },
+  {
+    key: "draft",
+    label: "초안 작성 보조 (문장 구조·표현 제안)",
+    discloseLabel: "초안 작성 보조",
+  },
+  {
+    key: "translate",
+    label: "번역 (외국어 자료 번역·요약)",
+    discloseLabel: "번역",
+  },
+  { key: "grammar", label: "문법·맞춤법 교정", discloseLabel: "문법·맞춤법 교정" },
+  {
+    key: "analysis",
+    label: "데이터 분석 코드 작성·디버깅",
+    discloseLabel: "데이터 분석 코드 작성·디버깅",
+  },
+  {
+    key: "brainstorm",
+    label: "아이디어 브레인스토밍 보조",
+    discloseLabel: "아이디어 브레인스토밍 보조",
+  },
+  {
+    key: "statInterpret",
+    label: "통계 분석 결과 해석 보조",
+    discloseLabel: "통계 분석 결과 해석 보조",
+  },
+  {
+    key: "citations",
+    label: "참고문헌 형식 정리",
+    discloseLabel: "참고문헌 형식 정리",
+  },
+  {
+    key: "slides",
+    label: "발표자료/슬라이드 구성 제안",
+    discloseLabel: "발표자료·슬라이드 구성 제안",
+  },
 ] as const;
 
 /**
@@ -93,9 +121,12 @@ export function DisclosureGenerator() {
     }
   }, [seeded]);
 
+  // 문구에는 UI용 설명 괄호(label)가 아니라 discloseLabel을 쓴다 — label을
+  // 그대로 쓰면 "초안 작성 보조 (문장 구조·표현 제안)(제한적으로 참고하였다)"처럼
+  // 괄호가 연달아 붙어 투고 문서에 그대로 넣기 어색한 문장이 나왔다.
   const selected = OPTIONS.filter(
     (o) => usage[o.key] && usage[o.key] !== "none",
-  ).map((o) => `${o.label}(${usagePhrase(usage[o.key])})`);
+  ).map((o) => `${o.discloseLabel} (${usagePhrase(usage[o.key])})`);
 
   const today = hydrated ? new Date().toLocaleDateString("ko-KR") : "";
 
