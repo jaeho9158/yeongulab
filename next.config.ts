@@ -15,6 +15,21 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
+  // 2026-09-09 새 도메인(yeonguhallab.kr)으로 이전한 뒤, 옛 Vercel 기본 도메인이
+  // canonical 태그만 새 도메인을 가리킨 채 계속 살아 있었다(중복 노출).
+  // 구글이 도메인 이전 신호를 canonical만으로는 느리게 받아들이므로 진짜
+  // 301(영구 리다이렉트)을 건다. host를 정확히 이 값으로만 매칭해 미리보기
+  // 배포(*-git-*.vercel.app 등)는 건드리지 않는다.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "yeongulab.vercel.app" }],
+        destination: "https://www.yeonguhallab.kr/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
