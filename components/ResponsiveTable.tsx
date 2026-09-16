@@ -9,8 +9,13 @@ import { useEffect, useRef } from "react";
  *
  * 라벨은 마크다운을 다시 파싱하지 않고 렌더된 DOM에서 thead th 텍스트를
  * 그대로 옮겨온다 — 표마다 별도 매핑을 만들 필요가 없고, 표 내용이 바뀌어도
- * 항상 실제 헤더와 일치한다. md 이상에서는 평소 표 그대로 보여주고,
- * 그래도 넘치는 표(예: 6열 이상)는 overflow-x-auto로 마지막 안전망을 둔다.
+ * 항상 실제 헤더와 일치한다.
+ *
+ * md 이상에서는 표가 본문 폭에 맞춰 줄바꿈된다. 예전에는 여기에 md:min-w-max를
+ * 붙였는데, 그건 min-width를 max-content로 만들어 셀 안의 긴 문장이 **줄바꿈을
+ * 아예 못 하게** 했다. 그래서 3열짜리 표도 본문 폭(max-w-3xl)을 넘겨 가로
+ * 스크롤이 생겼다. 폭을 강제하지 않아야 표가 화면 안에 들어온다.
+ * overflow-x-auto는 그래도 안 되는 경우(열이 아주 많은 표)를 위한 안전망으로 남긴다.
  */
 export function ResponsiveTable(
   props: React.TableHTMLAttributes<HTMLTableElement>,
@@ -32,14 +37,9 @@ export function ResponsiveTable(
     });
   }, [props.children]);
 
-  const { className, ...rest } = props;
-
   return (
     <div ref={wrapRef} className="responsive-table overflow-x-auto">
-      <table
-        {...rest}
-        className={className ? `md:min-w-max ${className}` : "md:min-w-max"}
-      />
+      <table {...props} />
     </div>
   );
 }
