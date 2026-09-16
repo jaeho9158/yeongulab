@@ -3,10 +3,18 @@
 
 :root {
   --bg: #ffffff;
-  --surface: #f7f7f8;
+  --surface: #f1f2f4;
+  --card: #ffffff;
   --ink: #17181a;
   --ink-soft: #6b7076;
-  --line: #e6e7e9;
+  /* 경계선은 배경과 눈에 띄게 구분돼야 한다 — 예전 #e6e7e9는 흰 배경 대비가
+     1.2:1이라 선이 있다는 것 자체가 안 읽혔다(피드백: "구분되는 경계가 없다").
+     #d0d3d7 대 --bg #ffffff = 1.9:1. */
+  --line: #d0d3d7;
+  /* 카드를 배경 위로 살짝 띄우는 그림자 — 라이트 전용. 어두운 배경에서는
+     그림자가 보이지 않으므로 다크에서는 none으로 두고 면·선 대비로만 구분한다. */
+  --shadow-card:
+    0 1px 2px rgb(16 17 19 / 0.05), 0 1px 3px rgb(16 17 19 / 0.04);
   --accent: #2f6f4f; /* 차분한 그린 accent, 포인트로만 사용 */
   --accent-contrast: #ffffff;
   /* 오류 문구 색 — 라이트/다크에서 각각 AA(4.5:1)를 넘겨야 해서 토큰으로 둔다.
@@ -25,6 +33,7 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-card: var(--card);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-line: var(--line);
@@ -40,10 +49,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #101113;
-    --surface: #17181b;
+    --surface: #1a1c20;
+    --card: #191b1e;
     --ink: #f2f3f4;
     --ink-soft: #93989e;
-    --line: #2a2c2f;
+    --line: #3a3e43;
+    --shadow-card: none;
     --accent: #4fa377;
     --accent-contrast: #0a1410;
     /* #dc2626은 어두운 --bg(#101113)에서 3.91:1로 AA 미달이라
@@ -55,10 +66,12 @@
 /* 사용자가 다크를 명시로 고르면 시스템 설정과 무관하게 항상 적용 */
 :root[data-theme="dark"] {
   --bg: #101113;
-  --surface: #17181b;
+  --surface: #1a1c20;
+  --card: #191b1e;
   --ink: #f2f3f4;
   --ink-soft: #93989e;
-  --line: #2a2c2f;
+  --line: #3a3e43;
+  --shadow-card: none;
   --accent: #4fa377;
   --accent-contrast: #0a1410;
   --danger: #f87171; /* 다크에서 AA를 넘기는 오류색 — 6.83:1 */
@@ -98,9 +111,10 @@ body {
 }
 
 .card {
-  background: var(--bg);
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 0.75rem;
+  box-shadow: var(--shadow-card);
 }
 
 .note-box {

@@ -73,18 +73,25 @@ export default function ToolsPage() {
 
         return (
           <section key={stage.slug} className="mt-10">
-            <h2 className="font-label text-sm font-semibold tracking-wide text-accent">
-              {stage.order}단계 · {stage.title}
+            {/* 단계 번호를 배지로 떼어내 이 줄이 '묶음의 머리'로 읽히게 한다 —
+                작은 회색 한 줄이던 예전 형태는 아래 목록과 구분되지 않았다 */}
+            <h2 className="flex items-center gap-2.5 text-[17px] font-bold tracking-tight text-ink">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line bg-surface font-label text-[13px] font-semibold text-accent">
+                {stage.order}
+              </span>
+              {stage.title}
             </h2>
             <p className="mt-2 text-[15px] leading-[1.7] text-ink-soft">
               {STAGE_TOOL_INTROS[stage.slug]}
             </p>
-            <ol className="mt-4 border-b border-line">
+            {/* 단계별 도구를 카드 하나로 묶는다. 예전에는 위아래 실선만 있어
+                24개가 한 줄기로 이어져 보였다(어디까지가 한 단계인지 불명확). */}
+            <ol className="card mt-4 overflow-hidden">
               {titles.map((title) => (
-                <li key={title} className="border-t border-line">
+                <li key={title} className="border-t border-line first:border-t-0">
                   <Link
                     href={`/guide/${stage.slug}#tools`}
-                    className="group block py-4"
+                    className="group block px-5 py-4 transition hover:bg-surface"
                   >
                     <span className="block text-[17px] font-semibold text-ink transition group-hover:text-accent">
                       {title}
