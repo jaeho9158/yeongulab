@@ -50,7 +50,7 @@
 | --- | --- | --- |
 | S6 | `[ ]` frontmatter 필수 필드 검증이 `category` 하나뿐. guide·showcase는 throw 0개 | S |
 | S7 | `[ ]` **LICENSE 없음.** 인쇄 배포를 전제하면서 조건을 안 밝힌 상태 | S |
-| T6 | `[ ]` sitemap과 robots가 서로 다른 진실을 갖고 있다. `app/` 테스트 0개 | S |
+| T6 | `[x]` sitemap과 robots가 서로 다른 진실을 갖고 있다. `app/` 테스트 0개 | S |
 | T10 | `[ ]` 외부 URL 부패 감시 없음(현재 7개 전부 200). `npm run linkcheck` | S |
 | T11 | `[ ]` 배포 후 점검이 전부 수동이고 절차조차 없음 | M |
 | T12 | `[ ]` `MAINTENANCE_REPORT.md`가 두 번째 진실 원본이 되고 있다 | S |
@@ -78,7 +78,7 @@
 
 | ID | 한 줄 | 난이도 |
 | --- | --- | --- |
-| A2 | `[ ]` sitemap `lastModified`가 40여 URL 공유 → 문서별 날짜로 | S |
+| A2 | `[x]` sitemap `lastModified`가 40여 URL 공유 → 문서별 날짜로 | S |
 | T13 | `[ ]` 사례 6편 `published`가 전부 같은 날이라 A2를 고쳐도 그대로 | S |
 | M4 | `[ ]` 사례 정렬이 완전 동점이라 파일시스템 순서. `01-` 접두사 중복 | S |
 | A3 | `[ ]` Article JSON-LD에 `image` 없음(OG 라우트가 생겨 이제 아는 값) | S |

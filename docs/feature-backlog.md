@@ -32,7 +32,7 @@
 
 **평가**: 라운드 1 최고 가성비. 이미 만든 기능이 연결만 안 돼 있는 상태다.
 
-### A2. sitemap `lastModified`를 문서별 날짜로 `[ ]` S
+### A2. sitemap `lastModified`를 문서별 날짜로 `[x]` S — 2026-09-23 적용 (글 updated·사례 published, 단계·정적은 빌드 시각 유지)
 
 `app/sitemap.ts:8`의 `const lastModified = new Date()`를 40여 URL이 공유한다.
 배포마다 31편 전부가 "방금 수정됨"으로 나가면 크롤러가 이 신호를 버린다.
@@ -1360,7 +1360,7 @@ H5(자가검증 완료 판정)가 채택돼 있는데, 판정 불가능한 질�
 - 정규식으로 뽑아 (a) `TOOL_IDS`에 있는가 (b) `STAGE_TOOL_TITLES[해당 단계]`에 있는가
 - S4와 같은 테스트 파일
 
-### T6. sitemap과 robots가 서로 다른 진실을 갖고 있다 `[ ]` S
+### T6. sitemap과 robots가 서로 다른 진실을 갖고 있다 `[x]` S — 2026-09-23 app/__tests__/sitemap.test.ts (robots 차단 경로 ∉ sitemap, 중복 없음)
 
 `app/` 아래 테스트가 **0개**다. `sitemap.ts`·`robots.ts`가 전부 미검증이다.
 
