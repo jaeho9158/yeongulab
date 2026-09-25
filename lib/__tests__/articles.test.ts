@@ -99,6 +99,7 @@ describe("카테고리별 문서 순서", () => {
       "student-friendly-research-types",
       "claims-and-evidence",
       "staying-in-research",
+      "rne-topic-guide",
     ]);
   });
 
@@ -145,6 +146,7 @@ describe("카테고리별 문서 순서", () => {
       "building-the-argument",
       "revision-and-feedback",
       "research-portfolio",
+      "research-report-howto",
     ]);
   });
 });

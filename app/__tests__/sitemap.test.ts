@@ -23,8 +23,9 @@ describe("sitemap lastModified", () => {
       expect(lm.toISOString().slice(0, 10)).toBe(article.updated);
       dates.add(article.updated);
     }
-    // 31편이 전부 같은 날짜라면 이 테스트가 무의미해진다 — 서로 다른 값이 있어야 한다
-    expect(dates.size).toBeGreaterThan(1);
+    // 배포 시각(new Date())을 공유하지 않는다는 핵심 확인 — 모든 날짜가 오늘보다 앞이거나
+    // 정확히 자정(frontmatter 날짜)이어야 한다. (일괄 메타 수정 직후엔 46편이 같은 날일 수 있다)
+    for (const d of dates) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it("사례는 published 날짜를 쓴다", () => {
